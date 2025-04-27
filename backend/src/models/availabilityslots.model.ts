@@ -5,7 +5,9 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface IAvailabilitySlot extends Document {
   doctor_id: mongoose.Types.ObjectId;
   date: Date;
-  time_slots: string[]; // ["08:00", "08:30", "09:00"]
+  start_time: string;
+  end_time: string;
+  is_booked: boolean;
 }
 
 const AvailabilitySlotSchema: Schema = new Schema(
@@ -16,7 +18,9 @@ const AvailabilitySlotSchema: Schema = new Schema(
       required: true,
     },
     date: { type: Date, required: true },
-    time_slots: [{ type: String }],
+    start_time: { type: String, required: true },
+    end_time: { type: String, required: true },
+    is_booked: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
