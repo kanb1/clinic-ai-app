@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import pingRoutes from "./routes/ping.routes";
 import { connectDB } from "./config/db";
 // Routes
+import authRoutes from "./routes/auth.routes";
 import clinicRoutes from "./routes/clinic.routes";
 
 dotenv.config();
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use("/api/ping", pingRoutes);
 
 // Routes
+app.use("/api/auth", authRoutes);
 app.use("/api/clinics", clinicRoutes);
 
 app.listen(PORT, () => {
