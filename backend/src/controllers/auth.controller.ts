@@ -69,6 +69,8 @@ export const login = async (req: Request, res: Response) => {
       throw new Error("Missing JWT_SECRET environment variable");
     }
 
+    // hemmelig signatur-kode som sidste del af toket "header . payload . signature"
+    // ingen kan ændre token
     const token = jwt.sign(
       {
         userId: user._id,

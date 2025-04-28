@@ -1,8 +1,10 @@
 import { Router } from "express";
-import { getPing } from "../controllers/ping.controller";
+import { authenticateJWT } from "../middleware/authenticateJWT.middleware";
 
 const router = Router();
 
-router.get("/", getPing);
+router.get("/protected", authenticateJWT, (req, res) => {
+  res.json({ message: "Protected route accessed", user: req.user });
+});
 
 export default router;

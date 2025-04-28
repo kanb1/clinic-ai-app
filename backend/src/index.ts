@@ -6,6 +6,7 @@ import { connectDB } from "./config/db";
 // Routes
 import authRoutes from "./routes/auth.routes";
 import clinicRoutes from "./routes/clinic.routes";
+import "./middleware/authenticateJWT.middleware";
 
 dotenv.config();
 
