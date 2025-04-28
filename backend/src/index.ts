@@ -3,6 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import pingRoutes from "./routes/ping.routes";
 import { connectDB } from "./config/db";
+// Routes
+import clinicRoutes from "./routes/clinic.routes";
 
 dotenv.config();
 
@@ -15,8 +17,11 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
-// Example
+// Example route
 app.use("/api/ping", pingRoutes);
+
+// Routes
+app.use("/api/clinics", clinicRoutes);
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running at http://localhost:${PORT}`);
