@@ -6,6 +6,8 @@ import { connectDB } from "./config/db";
 // Routes
 import authRoutes from "./routes/auth.routes";
 import clinicRoutes from "./routes/clinic.routes";
+import userRoutes from "./routes/user.routes";
+
 import "./middleware/authenticateJWT.middleware";
 
 dotenv.config();
@@ -25,6 +27,7 @@ app.use("/api/ping", pingRoutes);
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/clinics", clinicRoutes);
+app.use("/api/users", userRoutes);
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running at http://localhost:${PORT}`);
