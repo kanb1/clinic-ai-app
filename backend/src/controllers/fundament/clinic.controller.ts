@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { ClinicModel } from "../models/clinic.model";
+import { ClinicModel } from "../../models/clinic.model";
 
 export const createClinic = async (req: Request, res: Response) => {
   try {

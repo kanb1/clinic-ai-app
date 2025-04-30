@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { UserModel } from "../models/user.model";
+import { UserModel } from "../../models/user.model";
 
 // Hent user info (for alle users in general)
 export const getMyProfile = async (req: Request, res: Response) => {
