@@ -2,7 +2,7 @@ import express from "express";
 import {
   createClinic,
   getClinics,
-} from "../controllers/fundament/fundament/clinic.controller";
+} from "../controllers/fundament/clinic.controller";
 import { authenticateJWT } from "../middleware/authenticateJWT.middleware";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 
