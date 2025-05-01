@@ -7,9 +7,9 @@ import jwt from "jsonwebtoken";
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, clinic_id } = req.body;
 
-    if (!name || !email || !password || !role) {
+    if (!name || !email || !password || !role || !clinic_id) {
       res.status(400).json({ message: "All fields are required!" });
       return;
     }
@@ -30,7 +30,7 @@ export const register = async (req: Request, res: Response) => {
       email,
       password_hash,
       role,
-      // evt. clinic_id osv efter (altså en user skla altid være tilhørende en klinik)
+      clinic_id,
     });
 
     res.status(201).json({ message: "User got created successfully", user });
