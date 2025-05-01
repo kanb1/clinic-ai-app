@@ -50,5 +50,36 @@ export const addDoctor = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Failed to create doctor", error });
   }
 };
-//************************* MANAGE PATIENTS
 //************************* MANAGE SECRETARY
+export const addSecretary = async (req: Request, res: Response) => {
+  try {
+    const { name, email, password, clinic_id } = req.body;
+    if (!name || !email || !password || !clinic_id) {
+      res.status(400).json({ message: "Please enter all the required fields" });
+      return;
+    }
+
+    const existingUser = await UserModel.findOne({ email });
+    if (existingUser) {
+      res.status(400).json({ message: "Email already in use" });
+      return;
+    }
+
+    const hashed = await bcrypt.hash(password, 10);
+
+    const newSecretary = await UserModel.create({
+      name,
+      email,
+      password_hash: hashed,
+      role: "secretary",
+      clinic_id,
+      status: "ledig",
+    });
+
+    res.status(201).json(newSecretary);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to create secretary", error });
+  }
+};
+
+//************************* MANAGE PATIENTS

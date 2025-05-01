@@ -1,5 +1,9 @@
 import express from "express";
-import { addDoctor, getStaff } from "../controllers/admin/staff.controller";
+import {
+  addDoctor,
+  addSecretary,
+  getStaff,
+} from "../controllers/admin/staff.controller";
 import { authenticateJWT } from "../middleware/authenticateJWT.middleware";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 
@@ -11,5 +15,6 @@ router.use(authorizeRoles(["admin"]));
 
 router.get("/staff", getStaff);
 router.post("/staff/doctors", addDoctor);
+router.post("/staff/secretary", addSecretary);
 
 export default router;
