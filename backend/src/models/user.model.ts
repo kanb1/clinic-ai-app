@@ -22,7 +22,11 @@ const UserSchema: Schema = new Schema(
       enum: ["patient", "doctor", "secretary", "admin"],
       required: true,
     },
-    clinic_id: { type: mongoose.Schema.Types.ObjectId, ref: "Clinic" },
+    clinic_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Clinic",
+      required: true,
+    },
     email: { type: String, required: true, unique: true },
     password_hash: { type: String, required: true, select: false }, //extra security: skal aktivt select hvis det skal bruges
     phone: { type: String },
