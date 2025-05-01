@@ -43,7 +43,7 @@ const UserSchema: Schema = new Schema(
 );
 
 // **********PRE-SAVE MIDDLEWARE
-// pre-save --> Kør denne funktion inden .save()
+// pre-save --> Kør denne funktion inden .save() og .create()
 // this: IUser betyder this refererer til et dokument som følger IUser interfacet. TS ting.. så ts ved this.password_hash det en string
 UserSchema.pre("save", async function (this: IUser, next) {
   // Kun hvis password_hash er blevet ændret, så hasher vi noget
