@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { UserModel } from "../../models/user.model";
 import bcrypt from "bcryptjs";
+import mongoose from "mongoose";
 
 // FÅ FAT PÅ ALLE MEDARBEJDERE
 export const getStaff = async (req: Request, res: Response) => {
@@ -85,6 +86,28 @@ export const updateDoctor = async (req: Request, res: Response) => {
   }
 };
 
+// Slet læge
+export const deleteDoctor = async (req: Request, res: Response) => {
+  try {
+    const doctorId = req.params.id;
+
+    const deleted = await UserModel.findOneAndDelete({
+      // konverterer den id vi har fået fra URL'en som først var en tekststring, til en objectID, så mongoose forstår
+      _id: new mongoose.Types.ObjectId(doctorId),
+      role: "doctor",
+    });
+
+    if (!deleted) {
+      res.status(404).json({ message: "Doctor not found" });
+      return;
+    }
+
+    res.json({ message: "Doctor deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Problems when deleting doctor", error });
+  }
+};
+
 //************************* MANAGE SECRETARY
 export const addSecretary = async (req: Request, res: Response) => {
   try {
@@ -154,6 +177,26 @@ export const updateSecretary = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error", error });
+  }
+};
+
+export const deleteSecretary = async (req: Request, res: Response) => {
+  try {
+    const secretaryId = req.params.id;
+
+    const deleted = await UserModel.findOneAndDelete({
+      _id: new mongoose.Types.ObjectId(secretaryId),
+      role: "secretary",
+    });
+
+    if (!deleted) {
+      res.status(404).json({ message: "Secretary not found" });
+      return;
+    }
+
+    res.json({ message: "Secretary deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting secretary", error });
   }
 };
 

@@ -2,6 +2,8 @@ import express from "express";
 import {
   addDoctor,
   addSecretary,
+  deleteDoctor,
+  deleteSecretary,
   getStaff,
   updateDoctor,
   updateSecretary,
@@ -20,5 +22,7 @@ router.post("/staff/doctors", addDoctor);
 router.post("/staff/secretary", addSecretary);
 router.put("/staff/doctors/:id", updateDoctor);
 router.put("/staff/secretaries/:id", updateSecretary);
+router.delete("/staff/doctors/:id", deleteDoctor);
+router.delete("/staff/secretaries/:id", deleteSecretary);
 
 export default router;
