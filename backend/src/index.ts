@@ -8,6 +8,7 @@ import authRoutes from "./routes/auth.routes";
 import clinicRoutes from "./routes/clinic.routes";
 import userRoutes from "./routes/user.routes";
 import adminRoutes from "./routes/admin.routes";
+import patientRoutes from "./routes/patient.routes";
 
 import "./middleware/authenticateJWT.middleware";
 
@@ -34,6 +35,7 @@ app.use("/api/admin", adminRoutes);
 // Routes - Secretary
 // Routes - Doctor
 // Routes - Patient
+app.use("/api/patients", patientRoutes);
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running at http://localhost:${PORT}`);
