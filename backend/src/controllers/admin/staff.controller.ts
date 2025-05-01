@@ -6,12 +6,12 @@ import mongoose from "mongoose";
 // FÅ FAT PÅ ALLE MEDARBEJDERE
 export const getStaff = async (req: Request, res: Response) => {
   try {
-    // JWT middleware sætter dette. Vi skal nemlig kun have staffs fra den clinic admin er administreret til
+    // JWT middleware sætter dette. Vi skal nemlig kun have staffs fra den clinic admin er administreret til (den tager clinic_id af den admin som er logget ind)
     const clinicId = req.user!.clinicId;
 
     const staff = await UserModel.find({
       role: { $in: ["doctor", "secretary"] },
-      clinic_id: clinicId, // matcher kun ansatte fra samme klinik
+      clinic_id: clinicId, // matcher kun ansatte fra samme klinik ved at filtrere med clinic_id af den logged in user.
     }).select("-password_hash");
     res.status(200).json(staff);
   } catch (error) {
