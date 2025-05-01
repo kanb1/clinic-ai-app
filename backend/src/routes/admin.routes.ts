@@ -3,6 +3,8 @@ import {
   addDoctor,
   addSecretary,
   getStaff,
+  updateDoctor,
+  updateSecretary,
 } from "../controllers/admin/staff.controller";
 import { authenticateJWT } from "../middleware/authenticateJWT.middleware";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
@@ -16,5 +18,7 @@ router.use(authorizeRoles(["admin"]));
 router.get("/staff", getStaff);
 router.post("/staff/doctors", addDoctor);
 router.post("/staff/secretary", addSecretary);
+router.put("/staff/doctors/:id", updateDoctor);
+router.put("/staff/secretaries/:id", updateSecretary);
 
 export default router;
