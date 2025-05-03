@@ -13,3 +13,7 @@ yarn-error.log*
 
 # Build output
 build
+
+# Jest
+# coverage reports
+backend/coverage
