@@ -3,6 +3,7 @@ module.exports = {
   preset: "ts-jest", //skriv test i ts
   testEnvironment: "node",
   collectCoverage: true, //lav automatisk en mappekaldet collect inde i backend
+  collectCoverageFrom: ["src/**/*.{ts,tsx}", "!src/tests/**"], //Indsaml coverage på alle filer i src/ — også dem der ikke blev importeret i tests. Tvinger jest til at inkludere alle filer
   coverageDirectory: "coverage",
   coverageReporters: ["text", "lcov"], //text viser rapport i terminalen som jeg ville have, lcov html rapport i coverage/lcov-report/index.html
   testMatch: ["**/tests/**/*.test.ts"], //finder kun test-filer som ligger i en mappe kaldet __tests__ og slutter på .test.ts
