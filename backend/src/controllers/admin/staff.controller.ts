@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
-import { UserModel } from "../../models/user.model";
-import bcrypt from "bcryptjs";
-import mongoose from "mongoose";
+import { Request, Response } from 'express';
+import { UserModel } from '../../models/user.model';
+import bcrypt from 'bcryptjs';
+import mongoose from 'mongoose';
 
 // FÅ FAT PÅ ALLE MEDARBEJDERE
 export const getStaff = async (req: Request, res: Response) => {
@@ -10,12 +10,12 @@ export const getStaff = async (req: Request, res: Response) => {
     const clinicId = req.user!.clinicId;
 
     const staff = await UserModel.find({
-      role: { $in: ["doctor", "secretary"] },
+      role: { $in: ['doctor', 'secretary'] },
       clinic_id: clinicId, // matcher kun ansatte fra samme klinik ved at filtrere med clinic_id af den logged in user.
-    }).select("-password_hash");
+    }).select('-password_hash');
     res.status(200).json(staff);
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch the staff", error });
+    res.status(500).json({ message: 'Failed to fetch the staff', error });
   }
 };
 
@@ -26,13 +26,13 @@ export const addDoctor = async (req: Request, res: Response) => {
     const { name, email, password, clinic_id } = req.body;
 
     if (!name || !email || !password || !clinic_id) {
-      res.status(400).json({ message: "Please enter all the required fields" });
+      res.status(400).json({ message: 'Please enter all the required fields' });
       return;
     }
 
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
-      res.status(400).json({ message: "Email is already in use" });
+      res.status(400).json({ message: 'Email is already in use' });
       return;
     }
 
@@ -44,15 +44,15 @@ export const addDoctor = async (req: Request, res: Response) => {
       name,
       email,
       password_hash: hashed,
-      role: "doctor", //vigtigt for rbac
+      role: 'doctor', //vigtigt for rbac
       clinic_id: req.user!.clinicId, // ← her henter vi klinik-id fra den admin, der er logget ind
-      status: "ledig",
+      status: 'ledig',
     });
 
     // sender det nye lægeobjekt retur som bekræftelse og debug
     res.status(201).json(newDoctor);
   } catch (error) {
-    res.status(500).json({ message: "Failed to create doctor", error });
+    res.status(500).json({ message: 'Failed to create doctor', error });
   }
 };
 
@@ -65,7 +65,7 @@ export const updateDoctor = async (req: Request, res: Response) => {
 
     const doctor = await UserModel.findById(id);
     if (!doctor) {
-      res.status(404).json({ message: "Doctor not found" });
+      res.status(404).json({ message: 'Doctor not found' });
       return;
     }
 
@@ -84,9 +84,9 @@ export const updateDoctor = async (req: Request, res: Response) => {
 
     await doctor.save(); // Triggerer min pre("save") middleware i usermodel
 
-    res.status(200).json({ message: "Doctor updated", doctor });
+    res.status(200).json({ message: 'Doctor updated', doctor });
   } catch (error) {
-    res.status(500).json({ message: "Problems updating the doctor", error });
+    res.status(500).json({ message: 'Problems updating the doctor', error });
   }
 };
 
@@ -98,17 +98,17 @@ export const deleteDoctor = async (req: Request, res: Response) => {
     const deleted = await UserModel.findOneAndDelete({
       // konverterer den id vi har fået fra URL'en som først var en tekststring, til en objectID, så mongoose forstår
       _id: new mongoose.Types.ObjectId(doctorId),
-      role: "doctor",
+      role: 'doctor',
     });
 
     if (!deleted) {
-      res.status(404).json({ message: "Doctor not found" });
+      res.status(404).json({ message: 'Doctor not found' });
       return;
     }
 
-    res.json({ message: "Doctor deleted successfully" });
+    res.json({ message: 'Doctor deleted successfully' });
   } catch (error) {
-    res.status(500).json({ message: "Problems when deleting doctor", error });
+    res.status(500).json({ message: 'Problems when deleting doctor', error });
   }
 };
 
@@ -117,13 +117,13 @@ export const addSecretary = async (req: Request, res: Response) => {
   try {
     const { name, email, password, clinic_id } = req.body;
     if (!name || !email || !password || !clinic_id) {
-      res.status(400).json({ message: "Please enter all the required fields" });
+      res.status(400).json({ message: 'Please enter all the required fields' });
       return;
     }
 
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
-      res.status(400).json({ message: "Email already in use" });
+      res.status(400).json({ message: 'Email already in use' });
       return;
     }
 
@@ -133,14 +133,14 @@ export const addSecretary = async (req: Request, res: Response) => {
       name,
       email,
       password_hash: hashed,
-      role: "secretary",
+      role: 'secretary',
       clinic_id: req.user!.clinicId, // ← her henter vi klinik-id fra den admin, der er logget ind
-      status: "ledig",
+      status: 'ledig',
     });
 
     res.status(201).json(newSecretary);
   } catch (error) {
-    res.status(500).json({ message: "Failed to create secretary", error });
+    res.status(500).json({ message: 'Failed to create secretary', error });
   }
 };
 
@@ -151,7 +151,7 @@ export const updateSecretary = async (req: Request, res: Response) => {
 
     const secretary = await UserModel.findById(id);
     if (!secretary) {
-      res.status(404).json({ message: "Could not find secretary" });
+      res.status(404).json({ message: 'Could not find secretary' });
       return;
     }
 
@@ -169,7 +169,7 @@ export const updateSecretary = async (req: Request, res: Response) => {
     await secretary.save(); // trigger pre-save hash hvis password er ændret
 
     res.status(200).json({
-      message: "Secretary updated successfully",
+      message: 'Secretary updated successfully',
       secretary: {
         id: secretary._id,
         name: secretary.name,
@@ -180,7 +180,7 @@ export const updateSecretary = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error", error });
+    res.status(500).json({ message: 'Server error', error });
   }
 };
 
@@ -190,17 +190,17 @@ export const deleteSecretary = async (req: Request, res: Response) => {
 
     const deleted = await UserModel.findOneAndDelete({
       _id: new mongoose.Types.ObjectId(secretaryId),
-      role: "secretary",
+      role: 'secretary',
     });
 
     if (!deleted) {
-      res.status(404).json({ message: "Secretary not found" });
+      res.status(404).json({ message: 'Secretary not found' });
       return;
     }
 
-    res.json({ message: "Secretary deleted successfully" });
+    res.json({ message: 'Secretary deleted successfully' });
   } catch (error) {
-    res.status(500).json({ message: "Error deleting secretary", error });
+    res.status(500).json({ message: 'Error deleting secretary', error });
   }
 };
 

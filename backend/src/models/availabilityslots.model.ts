@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document } from 'mongoose';
 
 // The availability of the doctors
 
@@ -14,7 +14,7 @@ const AvailabilitySlotSchema: Schema = new Schema(
   {
     doctor_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
     },
     date: { type: Date, required: true },
@@ -26,6 +26,6 @@ const AvailabilitySlotSchema: Schema = new Schema(
 );
 
 export const AvailabilitySlotModel = mongoose.model<IAvailabilitySlot>(
-  "AvailabilitySlot",
+  'AvailabilitySlot',
   AvailabilitySlotSchema
 );

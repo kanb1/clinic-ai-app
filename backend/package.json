@@ -5,7 +5,7 @@
   "scripts": {
     "test": "jest",
     "test:ci": "jest --coverage --watchAll=false",
-    "lint": "eslint . --ext .ts",
+    "lint": "eslint . --ext .ts --fix",
     "dev": "nodemon src/index.ts",
     "start": "node dist/index.js"
   },

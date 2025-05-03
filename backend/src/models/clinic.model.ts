@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IClinic extends Document {
   name: string;
@@ -12,11 +12,11 @@ const ClinicSchema: Schema = new Schema(
     address: { type: String, required: true },
     created_by: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
     },
   },
   { timestamps: true }
 );
 
-export const ClinicModel = mongoose.model<IClinic>("Clinic", ClinicSchema);
+export const ClinicModel = mongoose.model<IClinic>('Clinic', ClinicSchema);

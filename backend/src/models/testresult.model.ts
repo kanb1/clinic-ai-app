@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ITestResult extends Document {
   patient_id: mongoose.Types.ObjectId;
@@ -11,7 +11,7 @@ const TestResultSchema: Schema = new Schema(
   {
     patient_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
     },
     test_name: { type: String, required: true },
@@ -22,6 +22,6 @@ const TestResultSchema: Schema = new Schema(
 );
 
 export const TestResultModel = mongoose.model<ITestResult>(
-  "TestResult",
+  'TestResult',
   TestResultSchema
 );

@@ -1,42 +1,42 @@
-import express from "express";
+import express from 'express';
 import {
   deletePatient,
   getPatients,
   lookupPatientByCpr,
   updatePatient,
-} from "../controllers/patient/patient.controller";
-import { authenticateJWT } from "../middleware/authenticateJWT.middleware";
-import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
+} from '../controllers/patient/patient.controller';
+import { authenticateJWT } from '../middleware/authenticateJWT.middleware';
+import { authorizeRoles } from '../middleware/authorizeRoles.middleware';
 
 const router = express.Router();
 
 // Get patients list
 router.get(
-  "/",
+  '/',
   authenticateJWT,
-  authorizeRoles(["admin", "doctor", "secretary"]),
+  authorizeRoles(['admin', 'doctor', 'secretary']),
   getPatients
 );
 
 //CPR-lookup
 router.get(
-  "/lookup/:cpr",
+  '/lookup/:cpr',
   authenticateJWT,
-  authorizeRoles(["admin", "secretary"]),
+  authorizeRoles(['admin', 'secretary']),
   lookupPatientByCpr
 );
 
 router.put(
-  "/:id",
+  '/:id',
   authenticateJWT,
-  authorizeRoles(["admin", "secretary"]),
+  authorizeRoles(['admin', 'secretary']),
   updatePatient
 );
 
 router.delete(
-  "/:id",
+  '/:id',
   authenticateJWT,
-  authorizeRoles(["admin"]),
+  authorizeRoles(['admin']),
   deletePatient
 );
 

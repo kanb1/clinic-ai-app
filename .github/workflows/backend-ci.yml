@@ -39,6 +39,10 @@ jobs:
       - name: Lint code
         run: npx eslint . --ext .ts
 
+        # Fix de linting fejl som automatisk kan fikses fx anførselstegn og identation
+      - name: Run ESLint with auto-fix
+        run: npm run lint
+
         # Kører mine tests og laver code coverage rapport
       - name: Run tests with coverage
         #   kommer fra min package.json:"test:ci": "jest --coverage --watchAll=false"

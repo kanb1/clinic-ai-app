@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
-import { UserModel } from "../../models/user.model";
-import crypto from "crypto";
+import { Request, Response } from 'express';
+import { UserModel } from '../../models/user.model';
+import crypto from 'crypto';
 
 //************************************************* */ GET ALL PATIENTS
 export const getPatients = async (req: Request, res: Response) => {
@@ -8,13 +8,13 @@ export const getPatients = async (req: Request, res: Response) => {
     const clinicId = req.user!.clinicId;
 
     const patients = await UserModel.find({
-      role: "patient",
+      role: 'patient',
       clinic_id: clinicId,
-    }).select("-password_hash");
+    }).select('-password_hash');
 
     res.status(200).json(patients);
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch patients", error });
+    res.status(500).json({ message: 'Failed to fetch patients', error });
   }
 };
 
@@ -31,11 +31,11 @@ export const lookupPatientByCpr = async (req: Request, res: Response) => {
     const existing = await UserModel.findOne({
       cpr_number: cpr,
       clinic_id: clinicId,
-    }).select("-password_hash");
+    }).select('-password_hash');
 
     if (existing) {
       res.status(200).json({
-        message: "Patient found",
+        message: 'Patient found',
         patient: existing,
         patientWasFoundBefore: true,
       });
@@ -43,33 +43,34 @@ export const lookupPatientByCpr = async (req: Request, res: Response) => {
     }
 
     // Generérer sikkert tilfældigt password, så feltet ik er blankt/usikkert
-    const randomPassword = crypto.randomBytes(16).toString("hex");
+    const randomPassword = crypto.randomBytes(16).toString('hex');
 
     // Opretter dummy data som senere kan redigeres m. modal
     const newPatient = await UserModel.create({
-      name: "Ukendt Patient",
+      name: 'Ukendt Patient',
       email: `${cpr}@dummy.dk`,
       password_hash: randomPassword,
-      role: "patient",
+      role: 'patient',
       cpr_number: cpr,
       clinic_id: clinicId,
-      status: "ledig",
+      status: 'ledig',
     });
 
     // Konverterer Mongoose-dokument til almindeligt objekt, og fjerner password_hash fra det, til når vi returnerer til frontend.
     const patientToReturn = newPatient.toObject();
     // object destructuring -> tag pass_hash ud og safePatient indeholder resten af felterne
-    const { password_hash, ...safePatient } = patientToReturn;
+    // _ så linting forstår det med vilje den ik har en værdi
+    const { password_hash: _, ...safePatient } = patientToReturn;
 
     res.status(201).json({
-      message: "Patient not found. Dummy patient created.",
+      message: 'Patient not found. Dummy patient created.',
       patient: safePatient,
       patientWasFoundBefore: false,
     });
     return;
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error during CPR lookup", error });
+    res.status(500).json({ message: 'Error during CPR lookup', error });
   }
 };
 
@@ -83,8 +84,8 @@ export const updatePatient = async (req: Request, res: Response) => {
     const { name, phone, address, email, password } = req.body;
 
     const patient = await UserModel.findById(id);
-    if (!patient || patient.role !== "patient") {
-      res.status(404).json({ message: "C ould not find patient" });
+    if (!patient || patient.role !== 'patient') {
+      res.status(404).json({ message: 'C ould not find patient' });
       return;
     }
 
@@ -101,11 +102,11 @@ export const updatePatient = async (req: Request, res: Response) => {
     await patient.save();
 
     res.status(200).json({
-      message: "Patient info got successfully updated",
+      message: 'Patient info got successfully updated',
       patient,
     });
   } catch (error) {
-    res.status(500).json({ message: "Error when updating patient", error });
+    res.status(500).json({ message: 'Error when updating patient', error });
   }
 };
 
@@ -116,18 +117,18 @@ export const deletePatient = async (req: Request, res: Response) => {
 
     const deleted = await UserModel.findOneAndDelete({
       _id: id,
-      role: "patient",
+      role: 'patient',
       clinic_id: req.user!.clinicId, // sikkerhed: kun slet hvis patient hører til din klinik
     });
 
     if (!deleted) {
-      res.status(404).json({ message: "Patient not found" });
+      res.status(404).json({ message: 'Patient not found' });
       return;
     }
 
-    res.status(200).json({ message: "Patient deleted successfully" });
+    res.status(200).json({ message: 'Patient deleted successfully' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error deleting patient", error });
+    res.status(500).json({ message: 'Error deleting patient', error });
   }
 };

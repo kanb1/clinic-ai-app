@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
-import { UserModel } from "../../models/user.model";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import { Request, Response } from 'express';
+import { UserModel } from '../../models/user.model';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 // Allerede eksisterende login...
 
@@ -10,13 +10,13 @@ export const register = async (req: Request, res: Response) => {
     const { name, email, password, role, clinic_id } = req.body;
 
     if (!name || !email || !password || !role || !clinic_id) {
-      res.status(400).json({ message: "All fields are required!" });
+      res.status(400).json({ message: 'All fields are required!' });
       return;
     }
 
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
-      res.status(400).json({ message: "User already exists!" });
+      res.status(400).json({ message: 'User already exists!' });
       return;
     }
 
@@ -33,10 +33,10 @@ export const register = async (req: Request, res: Response) => {
       clinic_id,
     });
 
-    res.status(201).json({ message: "User got created successfully", user });
+    res.status(201).json({ message: 'User got created successfully', user });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -46,27 +46,27 @@ export const login = async (req: Request, res: Response) => {
 
     if (!email || !password) {
       res.status(400).json({
-        message: "Email and password are required",
+        message: 'Email and password are required',
       });
       return;
     }
 
-    const user = await UserModel.findOne({ email }).select("+password_hash");
+    const user = await UserModel.findOne({ email }).select('+password_hash');
 
     if (!user) {
-      res.status(400).json({ message: "Invalid credentials" });
+      res.status(400).json({ message: 'Invalid credentials' });
       return;
     }
 
     const isMatch = await bcrypt.compare(password, user.password_hash);
 
     if (!isMatch) {
-      res.status(400).json({ message: "Invalid credentials" });
+      res.status(400).json({ message: 'Invalid credentials' });
       return;
     }
 
     if (!process.env.JWT_SECRET) {
-      throw new Error("Missing JWT_SECRET environment variable");
+      throw new Error('Missing JWT_SECRET environment variable');
     }
 
     // hemmelig signatur-kode som sidste del af toket "header . payload . signature"
@@ -78,7 +78,7 @@ export const login = async (req: Request, res: Response) => {
         clinicId: user.clinic_id,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: '1d' }
     );
 
     res.status(200).json({
@@ -94,7 +94,7 @@ export const login = async (req: Request, res: Response) => {
     return;
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: 'Server error' });
     return;
   }
 };

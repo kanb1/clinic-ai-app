@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IChatSession extends Document {
   patient_id: mongoose.Types.ObjectId;
@@ -10,19 +10,19 @@ const ChatSessionSchema: Schema = new Schema(
   {
     patient_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
     },
     messages: [{ type: String }],
     saved_to_appointment_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Appointment",
+      ref: 'Appointment',
     },
   },
   { timestamps: true }
 );
 
 export const ChatSessionModel = mongoose.model<IChatSession>(
-  "ChatSession",
+  'ChatSession',
   ChatSessionSchema
 );

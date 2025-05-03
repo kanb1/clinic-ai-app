@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express';
 
 // middleware tager et argument: allowedRoles: Liste fx ["admin", "doctor"]
 export const authorizeRoles = (allowedRoles: string[]) => {
@@ -7,7 +7,7 @@ export const authorizeRoles = (allowedRoles: string[]) => {
     // user.role findes allerede for brugeren i db -> Pakkes nemlig ind i jwt-payloaden når logger ind
     if (!req.user || !allowedRoles.includes(req.user.role)) {
       res.status(403).json({
-        message: "Access denied: You don't have the permission for this",
+        message: 'Access denied: You don\'t have the permission for this',
       });
       return;
     }

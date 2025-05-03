@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IJournalEntry extends Document {
   appointment_id: mongoose.Types.ObjectId;
@@ -10,7 +10,7 @@ const JournalEntrySchema: Schema = new Schema(
   {
     appointment_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Appointment",
+      ref: 'Appointment',
       required: true,
     },
     notes: { type: String, required: true },
@@ -20,6 +20,6 @@ const JournalEntrySchema: Schema = new Schema(
 );
 
 export const JournalEntryModel = mongoose.model<IJournalEntry>(
-  "JournalEntry",
+  'JournalEntry',
   JournalEntrySchema
 );
