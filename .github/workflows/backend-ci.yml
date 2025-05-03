@@ -48,7 +48,7 @@ jobs:
 
         # Gemmer test rapporten (coverage)som en fil på github der kan downloades, under artifacts
       - name: Upload coverage report
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v2.3.1
         with:
           name: coverage-report
           path: coverage/
