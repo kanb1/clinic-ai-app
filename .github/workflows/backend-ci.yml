@@ -10,7 +10,7 @@ on:
 jobs:
   # Midlertidig linux-computer i skyen der bygge og teste mit projekt
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     # sørg for at alt sker i backend-mappen. Alle scripts kører fx i bavkend. Behøver ik skrive cd backend hele tiden
     defaults:
