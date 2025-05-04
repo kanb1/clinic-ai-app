@@ -1,28 +1,35 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface IMessage extends Document {
   sender_id: mongoose.Types.ObjectId;
   receiver_id: mongoose.Types.ObjectId;
   content: string;
   read: boolean;
+  type: "besked" | "aflysning" | "system";
+  createdAt: Date;
 }
 
 const MessageSchema: Schema = new Schema(
   {
     sender_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
     receiver_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
+      required: true,
+    },
+    type: {
+      type: String,
+      enum: ["besked", "system", "aflysning"],
       required: true,
     },
     content: { type: String, required: true },
     read: { type: Boolean, default: false },
   },
-  { timestamps: true }
+  { timestamps: { createdAt: true, updatedAt: false } } // kun createdAt
 );
 
-export const MessageModel = mongoose.model<IMessage>('Message', MessageSchema);
+export const MessageModel = mongoose.model<IMessage>("Message", MessageSchema);
