@@ -1,7 +1,7 @@
-import { JwtPayload as DefaultJwtPayload } from 'jsonwebtoken';
+import { JwtPayload as DefaultJwtPayload } from "jsonwebtoken";
 
 export interface JwtPayload extends DefaultJwtPayload {
-  userId: string;
+  _id: string;
   role: string;
   clinicId: string;
 }
@@ -20,7 +20,11 @@ export interface JwtPayload extends DefaultJwtPayload {
 declare global {
   namespace Express {
     interface Request {
-      user?: JwtPayload;
+      user?: {
+        _id: string;
+        role: string;
+        clinicId: string;
+      };
     }
   }
 }
