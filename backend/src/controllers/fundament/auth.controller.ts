@@ -20,15 +20,11 @@ export const register = async (req: Request, res: Response) => {
       return;
     }
 
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const password_hash = await bcrypt.hash(password, salt);
-
     // Create new user
     const user = await UserModel.create({
       name,
       email,
-      password_hash,
+      password_hash: password,
       role,
       clinic_id,
     });
