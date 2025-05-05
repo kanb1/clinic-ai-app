@@ -70,3 +70,32 @@ export const sendMessage = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error sending message", error });
   }
 };
+
+export const markMessageAsReadBySecretary = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const messageId = req.params.id;
+
+    const message = await MessageModel.findById(messageId);
+
+    if (!message) {
+      res.status(404).json({ message: "Message not found" });
+      return;
+    }
+
+    // Hvis allerede læst
+    if (message.read) {
+      res.status(200).json({ message: "Message is already marked as read" });
+      return;
+    }
+
+    message.read = true;
+    await message.save();
+
+    res.status(200).json({ message: "Message marked as read by secretary" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to mark message as read", error });
+  }
+};
