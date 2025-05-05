@@ -19,3 +19,18 @@ export const getMyProfile = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const getStaffStatuses = async (req: Request, res: Response) => {
+  try {
+    const clinicId = req.user!.clinicId;
+
+    const staff = await UserModel.find({
+      clinic_id: clinicId,
+      role: { $in: ["doctor", "secretary"] },
+    }).select("name role status");
+
+    res.status(200).json(staff);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch staff statuses", error });
+  }
+};
