@@ -2,7 +2,9 @@ import { Request, Response } from "express";
 import { MessageModel } from "../../models/message.model";
 import { IPopulatedMessage } from "../../interfaces/IPopulatedMessage";
 import mongoose from "mongoose";
+import { UserModel } from "../../models/user.model";
 
+// **************************************************** BESKEDER
 // HENT NYE BESKEDER
 export const getUnreadMessages = async (req: Request, res: Response) => {
   try {
@@ -99,3 +101,22 @@ export const markMessageAsReadBySecretary = async (
     res.status(500).json({ message: "Failed to mark message as read", error });
   }
 };
+
+// **************************************************** PATIENT OG LÆGEOPSÆTNING
+export const getPatients = async (req: Request, res: Response) => {
+  try {
+    const clinicId = req.user!.clinicId;
+
+    const patients = await UserModel.find({
+      role: "patient",
+      clinic_id: clinicId,
+    });
+
+    res.status(200).json(patients);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch patients", error });
+  }
+};
+// **************************************************** Kalender og ledige tider
+// **************************************************** Booking og notering
+// **************************************************** Dashboard og historik

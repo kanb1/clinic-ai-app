@@ -2,6 +2,7 @@ import express from "express";
 import { authenticateJWT } from "../middleware/authenticateJWT.middleware";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import {
+  getPatients,
   getUnreadMessages,
   markMessageAsReadBySecretary,
   sendMessage,
@@ -19,6 +20,8 @@ router.post("/messages", sendMessage);
 router.patch("/messages/:id/read", markMessageAsReadBySecretary);
 
 // Patients and Doctors (Choose)
+router.get("/patients", getPatients);
+
 // Kalender og ledige tider
 // Booking og notering
 // Dashboard og historik
