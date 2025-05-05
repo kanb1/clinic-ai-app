@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IMessage extends Document {
   sender_id: mongoose.Types.ObjectId;
-  receiver_id: mongoose.Types.ObjectId;
+  receiver_id: mongoose.Types.ObjectId | "all";
   content: string;
   read: boolean;
   type: "besked" | "aflysning" | "system";
