@@ -2,6 +2,7 @@ import express from "express";
 import { authenticateJWT } from "../middleware/authenticateJWT.middleware";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import {
+  getDoctors,
   getPatients,
   getUnreadMessages,
   markMessageAsReadBySecretary,
@@ -23,7 +24,7 @@ router.patch("/messages/:id/read", markMessageAsReadBySecretary);
 // Patients and Doctors (Choose)
 router.get("/patients", getPatients);
 router.get("/patients", searchPatients); // samme som før, men nu med ?search=
-
+router.get("/doctors", getDoctors);
 // Kalender og ledige tider
 // Booking og notering
 // Dashboard og historik

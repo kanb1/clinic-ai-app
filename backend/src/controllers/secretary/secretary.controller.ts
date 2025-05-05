@@ -157,6 +157,22 @@ export const searchPatients = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Failed to search patients", error });
   }
 };
+
+export const getDoctors = async (req: Request, res: Response) => {
+  try {
+    const clinicId = req.user!.clinicId;
+
+    const doctors = await UserModel.find({
+      role: "doctor",
+      clinic_id: clinicId,
+    });
+
+    res.status(200).json(doctors);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch doctors", error });
+  }
+};
+
 // **************************************************** Kalender og ledige tider
 // **************************************************** Booking og notering
 // **************************************************** Dashboard og historik
