@@ -1,43 +1,13 @@
-import express from 'express';
-import {
-  deletePatient,
-  getPatients,
-  lookupPatientByCpr,
-  updatePatient,
-} from '../controllers/patient/patient.controller';
-import { authenticateJWT } from '../middleware/authenticateJWT.middleware';
-import { authorizeRoles } from '../middleware/authorizeRoles.middleware';
+import express from "express";
+import { authenticateJWT } from "../middleware/authenticateJWT.middleware";
+import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
+import { getUnreadMessagesForPatient } from "../controllers/patient/patient.controller";
 
 const router = express.Router();
 
-// Get patients list
-router.get(
-  '/',
-  authenticateJWT,
-  authorizeRoles(['admin', 'doctor', 'secretary']),
-  getPatients
-);
+router.use(authenticateJWT);
+router.use(authorizeRoles(["patient"]));
 
-//CPR-lookup
-router.get(
-  '/lookup/:cpr',
-  authenticateJWT,
-  authorizeRoles(['admin', 'secretary']),
-  lookupPatientByCpr
-);
-
-router.put(
-  '/:id',
-  authenticateJWT,
-  authorizeRoles(['admin', 'secretary']),
-  updatePatient
-);
-
-router.delete(
-  '/:id',
-  authenticateJWT,
-  authorizeRoles(['admin']),
-  deletePatient
-);
+router.get("/messages/unread", getUnreadMessagesForPatient);
 
 export default router;
