@@ -12,6 +12,7 @@ import patientRoutes from "./routes/patient.routes";
 
 import "./middleware/authenticateJWT.middleware";
 import secretaryRoutes from "./routes/secretary.routes";
+import availabilityslotsRoutes from "./routes/availabilityslots.routes";
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/admin", adminRoutes);
 // Routes - Secretary
 app.use("/api/secretary", secretaryRoutes);
+app.use("/api/availabilityslots", availabilityslotsRoutes);
 // Routes - Doctor
 // Routes - Patient
 app.use("/api/patients", patientRoutes);
