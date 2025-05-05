@@ -5,6 +5,7 @@ import {
   getPatients,
   getUnreadMessages,
   markMessageAsReadBySecretary,
+  searchPatients,
   sendMessage,
 } from "../controllers/secretary/secretary.controller";
 
@@ -21,6 +22,7 @@ router.patch("/messages/:id/read", markMessageAsReadBySecretary);
 
 // Patients and Doctors (Choose)
 router.get("/patients", getPatients);
+router.get("/patients", searchPatients); // samme som før, men nu med ?search=
 
 // Kalender og ledige tider
 // Booking og notering

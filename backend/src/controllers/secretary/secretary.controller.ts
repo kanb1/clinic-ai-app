@@ -117,6 +117,46 @@ export const getPatients = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Failed to fetch patients", error });
   }
 };
+
+export const searchPatients = async (req: Request, res: Response) => {
+  try {
+    const clinicId = req.user!.clinicId;
+    // tjekker om klienten har sendt en ?serach=.. i urlen - ellers bliver den bare undefined
+    const searchQuery = req.query.search as string;
+
+    // kriterier for denne her searchquery
+    const query = {
+      role: "patient",
+      clinic_id: clinicId,
+    };
+
+    // Vi laver en RegEx søgning, så vi kan finde navne, e-mails eller CPR-numre - uanset stor/små bogstav men i string
+    if (searchQuery) {
+      // Laver et RegEx-mønster, som matcher fx "anna" hvor som helst i et felt (felt i db kan være alt og i vores tilfælde email, name og cpr)
+      const regex = new RegExp(searchQuery, "i"); // case-insensitive søgning
+      // Vi tilføjer en ekstra betingelse til vores query
+      // or = (ekstra betingelse) Hvis nogen af felterne matcher, så vis resultatet.
+      // Den søger altså i både navn, email og cpr samtidig som nedenfor vist
+      // {
+      //   role: "patient",
+      //   clinic_id: "...",
+      //   $or: [
+      //     { name: /anna/i },
+      //     { email: /anna/i },
+      //     { cpr_number: /anna/i }
+      //   ]
+      // }
+      Object.assign(query, {
+        $or: [{ name: regex }, { email: regex }, { cpr_number: regex }],
+      });
+    }
+
+    const patients = await UserModel.find(query);
+    res.status(200).json(patients);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to search patients", error });
+  }
+};
 // **************************************************** Kalender og ledige tider
 // **************************************************** Booking og notering
 // **************************************************** Dashboard og historik
