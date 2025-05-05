@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { MessageModel } from "../../models/message.model";
 
+// **************************** PATIENT MESSAGES
 export const getUnreadMessagesForPatient = async (
   req: Request,
   res: Response
@@ -23,5 +24,44 @@ export const getUnreadMessagesForPatient = async (
     res.status(200).json(messages);
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch unread messages", error });
+  }
+};
+
+export const markMessageAsRead = async (req: Request, res: Response) => {
+  try {
+    const messageId = req.params.id;
+    const userId = req.user!._id;
+
+    const message = await MessageModel.findById(messageId);
+
+    if (!message) {
+      res.status(404).json({ message: "Message not found" });
+      return;
+    }
+
+    // Hvis det er en broadcast, kan den ikke markeres som læst
+    if (message.receiver_id === "all") {
+      res
+        .status(403)
+        .json({ message: "Broadcast messages cannot be marked as read" });
+      return;
+    }
+
+    // Må kun markeres læst af modtageren selv
+    // Vi laver receiver_id.toString() fordi det er en objectId, og userId er en string.
+    if (message.receiver_id?.toString() !== userId) {
+      res
+        .status(403)
+        .json({ message: "You are not authorized to mark this message" });
+      return;
+    }
+
+    // Her markerer jeg beskeden som læst og gemmer ændringen i db
+    message.read = true;
+    await message.save();
+
+    res.status(200).json({ message: "Message marked as read" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to mark message as read", error });
   }
 };
