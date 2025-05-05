@@ -3,6 +3,8 @@ import { MessageModel } from "../../models/message.model";
 import { IPopulatedMessage } from "../../interfaces/IPopulatedMessage";
 import mongoose from "mongoose";
 import { UserModel } from "../../models/user.model";
+import { AppointmentModel } from "../../models/appointment.model";
+import { AvailabilitySlotModel } from "../../models/availabilityslots.model";
 
 // **************************************************** BESKEDER
 // HENT NYE BESKEDER
@@ -174,5 +176,184 @@ export const getDoctors = async (req: Request, res: Response) => {
 };
 
 // **************************************************** Kalender og ledige tider
+export const getAppointments = async (req: Request, res: Response) => {
+  try {
+    const clinicId = req.user!.clinicId;
+
+    const appointments = await AppointmentModel.find({
+      clinic_id: clinicId,
+    })
+      .populate("patient_id", "name")
+      .populate("doctor_id", "name")
+      .sort({ date: 1, time: 1 }); // nyeste først
+
+    res.status(200).json(appointments);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to fetch appointments", error });
+  }
+};
+
+// Henter alle ikke-bookede tider i de kommende 3 uger.
+// Valgfri filtrering på doctorId
+// Returnerer antal ledige tider grupperet per læge per dag
+// Sorter: dato stigende, navn A–Z.
+export const getAvailabilityOverview = async (req: Request, res: Response) => {
+  try {
+    // weekstart altså startdatoen
+    const { weekStart, doctorId } = req.query;
+
+    if (!weekStart) {
+      res
+        .status(400)
+        .json({ message: "weekStart is required (e.g. 2025-05-05)" });
+      return;
+    }
+
+    // Konverterer weekStart til en Date-objekt, og laver en endDate der er 20 dage frem i tid (næsten 3 uger) for at filtrere tiderne
+    const startDate = new Date(weekStart as string);
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + 20); // 3 uger frem
+
+    // Forbereder mongo match query:
+    const match: any = {
+      date: { $gte: startDate, $lte: endDate }, //date skal være mellem startDate og endDate
+      is_booked: false, //is_booked skal være false (altså ledige tider)
+    };
+
+    // Tilføj lægefilter hvis doctorId er angivet
+    // Hvis doctorId findes og er gyldig (et objectid), tilføjer vi det til vores filter, så vi kun får tider for 1 bestemt læge.
+    if (doctorId && mongoose.Types.ObjectId.isValid(doctorId as string)) {
+      match.doctor_id = new mongoose.Types.ObjectId(doctorId as string);
+    }
+
+    // Aggregations pipeline for at gruppere tiderne -> kompleks forespørgsel med en pipeline af mongo's operationer ($)
+    const slots = await AvailabilitySlotModel.aggregate([
+      // Vi starter en aggregation og filtrerer først med vores match (dato og evt. lægefilter)
+      { $match: match },
+      // Vi grupperer resultaterne efter læge og dato og tæller hvor mange ledige tider der er ($sum: 1)
+      // Svarer til GROUP BY i SQL
+      // fx 2 ledige tider for hanne hansen og 3 for jens jensen så får jeg dem som separate rækker
+      // "Læg alle slots sammen, hvor lægen og datoen er den samme"
+      {
+        $group: {
+          _id: {
+            doctor_id: "$doctor_id",
+            date: "$date",
+          },
+          // → “læg +1 sammen for hvert dokument” → tælling
+          availableSlots: { $sum: 1 },
+        },
+      },
+      //$lookup for at hente info om lægen fra users-collectionen og tilføjer det som et felt kaldet doctor, fungerer lidt som JOIN
+      {
+        $lookup: {
+          // Gå ind i users-collectionen
+          from: "users",
+          //Jeg har en doctor_id i mit nuværende dokument (under _id og som lige er lavet i $group)
+          localField: "_id.doctor_id",
+          // Find den bruger i users hvor _id matcher det doctor_id jeg har
+          foreignField: "_id",
+          // Gem det fundne brugerobjekt som et nyt felt, kaldet doctor
+          as: "doctor",
+        },
+      },
+      // $unwind gør så doctor bliver et enkelt ojbject og ik et array. "Pakker" en array ud til ét dokument per element
+      { $unwind: "$doctor" },
+      // Vi definerer hvilke felter vi vil have med i resultatet
+      // doctor oplysninger, hvornår tiderne er og hvor mange tider
+      {
+        $project: {
+          doctorId: "$doctor._id",
+          doctorName: "$doctor.name",
+          role: "$doctor.role",
+          date: "$_id.date",
+          availableSlots: 1,
+        },
+      },
+      // Sorter resultatet: vi vil have datoer i stigende rækkefølge, fx man-fre og navne i alfabetisk orden
+      { $sort: { date: 1, doctorName: 1 } },
+    ]);
+
+    res.status(200).json(slots);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "Failed to fetch availability slots", error });
+  }
+};
+
 // **************************************************** Booking og notering
+export const createAppointment = async (req: Request, res: Response) => {
+  try {
+    const { patient_id, doctor_id, slot_id } = req.body;
+    const clinicId = req.user!.clinicId;
+
+    if (!patient_id || !doctor_id || !slot_id) {
+      res.status(400).json({ message: "Missing required fields" });
+      return;
+    }
+
+    // Vi finder den valgte slot med slot_id fra databasen
+    const slot = await AvailabilitySlotModel.findById(slot_id);
+
+    if (!slot || slot.is_booked) {
+      res.status(400).json({ message: "Slot not available" });
+      return;
+    }
+
+    // Opret aftale baseret på slot info
+    const appointment = await AppointmentModel.create({
+      patient_id,
+      doctor_id,
+      clinic_id: clinicId,
+      date: slot.date,
+      time: slot.start_time,
+      status: "venter", //default, når patient bekræfter, så ændrer vi status via patch-endpoint
+    });
+
+    // Marker slot som booket og gem
+    slot.is_booked = true;
+    await slot.save();
+
+    res.status(201).json({ message: "Appointment created", appointment });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error creating appointment", error });
+  }
+};
+
+export const addSymptomNote = async (req: Request, res: Response) => {
+  try {
+    const appointmentId = req.params.id;
+    const { note } = req.body;
+
+    if (!note) {
+      res.status(400).json({ message: "Note is required" });
+      return;
+    }
+
+    const appointment = await AppointmentModel.findById(appointmentId);
+
+    if (!appointment) {
+      res.status(404).json({ message: "Appointment not found" });
+      return;
+    }
+
+    // kun tilføj en note hvis den ik allerede har
+    if (appointment.secretary_note) {
+      res.status(400).json({ message: "Note already exists" });
+      return;
+    }
+
+    appointment.secretary_note = note;
+    await appointment.save();
+
+    res.status(200).json({ message: "Symptom note added", appointment });
+  } catch (error) {
+    res.status(500).json({ message: "Error adding note", error });
+  }
+};
+
 // **************************************************** Dashboard og historik

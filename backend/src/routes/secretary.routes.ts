@@ -2,6 +2,9 @@ import express from "express";
 import { authenticateJWT } from "../middleware/authenticateJWT.middleware";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import {
+  addSymptomNote,
+  createAppointment,
+  getAppointments,
   getDoctors,
   getPatients,
   getUnreadMessages,
@@ -25,7 +28,13 @@ router.patch("/messages/:id/read", markMessageAsReadBySecretary);
 router.get("/patients", getPatients);
 router.get("/patients", searchPatients); // samme som før, men nu med ?search=
 router.get("/doctors", getDoctors);
+
 // Kalender og ledige tider
+router.get("/appointments", getAppointments);
+// availiability slots er i availabilityslots.routes.ts
+
 // Booking og notering
+router.post("/appointments", createAppointment);
+router.patch("/appointments/:id/add-note", addSymptomNote);
 // Dashboard og historik
 export default router;
