@@ -7,6 +7,7 @@ import {
   getAppointments,
   getDoctors,
   getPatients,
+  getTodaysAppointments,
   getUnreadMessages,
   markMessageAsReadBySecretary,
   searchPatients,
@@ -36,5 +37,9 @@ router.get("/appointments", getAppointments);
 // Booking og notering
 router.post("/appointments", createAppointment);
 router.patch("/appointments/:id/add-note", addSymptomNote);
+
 // Dashboard og historik
+router.get("/appointments/today", getTodaysAppointments);
+// staffstatus ligger i user
+
 export default router;

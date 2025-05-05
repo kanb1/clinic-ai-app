@@ -303,6 +303,12 @@ export const createAppointment = async (req: Request, res: Response) => {
       return;
     }
 
+    const doctor = await UserModel.findById(doctor_id);
+    if (!doctor || doctor.role !== "doctor") {
+      res.status(400).json({ message: "Ugyldig læge valgt" });
+      return;
+    }
+
     // Opret aftale baseret på slot info
     const appointment = await AppointmentModel.create({
       patient_id,
@@ -357,3 +363,32 @@ export const addSymptomNote = async (req: Request, res: Response) => {
 };
 
 // **************************************************** Dashboard og historik
+
+// Hent seneste besøg
+export const getTodaysAppointments = async (req: Request, res: Response) => {
+  try {
+    const clinicId = req.user!.clinicId;
+
+    // Lav et datointerval fra start til slut på dagen
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); //Sætter tidspunktet til midnat (starten på dagen).
+
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1); // næste dag = grænse
+
+    const appointments = await AppointmentModel.find({
+      clinic_id: clinicId,
+      // Grænser: gte og lt er "greater than equal" og "less than or equal"
+      date: { $gte: today, $lt: tomorrow }, //Matcher alle tidspunkter i dag, (mellem de to grænser).
+    })
+      .populate("patient_id", "name")
+      .populate("doctor_id", "name")
+      .sort({ time: -1 }); //time refererer til feltet "time" i mine appointments, fx "14:30", "09:15", "11:00" osv., den sorterer efter det fra højeste til laveste så seneste kommer først
+
+    res.status(200).json(appointments);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to fetch today’s appointments", error });
+  }
+};
