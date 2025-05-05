@@ -17,7 +17,7 @@ const MessageSchema: Schema = new Schema(
       required: true,
     },
     receiver_id: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.Mixed, // tillader både ObjectId og string ("all")
       ref: "User",
       required: true,
     },

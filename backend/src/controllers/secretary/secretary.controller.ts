@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { MessageModel } from "../../models/message.model";
 import { IPopulatedMessage } from "../../interfaces/IPopulatedMessage";
+import mongoose from "mongoose";
 
 // HENT NYE BESKEDER
 export const getUnreadMessages = async (req: Request, res: Response) => {
@@ -34,5 +35,38 @@ export const getUnreadMessages = async (req: Request, res: Response) => {
     res.status(200).json(filtered);
   } catch (error) {
     res.status(500).json({ message: "Failed to get unread messages", error });
+  }
+};
+
+// SEND NY BESKED TIL PATIENT
+export const sendMessage = async (req: Request, res: Response) => {
+  try {
+    const { receiver_id, content, type } = req.body;
+
+    if (!receiver_id || !content || !type) {
+      res.status(400).json({ message: "All fields are required" });
+      return;
+    }
+
+    // Hvis receiver_id ikke er "all", skal det være en ObjectId
+    if (
+      receiver_id !== "all" &&
+      !mongoose.Types.ObjectId.isValid(receiver_id)
+    ) {
+      res.status(400).json({ message: "Invalid receiver_id" });
+      return;
+    }
+
+    const newMessage = await MessageModel.create({
+      sender_id: req.user!._id, // sekretæren der er logget ind
+      receiver_id,
+      content,
+      type,
+    });
+
+    res.status(201).json({ message: "Message sent", newMessage });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error sending message", error });
   }
 };
