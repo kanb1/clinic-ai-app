@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { MessageModel } from "../../models/message.model";
+import { AppointmentModel } from "../../models/appointment.model";
 
-// **************************** PATIENT MESSAGES
+// *********************************************************** MESSAGES
 export const getUnreadMessagesForPatient = async (
   req: Request,
   res: Response
@@ -65,3 +66,33 @@ export const markMessageAsRead = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Failed to mark message as read", error });
   }
 };
+
+// *********************************************************** Aftalehåndtering
+export const getUpcomingAppointments = async (req: Request, res: Response) => {
+  try {
+    const patientId = req.user!._id;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Starter ved midnat i dag
+
+    const upcomingAppointments = await AppointmentModel.find({
+      patient_id: patientId,
+      // gte står for greater than or equal altså datoer fra i dag og frem
+      date: { $gte: new Date() }, // fra i dag og frem
+      // "$in" betyder vælg kun aftaler med en af disse statusser
+      status: { $in: ["bekræftet", "venter"] }, // kun relevante statusser
+    })
+      .sort({ date: 1 }) //sorterer efter stigende dato
+      .populate("doctor_id", "name")
+      .populate("clinic_id", "name");
+
+    res.status(200).json(upcomingAppointments);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to fetch upcoming appointments", error });
+  }
+};
+// *********************************************************** Sundhedsdata
+// *********************************************************** Brugerprofil
+// *********************************************************** AI/Chatbot
