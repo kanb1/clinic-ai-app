@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { MessageModel } from "../../models/message.model";
 import { AppointmentModel } from "../../models/appointment.model";
+import { PrescriptionModel } from "../../models/prescription.model";
 
 // *********************************************************** MESSAGES
 export const getUnreadMessagesForPatient = async (
@@ -153,5 +154,27 @@ export const cancelAppointment = async (req: Request, res: Response) => {
 };
 
 // *********************************************************** Sundhedsdata
+export const getPrescriptionsForPatient = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { patientId } = req.params;
+
+    // Find alle recepter til logged in patient
+    const prescriptions = await PrescriptionModel.find({
+      patient_id: patientId,
+    }).sort({ issued_date: -1 }); // nyeste først
+
+    res.status(200).json(prescriptions);
+  } catch (error) {
+    console.error("Fejl ved hentning af recepter:", error);
+    res.status(500).json({
+      message: "Noget gik galt ved hentning af recepter.",
+      error,
+    });
+  }
+};
+
 // *********************************************************** Brugerprofil
 // *********************************************************** AI/Chatbot

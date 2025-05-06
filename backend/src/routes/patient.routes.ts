@@ -4,6 +4,7 @@ import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import {
   cancelAppointment,
   confirmAppointment,
+  getPrescriptionsForPatient,
   getUnreadMessagesForPatient,
   getUpcomingAppointments,
   markMessageAsRead,
@@ -24,6 +25,7 @@ router.patch("/appointments/:id/confirm", confirmAppointment);
 router.patch("/appointments/:id/cancel", cancelAppointment);
 
 // Sundhedsdata
+router.get("/prescriptions/:patientId", getPrescriptionsForPatient);
 // Brugerprofil
 // AI/Chatbot
 
