@@ -93,6 +93,35 @@ export const getUpcomingAppointments = async (req: Request, res: Response) => {
       .json({ message: "Failed to fetch upcoming appointments", error });
   }
 };
+
+export const confirmAppointment = async (req: Request, res: Response) => {
+  try {
+    const appointmentId = req.params.id;
+    const userId = req.user!._id;
+
+    // Find aftalen og tjek at den tilhører brugeren
+    const appointment = await AppointmentModel.findById(appointmentId);
+
+    if (!appointment) {
+      res.status(404).json({ message: "Aftale ikke fundet" });
+      return;
+    }
+
+    // gør patient_id til en string da det en objectId, det samme med userId
+    if (appointment.patient_id.toString() !== userId.toString()) {
+      res.status(403).json({ message: "Du må ikke ændre denne aftale" });
+      return;
+    }
+
+    appointment.status = "bekræftet";
+    await appointment.save();
+
+    res.status(200).json({ message: "Aftale bekræftet" });
+  } catch (error) {
+    res.status(500).json({ message: "Noget gik galt", error });
+  }
+};
+
 // *********************************************************** Sundhedsdata
 // *********************************************************** Brugerprofil
 // *********************************************************** AI/Chatbot
