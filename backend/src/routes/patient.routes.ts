@@ -8,6 +8,7 @@ import {
   getUnreadMessagesForPatient,
   getUpcomingAppointments,
   markMessageAsRead,
+  updateMyProfile,
 } from "../controllers/patient/patient.controller";
 
 const router = express.Router();
@@ -26,7 +27,10 @@ router.patch("/appointments/:id/cancel", cancelAppointment);
 
 // Sundhedsdata
 router.get("/prescriptions/:patientId", getPrescriptionsForPatient);
+
 // Brugerprofil
+// (Hente brugerprofils oplysninger ligger inde i user controlleren, "getMyProfile")
+router.put("/profile", updateMyProfile);
 // AI/Chatbot
 
 export default router;

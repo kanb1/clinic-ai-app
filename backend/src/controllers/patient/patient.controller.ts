@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { MessageModel } from "../../models/message.model";
 import { AppointmentModel } from "../../models/appointment.model";
 import { PrescriptionModel } from "../../models/prescription.model";
+import { UserModel } from "../../models/user.model";
 
 // *********************************************************** MESSAGES
 export const getUnreadMessagesForPatient = async (
@@ -177,4 +178,40 @@ export const getPrescriptionsForPatient = async (
 };
 
 // *********************************************************** Brugerprofil
+export const updateMyProfile = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user!._id;
+    const { email, phone } = req.body;
+
+    if (!email && !phone) {
+      res
+        .status(400)
+        .json({ message: "Du skal angive e-mail og/eller telefonnummer" });
+      return;
+    }
+
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      userId,
+      // $set = "Sæt disse felter til disse værdier", fx email sættes til dne nye værdi af email, men kun hvis den er ændret, ellers forbliver de det samme
+      { $set: { email, phone } },
+      // new: returner den opdaterede version af dokumentet, ikke den gamle (findbyidandupdate)
+      // runvalidators: den kører validation fra mit schema
+      { new: true, runValidators: true }
+    ).select("-password_hash");
+
+    if (!updatedUser) {
+      res.status(404).json({ message: "Bruger ikke fundet" });
+      return;
+    }
+
+    res.status(200).json({
+      message: "Dine oplysninger er opdateret",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Fejl ved opdatering:", error);
+    res.status(500).json({ message: "Noget gik galt", error });
+  }
+};
+
 // *********************************************************** AI/Chatbot
