@@ -2,6 +2,7 @@ import express from "express";
 import { authenticateJWT } from "../middleware/authenticateJWT.middleware";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import {
+  cancelAppointment,
   confirmAppointment,
   getUnreadMessagesForPatient,
   getUpcomingAppointments,
@@ -20,6 +21,7 @@ router.patch("/messages/:id/read", markMessageAsRead);
 // Aftalehåndtering
 router.get("/appointments/upcoming", getUpcomingAppointments);
 router.patch("/appointments/:id/confirm", confirmAppointment);
+router.patch("/appointments/:id/cancel", cancelAppointment);
 
 // Sundhedsdata
 // Brugerprofil

@@ -122,6 +122,36 @@ export const confirmAppointment = async (req: Request, res: Response) => {
   }
 };
 
+export const cancelAppointment = async (req: Request, res: Response) => {
+  try {
+    const appointmentId = req.params.id;
+    const userId = req.user!._id; // fra JWT
+
+    // Find aftalen
+    const appointment = await AppointmentModel.findById(appointmentId);
+
+    if (!appointment) {
+      res.status(404).json({ message: "Ikke mulgit at finde aftale" });
+      return;
+    }
+
+    // Patienten må kun aflyse egne aftaler
+    if (appointment.patient_id.toString() !== userId.toString()) {
+      res
+        .status(403)
+        .json({ message: "Du har ikke adgang til at aflyse denne aftale" });
+      return;
+    }
+
+    appointment.status = "aflyst";
+    await appointment.save();
+
+    res.status(200).json({ message: "Aftale blev aflyst" });
+  } catch (error) {
+    res.status(500).json({ message: "Noget gik galt ved aflysning", error });
+  }
+};
+
 // *********************************************************** Sundhedsdata
 // *********************************************************** Brugerprofil
 // *********************************************************** AI/Chatbot
