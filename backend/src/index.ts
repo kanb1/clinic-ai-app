@@ -43,6 +43,9 @@ app.use("/api/doctors", doctorRoutes);
 // Routes - Patient
 app.use("/api/patients", patientRoutes);
 
+// Needed for the integrationtests with supertest
+export default app;
+
 app.listen(PORT, () => {
   console.log(`🚀 Server is running at http://localhost:${PORT}`);
 });
