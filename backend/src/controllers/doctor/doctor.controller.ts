@@ -25,7 +25,25 @@ export const getTodaysAppointments = async (req: Request, res: Response) => {
   }
 };
 
+// status på ansatte er i user-controlleren, da både sekretær og doctor bruger denne
+
 // Kalender (oversigt over alle aftaler)
+export const getAppointmentsForDoctor = async (req: Request, res: Response) => {
+  try {
+    const doctorId = req.user!._id;
+
+    const appointments = await AppointmentModel.find({
+      doctor_id: doctorId,
+    })
+      .populate("patient_id", "name")
+      .sort({ date: 1, time: 1 });
+
+    res.status(200).json(appointments);
+  } catch (error) {
+    console.error("Error fetching doctor's appointments:", error);
+    res.status(500).json({ message: "Failed to fetch appointments", error });
+  }
+};
 // Dagens aftaler (patientdetaljer og muligheder)
 // Patientoversigt
 // Journaler

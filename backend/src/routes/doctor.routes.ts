@@ -3,6 +3,7 @@ import { authenticateJWT } from "../middleware/authenticateJWT.middleware";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import {
   createPrescription,
+  getAppointmentsForDoctor,
   getTodaysAppointments,
 } from "../controllers/doctor/doctor.controller";
 
@@ -13,8 +14,10 @@ router.use(authorizeRoles(["doctor"]));
 
 // Dashboard (overblik og status på ansatte)
 router.get("/appointments/today", getTodaysAppointments);
+router.get("/appointments", getAppointmentsForDoctor);
 
 // Kalender (oversigt over alle aftaler)
+
 // Dagens aftaler (patientdetaljer og muligheder)
 // Patientoversigt
 // Journaler
