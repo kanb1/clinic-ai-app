@@ -1,7 +1,10 @@
 import express from "express";
 import { authenticateJWT } from "../middleware/authenticateJWT.middleware";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
-import { createPrescription } from "../controllers/doctor/doctor.controller";
+import {
+  createPrescription,
+  getTodaysAppointments,
+} from "../controllers/doctor/doctor.controller";
 
 const router = express.Router();
 
@@ -9,6 +12,8 @@ router.use(authenticateJWT);
 router.use(authorizeRoles(["doctor"]));
 
 // Dashboard (overblik og status på ansatte)
+router.get("/appointments/today", getTodaysAppointments);
+
 // Kalender (oversigt over alle aftaler)
 // Dagens aftaler (patientdetaljer og muligheder)
 // Patientoversigt
