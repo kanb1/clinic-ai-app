@@ -21,7 +21,10 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // MongoDB connection
-connectDB();
+// Hvis env ik er "test", så connect - inde i package.json har vi sat jest testenv. til at være "test", hvor deer ik bliver connected
+if (process.env.NODE_ENV !== "test") {
+  connectDB();
+}
 
 app.use(cors());
 app.use(express.json());
@@ -46,6 +49,9 @@ app.use("/api/patients", patientRoutes);
 // Needed for the integrationtests with supertest
 export default app;
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server is running at http://localhost:${PORT}`);
-});
+//Express-serveren skal kun kaldes under et ikke-test-miljø
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server is running at http://localhost:${PORT}`);
+  });
+}

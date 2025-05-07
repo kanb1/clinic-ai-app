@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "NODE_ENV=test jest --detectOpenHandles", 
     "test:ci": "jest --coverage --watchAll=false",
     "lint": "eslint . --ext .ts --fix",
     "dev": "nodemon src/index.ts",
