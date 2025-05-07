@@ -21,13 +21,15 @@ export const register = async (req: Request, res: Response) => {
     }
 
     // Create new user
-    const user = await UserModel.create({
+    const user = new UserModel({
       name,
       email,
       password_hash: password,
       role,
       clinic_id,
     });
+
+    await user.save();
 
     res.status(201).json({ message: "User got created successfully", user });
   } catch (error) {
