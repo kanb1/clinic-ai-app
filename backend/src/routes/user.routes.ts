@@ -12,7 +12,7 @@ router.get("/me", authenticateJWT, getMyProfile);
 router.get(
   "/staff-statuses",
   authenticateJWT,
-  authorizeRoles(["secretary"]),
+  authorizeRoles(["secretary", "doctor"]),
   getStaffStatuses
 );
 
