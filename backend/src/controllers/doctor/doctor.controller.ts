@@ -339,6 +339,24 @@ export const createPrescription = async (req: Request, res: Response) => {
   }
 };
 
+export const getPrescriptionsByPatient = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { patientId } = req.params;
+
+    const prescriptions = await PrescriptionModel.find({
+      patient_id: patientId,
+    }).sort({ issued_date: -1 }); // nyeste først
+
+    res.status(200).json(prescriptions);
+  } catch (error) {
+    console.error("Failed to fetch prescriptions", error);
+    res.status(500).json({ message: "Failed to fetch prescriptions", error });
+  }
+};
+
 // SEED TESTRESULTS ************ SKAL SLETTES INDEN AFLEVERING ************
 export const createTestResult = async (req: Request, res: Response) => {
   try {

@@ -11,6 +11,7 @@ import {
   getJournalOverview,
   getPatientDetails,
   getPatientsForDoctor,
+  getPrescriptionsByPatient,
   getTestResultsByPatient,
   getTodayAppointmentDetails,
   getTodaysAppointments,
@@ -45,6 +46,7 @@ router.post("/test/create-journal-entry", createTestJournalEntry); //SEED JOURNA
 
 // Recept og Testresultater
 router.post("/prescriptions", createPrescription);
+router.get("/prescriptions/:patientId", getPrescriptionsByPatient);
 router.post("/test/create-testresults", createTestResult); //SEED TEST RESULTS
 router.get("/testresults/:patientId", getTestResultsByPatient);
 
