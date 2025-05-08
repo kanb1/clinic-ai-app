@@ -88,6 +88,38 @@ describe("POST /api/auth/register", () => {
     });
 
     expect(res.status).toBe(201);
-    expect(res.body.user.email).toBe("jane@example.com");
+    expect(res.body.user.email).toBe("k@example.com");
+  });
+
+  it("should return 400 if missing fields", async () => {
+    const res = await request(app).post("/api/auth/register").send({
+      email: "missing@example.com",
+      password: "123456",
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe("All fields are required!");
+  });
+
+  it("should fail if user already exists", async () => {
+    const user = new UserModel({
+      name: "Kanza",
+      email: "k@example.com",
+      password_hash: "hashed123",
+      role: "patient",
+      clinic_id: new mongoose.Types.ObjectId(),
+    });
+    await user.save();
+
+    const res = await request(app).post("/api/auth/register").send({
+      name: "Kanza Bok",
+      email: "k@example.com",
+      password: "pass123",
+      role: "patient",
+      clinic_id: new mongoose.Types.ObjectId(),
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe("User already exists!");
   });
 });
