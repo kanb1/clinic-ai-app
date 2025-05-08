@@ -237,6 +237,7 @@ export const getJournalById = async (req: Request, res: Response) => {
   try {
     const journalId = req.params.id;
 
+    // flere lag af populate, for hver entry:
     const journal = await JournalModel.findById(journalId).populate({
       path: "entries",
       populate: {
