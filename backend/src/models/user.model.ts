@@ -1,9 +1,9 @@
-import mongoose, { Schema, Document } from 'mongoose';
-import bcrypt from 'bcryptjs';
+import mongoose, { Schema, Document } from "mongoose";
+import bcrypt from "bcryptjs";
 
 export interface IUser extends Document {
   name: string;
-  role: 'patient' | 'doctor' | 'secretary' | 'admin';
+  role: "patient" | "doctor" | "secretary" | "admin";
   clinic_id: mongoose.Types.ObjectId;
   email: string;
   password_hash: string;
@@ -11,7 +11,7 @@ export interface IUser extends Document {
   address: string;
   birth_date: Date;
   cpr_number: string;
-  status: 'ledig' | 'optaget' | 'ferie' | 'syg' | 'andet';
+  status: "ledig" | "optaget" | "ferie" | "syg" | "andet";
 }
 
 const UserSchema: Schema = new Schema(
@@ -19,12 +19,12 @@ const UserSchema: Schema = new Schema(
     name: { type: String, required: true },
     role: {
       type: String,
-      enum: ['patient', 'doctor', 'secretary', 'admin'],
+      enum: ["patient", "doctor", "secretary", "admin"],
       required: true,
     },
     clinic_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Clinic',
+      ref: "Clinic",
       required: true,
     },
     email: { type: String, required: true, unique: true },
@@ -32,11 +32,11 @@ const UserSchema: Schema = new Schema(
     phone: { type: String },
     address: { type: String },
     birth_date: { type: Date },
-    cpr_number: { type: String },
+    cpr_number: { type: String, unique: true },
     status: {
       type: String,
-      enum: ['ledig', 'optaget', 'ferie', 'syg', 'andet'],
-      default: 'ledig',
+      enum: ["ledig", "optaget", "ferie", "syg", "andet"],
+      default: "ledig",
     },
   },
   { timestamps: true }
@@ -45,10 +45,10 @@ const UserSchema: Schema = new Schema(
 // **********PRE-SAVE MIDDLEWARE
 // pre-save --> Kør denne funktion inden .save() og .create()
 // this: IUser betyder this refererer til et dokument som følger IUser interfacet. TS ting.. så ts ved this.password_hash det en string
-UserSchema.pre('save', async function (this: IUser, next) {
+UserSchema.pre("save", async function (this: IUser, next) {
   // Kun hvis password_hash er blevet ændret, så hasher vi noget
   // return next: hopper videre til næste middleware/save
-  if (!this.isModified('password_hash')) return next();
+  if (!this.isModified("password_hash")) return next();
 
   try {
     // genererer et salt med 10 runder, tilfældig værdi der tilføjes
@@ -64,4 +64,4 @@ UserSchema.pre('save', async function (this: IUser, next) {
   }
 });
 
-export const UserModel = mongoose.model<IUser>('User', UserSchema);
+export const UserModel = mongoose.model<IUser>("User", UserSchema);
