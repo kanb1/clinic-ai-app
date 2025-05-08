@@ -14,6 +14,7 @@ import "./middleware/authenticateJWT.middleware";
 import secretaryRoutes from "./routes/secretary.routes";
 import availabilityslotsRoutes from "./routes/availabilityslots.routes";
 import doctorRoutes from "./routes/doctor.routes";
+import testRouter from "./routes/test.routes";
 
 dotenv.config();
 
@@ -43,6 +44,8 @@ app.use("/api/secretary", secretaryRoutes);
 app.use("/api/availabilityslots", availabilityslotsRoutes);
 // Routes - Doctor
 app.use("/api/doctors", doctorRoutes);
+app.use("/api", testRouter);
+
 // Routes - Patient
 app.use("/api/patients", patientRoutes);
 
