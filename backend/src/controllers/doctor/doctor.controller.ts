@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { PrescriptionModel } from "../../models/prescription.model";
 import { AppointmentModel } from "../../models/appointment.model";
 import mongoose from "mongoose";
-import { IUser } from "../../models/user.model";
+import { IUser, UserModel } from "../../models/user.model";
 import { IPopulatedAppointment } from "../../interfaces/IPopulatedAppointment";
 
 // Dashboard (overblik og status på ansatte)
@@ -133,6 +133,21 @@ export const cancelAppointmentByDoctor = async (
 };
 
 // Patientoversigt
+export const getPatientsForDoctor = async (req: Request, res: Response) => {
+  try {
+    const clinicId = req.user!.clinicId;
+
+    const patients = await UserModel.find({
+      role: "patient",
+      clinic_id: clinicId,
+    }).select("name birth_date email phone status");
+
+    res.status(200).json(patients);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to fetch patients", error });
+  }
+};
 
 // Journaler
 

@@ -5,6 +5,7 @@ import {
   cancelAppointmentByDoctor,
   createPrescription,
   getAppointmentsForDoctor,
+  getPatientsForDoctor,
   getTodayAppointmentDetails,
   getTodaysAppointments,
 } from "../controllers/doctor/doctor.controller";
@@ -26,6 +27,8 @@ router.get("/appointments/today-details", getTodayAppointmentDetails);
 router.patch("/appointments/:id/cancel", cancelAppointmentByDoctor);
 
 // Patientoversigt
+router.get("/patients", getPatientsForDoctor);
+
 // Journaler
 // Recept og Testresultater
 router.post("/prescriptions", createPrescription);
