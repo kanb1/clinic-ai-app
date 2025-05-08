@@ -4,6 +4,9 @@ import { AppointmentModel } from "../../models/appointment.model";
 import mongoose from "mongoose";
 import { IUser, UserModel } from "../../models/user.model";
 import { IPopulatedAppointment } from "../../interfaces/IPopulatedAppointment";
+import { JournalModel } from "../../models/journal.model";
+import { IPopulatedJournal } from "../../interfaces/IPopulatedJournal";
+import { JournalEntryModel } from "../../models/journalentry.model";
 
 // Dashboard (overblik og status på ansatte)
 export const getTodaysAppointments = async (req: Request, res: Response) => {
@@ -149,7 +152,155 @@ export const getPatientsForDoctor = async (req: Request, res: Response) => {
   }
 };
 
+export const getPatientDetails = async (req: Request, res: Response) => {
+  try {
+    const clinicId = req.user!.clinicId;
+    const patientId = req.params.id;
+
+    const patient = await UserModel.findOne({
+      _id: patientId,
+      role: "patient",
+      clinic_id: clinicId,
+    }).select("-password_hash");
+
+    if (!patient) {
+      res.status(404).json({ message: "Patient not found" });
+      return;
+    }
+
+    res.status(200).json(patient);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to fetch patient details", error });
+  }
+};
+
 // Journaler
+
+// henter alle journaler og kan ogse søge efter specifikke patienter
+export const getJournalOverview = async (req: Request, res: Response) => {
+  try {
+    const clinicId = req.user!.clinicId;
+    // vi henter søgeordet fra URL'en
+    const search = req.query.search as string | undefined;
+
+    // Henter alle journaler fra db (ingen filter endnu)
+    // populate --> hente data om patienten via patient_id-referencen
+    // hvis patienten matcher -> patient_id populated som objekt med navn og birth_date ellers null
+    const journals = await JournalModel.find().populate({
+      // find brugeren som journalen peger på (relation)
+      path: "patient_id",
+      // begrænser hvem vi henter ind i patient_id
+      match: {
+        clinic_id: clinicId, //kun samme klinik
+        role: "patient",
+        ...(search && {
+          //hvis der søgeværdi, så kun:
+          $or: [
+            //or -> bruges til at matche på:
+            // new RegExp(..): gør søgningen case-insensitive
+            // rexexp bliver lavet når søgning sker
+            { name: new RegExp(search, "i") },
+            { email: new RegExp(search, "i") },
+            { cpr_number: new RegExp(search, "i") },
+          ],
+          // hvis der ik er søgeværdi, så henter vi alle patienter i klinikken
+        }),
+      },
+      select: "name birth_date", //henter kun disse for at gøre respons lettere og hurtigere
+    });
+
+    // journals er en liste med alle journaler vi fik fra journalmodel.find() - selvom match fejler - patientid bliver bare null, men populatematch fjerner ik hele journalen - så vi fjerner manuelt her med filter
+    // j er et journal objekt i listen (normalt array)
+    // j.patient_id tjekker om journalen har en gyldig patient
+    const filtered = journals.filter((j) => j.patient_id);
+    // ^vi får altså en ny liste kun med journaler som har en gyldig udfyldt patient efte rpopulate
+
+    // Formatter vores data til en pæn frotnend venlig struktur
+    const formatted = (filtered as unknown as IPopulatedJournal[]).map((j) => ({
+      journalId: j._id,
+      patientName: j.patient_id.name,
+      birthDate: j.patient_id.birth_date,
+      entryCount: j.entries.length,
+    }));
+    res.status(200).json(formatted);
+  } catch (error) {
+    console.error("Failed to get journal overview:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to fetch journal overview", error });
+  }
+};
+
+// Specifikke journal med patientens historik
+export const getJournalById = async (req: Request, res: Response) => {
+  try {
+    const journalId = req.params.id;
+
+    const journal = await JournalModel.findById(journalId).populate({
+      path: "entries",
+      populate: {
+        path: "appointment_id",
+        select: "date time doctor_id",
+        populate: {
+          path: "doctor_id",
+          select: "name role",
+        },
+      },
+    });
+
+    if (!journal) {
+      res.status(404).json({ message: "Journal not found" });
+      return;
+    }
+
+    // Formaterer entries til frotnend
+    const formattedEntries = journal.entries.map((entry: any) => ({
+      id: entry._id,
+      notes: entry.notes,
+      createdByAI: entry.created_by_ai,
+      createdAt: entry.createdAt,
+      appointmentDate: entry.appointment_id?.date,
+      appointmentTime: entry.appointment_id?.time,
+      doctorName: entry.appointment_id?.doctor_id?.name,
+      doctorRole: entry.appointment_id?.doctor_id?.role,
+    }));
+
+    res.status(200).json({
+      journalId: journal._id,
+      patientId: journal.patient_id,
+      entryCount: journal.entries.length,
+      entries: formattedEntries,
+    });
+  } catch (error) {
+    console.error("Failed to fetch journal", error);
+    res.status(500).json({ message: "Failed to fetch journal", error });
+  }
+};
+
+// SEED ENTRIES
+export const createTestJournalEntry = async (req: Request, res: Response) => {
+  try {
+    const { journalId, appointmentId, notes, created_by_ai } = req.body;
+
+    // Opretter selve JournalEntry-dokumentet
+    const newEntry = await JournalEntryModel.create({
+      appointment_id: appointmentId,
+      notes,
+      created_by_ai,
+    });
+
+    //Tilføjer reference til Journal
+    await JournalModel.findByIdAndUpdate(journalId, {
+      $push: { entries: newEntry._id },
+    });
+
+    res.status(201).json({ message: "JournalEntry created", entry: newEntry });
+  } catch (error) {
+    console.error("Error creating JournalEntry:", error);
+    res.status(500).json({ message: "Failed to create entry", error });
+  }
+};
 
 // Recept og Testresultater
 export const createPrescription = async (req: Request, res: Response) => {
