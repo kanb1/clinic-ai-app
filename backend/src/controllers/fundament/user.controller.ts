@@ -23,10 +23,12 @@ export const getMyProfile = async (req: Request, res: Response) => {
 export const getStaffStatuses = async (req: Request, res: Response) => {
   try {
     const clinicId = req.user!.clinicId;
+    const userId = req.user!._id; // fra JWT payload
 
     const staff = await UserModel.find({
       clinic_id: clinicId,
       role: { $in: ["doctor", "secretary"] },
+      _id: { $ne: userId }, // filtrér logged user fra
     }).select("name role status");
 
     res.status(200).json(staff);
