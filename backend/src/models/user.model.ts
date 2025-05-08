@@ -32,7 +32,23 @@ const UserSchema: Schema = new Schema(
     phone: { type: String },
     address: { type: String },
     birth_date: { type: Date },
-    cpr_number: { type: String, unique: true },
+    cpr_number: {
+      type: String,
+      unique: true,
+      sparse: true, //gør at kun udfyldte værdier indexeres, så unique-indexet ignorerer null for dem uden cpr_number, da den ellers også tager dem med
+      validate: {
+        //specialregel tilføjet
+        validator: function (this: IUser, value: string | undefined) {
+          //får automatisk value som er brugerens cpr_number, "this" er den akuelle dokument, for at tjekke hvad role er
+          // hvis det en patient -> felt må ik være null eller undefined
+          if (this.role === "patient") {
+            return value != null && value !== "";
+          }
+          return true; // andre roller må godt mangle det
+        },
+        message: "CPR-nummer er påkrævet for patienter",
+      },
+    },
     status: {
       type: String,
       enum: ["ledig", "optaget", "ferie", "syg", "andet"],
