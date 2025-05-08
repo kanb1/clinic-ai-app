@@ -11,7 +11,7 @@ router.get("/", authenticateJWT, getAvailabilityOverview);
 // Seed testdata
 router.post("/seed", async (req, res) => {
   try {
-    const doctorId = new mongoose.Types.ObjectId("680f84301a671f137d9c8a38");
+    const doctorId = new mongoose.Types.ObjectId("681766d7417431c949707908");
 
     const today = new Date();
     const slots = [];
