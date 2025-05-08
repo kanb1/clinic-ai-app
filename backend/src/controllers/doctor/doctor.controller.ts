@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { PrescriptionModel } from "../../models/prescription.model";
 import { AppointmentModel } from "../../models/appointment.model";
 import mongoose from "mongoose";
+import { IUser } from "../../models/user.model";
+import { IPopulatedAppointment } from "../../interfaces/IPopulatedAppointment";
 
 // Dashboard (overblik og status på ansatte)
 export const getTodaysAppointments = async (req: Request, res: Response) => {
@@ -44,9 +46,60 @@ export const getAppointmentsForDoctor = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Failed to fetch appointments", error });
   }
 };
+
 // Dagens aftaler (patientdetaljer og muligheder)
+
+export const getTodayAppointmentDetails = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const clinicId = req.user!.clinicId;
+
+    // en slags filter for "dagens" aftaler
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // start-slut dato for i dag (00 fra i dag til i morgen 00)
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    // finder alle dagens aftale for klinikken
+    const appointments = await AppointmentModel.find({
+      clinic_id: clinicId,
+      date: { $gte: today, $lt: tomorrow },
+    })
+      .populate("patient_id", "name birth_date")
+      .sort({ time: 1 }); //sorter fra morgen-eftermiddag (stigende)
+
+    // resultatet er allerede formatteret så det er kalr til visning i frotnend-tabel
+    // map -> for hver aftale -> returner objekt med præcis de felter frontend har brug for
+    // IPopulatedAppointment -> tvinger ts til at acceptere at patient_id indeholder name og birth_date -> ts tror det bare er et objectID
+    const formatted = (appointments as unknown as IPopulatedAppointment[]).map(
+      (appt) => {
+        return {
+          id: appt._id,
+          patientName: appt.patient_id.name,
+          birthDate: appt.patient_id.birth_date,
+          time: appt.time,
+          symptoms: appt.secretary_note || "–",
+          journalAvailable: true, //ik færdig endnu
+          status: appt.status,
+        };
+      }
+    );
+
+    res.status(200).json(formatted);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "Failed to fetch today’s appointments", error });
+  }
+};
+
 // Patientoversigt
+
 // Journaler
+
 // Recept og Testresultater
 export const createPrescription = async (req: Request, res: Response) => {
   try {

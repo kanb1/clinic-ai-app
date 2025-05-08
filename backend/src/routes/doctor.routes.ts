@@ -4,6 +4,7 @@ import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import {
   createPrescription,
   getAppointmentsForDoctor,
+  getTodayAppointmentDetails,
   getTodaysAppointments,
 } from "../controllers/doctor/doctor.controller";
 
@@ -14,11 +15,14 @@ router.use(authorizeRoles(["doctor"]));
 
 // Dashboard (overblik og status på ansatte)
 router.get("/appointments/today", getTodaysAppointments);
-router.get("/appointments", getAppointmentsForDoctor);
+// status på ansatte er i user-controlleren, da både sekretær og doctor bruger denne
 
 // Kalender (oversigt over alle aftaler)
+router.get("/appointments", getAppointmentsForDoctor);
 
 // Dagens aftaler (patientdetaljer og muligheder)
+router.get("/appointments/today-details", getTodayAppointmentDetails);
+
 // Patientoversigt
 // Journaler
 // Recept og Testresultater
