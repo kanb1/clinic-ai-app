@@ -2,6 +2,7 @@ import express from "express";
 import { authenticateJWT } from "../middleware/authenticateJWT.middleware";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import {
+  cancelAppointmentByDoctor,
   createPrescription,
   getAppointmentsForDoctor,
   getTodayAppointmentDetails,
@@ -22,6 +23,7 @@ router.get("/appointments", getAppointmentsForDoctor);
 
 // Dagens aftaler (patientdetaljer og muligheder)
 router.get("/appointments/today-details", getTodayAppointmentDetails);
+router.patch("/appointments/:id/cancel", cancelAppointmentByDoctor);
 
 // Patientoversigt
 // Journaler

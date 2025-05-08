@@ -96,6 +96,42 @@ export const getTodayAppointmentDetails = async (
   }
 };
 
+export const cancelAppointmentByDoctor = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const appointmentId = req.params.id;
+    const clinicId = req.user!.clinicId;
+
+    // Tjekker om aftalen findes og tilhører samme klinik
+    const appointment = await AppointmentModel.findOne({
+      _id: appointmentId,
+      clinic_id: clinicId,
+    });
+
+    if (!appointment) {
+      res.status(404).json({ message: "Appointment not found" });
+      return;
+    }
+
+    // Tjek om den allerede er aflyst
+    if (appointment.status === "aflyst") {
+      res.status(400).json({ message: "Appointment already cancelled" });
+      return;
+    }
+
+    // Opdaterer status til aflyst
+    appointment.status = "aflyst";
+    await appointment.save();
+
+    res.status(200).json({ message: "Appointment cancelled", appointment });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error cancelling appointment", error });
+  }
+};
+
 // Patientoversigt
 
 // Journaler
