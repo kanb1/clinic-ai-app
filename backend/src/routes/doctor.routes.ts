@@ -5,11 +5,13 @@ import {
   cancelAppointmentByDoctor,
   createPrescription,
   createTestJournalEntry,
+  createTestResult,
   getAppointmentsForDoctor,
   getJournalById,
   getJournalOverview,
   getPatientDetails,
   getPatientsForDoctor,
+  getTestResultsByPatient,
   getTodayAppointmentDetails,
   getTodaysAppointments,
 } from "../controllers/doctor/doctor.controller";
@@ -43,6 +45,9 @@ router.post("/test/create-journal-entry", createTestJournalEntry); //SEED JOURNA
 
 // Recept og Testresultater
 router.post("/prescriptions", createPrescription);
+router.post("/test/create-testresults", createTestResult); //SEED TEST RESULTS
+router.get("/testresults/:patientId", getTestResultsByPatient);
+
 // AI-noter og journal
 
 export default router;

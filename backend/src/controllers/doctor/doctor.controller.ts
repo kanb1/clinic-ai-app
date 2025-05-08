@@ -7,6 +7,7 @@ import { IPopulatedAppointment } from "../../interfaces/IPopulatedAppointment";
 import { JournalModel } from "../../models/journal.model";
 import { IPopulatedJournal } from "../../interfaces/IPopulatedJournal";
 import { JournalEntryModel } from "../../models/journalentry.model";
+import { TestResultModel } from "../../models/testresult.model";
 
 // Dashboard (overblik og status på ansatte)
 export const getTodaysAppointments = async (req: Request, res: Response) => {
@@ -279,7 +280,7 @@ export const getJournalById = async (req: Request, res: Response) => {
   }
 };
 
-// SEED ENTRIES
+// SEED ENTRIES ************ SKAL SLETTES INDEN AFLEVERING ************
 export const createTestJournalEntry = async (req: Request, res: Response) => {
   try {
     const { journalId, appointmentId, notes, created_by_ai } = req.body;
@@ -335,6 +336,41 @@ export const createPrescription = async (req: Request, res: Response) => {
       message: "Noget gik galt ved oprettelsen af recepten",
       error,
     });
+  }
+};
+
+// SEED TESTRESULTS ************ SKAL SLETTES INDEN AFLEVERING ************
+export const createTestResult = async (req: Request, res: Response) => {
+  try {
+    const { patient_id, test_name, result, date } = req.body;
+
+    const newResult = new TestResultModel({
+      patient_id,
+      test_name,
+      result,
+      date,
+    });
+
+    await newResult.save();
+    res.status(201).json({ message: "Testresultat oprettet", newResult });
+  } catch (error) {
+    console.error("Fejl ved oprettelse af testresultat", error);
+    res.status(500).json({ message: "Fejl ved oprettelse", error });
+  }
+};
+
+export const getTestResultsByPatient = async (req: Request, res: Response) => {
+  try {
+    const patientId = req.params.patientId;
+
+    const results = await TestResultModel.find({ patient_id: patientId }).sort({
+      date: -1,
+    });
+
+    res.status(200).json(results);
+  } catch (error) {
+    console.error("Fejl ved hentning af testresultater", error);
+    res.status(500).json({ message: "Kunne ikke hente testresultater", error });
   }
 };
 
