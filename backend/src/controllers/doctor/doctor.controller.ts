@@ -307,7 +307,10 @@ export const createTestJournalEntry = async (req: Request, res: Response) => {
     res.status(201).json({ message: "JournalEntry created", entry: newEntry });
   } catch (error) {
     console.error("Error creating JournalEntry:", error);
-    res.status(500).json({ message: "Failed to create entry", error });
+    res.status(400).json({
+      message: "Failed to create entry",
+    });
+    return;
   }
 };
 
