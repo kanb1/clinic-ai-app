@@ -21,7 +21,7 @@ export const getTodaysAppointments = async (req: Request, res: Response) => {
     const appointments = await AppointmentModel.find({
       clinic_id: new mongoose.Types.ObjectId(clinicId),
       date: { $gte: startOfDay, $lte: endOfDay },
-      status: { $in: ["godkendt", "aflyst"] },
+      status: { $in: ["bekræftet", "aflyst"] },
     }).populate("patient_id", "name");
 
     res.status(200).json({ appointments });
