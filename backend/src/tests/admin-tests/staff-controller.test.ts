@@ -47,3 +47,71 @@ describe("GET /api/staff", () => {
     expect(res.body[0]).not.toHaveProperty("password_hash");
   });
 });
+
+describe("POST /api/admin/staff/doctors", () => {
+  it("should create new doctor", async () => {
+    const { token } = await createTestUser("admin", clinicId);
+
+    const res = await request(app)
+      .post("/api/admin/staff/doctors")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        name: "Test NewDoctor",
+        email: "newdoc@example.com",
+        password: "passexample",
+        clinic_id: clinicId,
+      });
+
+    expect(res.status).toBe(201);
+    expect(res.body.role).toBe("doctor");
+    expect(res.body.name).toBe("Test NewDoctor");
+  });
+});
+
+describe("PUT /api/admin/staff/doctors/:id", () => {
+  it("should update an existing doctor", async () => {
+    const { token } = await createTestUser("admin", clinicId);
+
+    const doctor = await UserModel.create({
+      name: "Old Doc",
+      email: "old@example.com",
+      password_hash: "123",
+      role: "doctor",
+      clinic_id: clinicId,
+    });
+
+    const res = await request(app)
+      .put(`/api/admin/staff/doctors/${doctor._id}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ name: "Updated Doc", phone: "12345678" });
+
+    expect(res.status).toBe(200);
+    expect(res.body.message).toBe("Doctor updated");
+    expect(res.body.doctor.name).toBe("Updated Doc");
+    expect(res.body.doctor.phone).toBe("12345678");
+  });
+});
+
+describe("DELETE /api/admin/staff/doctors/:id", () => {
+  it("should delete a doctor", async () => {
+    const { token } = await createTestUser("admin", clinicId);
+
+    const doctor = await UserModel.create({
+      name: "Doctor Delete",
+      email: "delete@example.com",
+      password_hash: "pass",
+      role: "doctor",
+      clinic_id: clinicId,
+    });
+
+    const res = await request(app)
+      .delete(`/api/admin/staff/doctors/${doctor._id}`)
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.message).toBe("Doctor deleted successfully");
+
+    const stillExists = await UserModel.findById(doctor._id);
+    expect(stillExists).toBeNull();
+  });
+});
