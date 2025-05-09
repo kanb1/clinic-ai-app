@@ -285,6 +285,12 @@ export const createTestJournalEntry = async (req: Request, res: Response) => {
   try {
     const { journalId, appointmentId, notes, created_by_ai } = req.body;
 
+    if (!journalId || !appointmentId) {
+      return res
+        .status(400)
+        .json({ message: "journalId & appointmentId are neccessary" });
+    }
+
     // Opretter selve JournalEntry-dokumentet
     const newEntry = await JournalEntryModel.create({
       appointment_id: appointmentId,
