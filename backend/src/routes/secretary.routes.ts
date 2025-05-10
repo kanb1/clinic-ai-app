@@ -36,7 +36,7 @@ router.get("/appointments", getAppointments);
 
 // Booking og notering
 router.post("/appointments", createAppointment);
-router.patch("/appointments/:id/add-note", addSymptomNote);
+router.patch("/appointments/:id/secretary-note", addSymptomNote);
 
 // Dashboard og historik
 router.get("/appointments/today", getTodaysAppointments);
