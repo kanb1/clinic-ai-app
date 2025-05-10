@@ -10,31 +10,53 @@ import { AvailabilitySlotModel } from "../../models/availabilityslots.model";
 // HENT NYE BESKEDER
 export const getUnreadMessages = async (req: Request, res: Response) => {
   try {
-    //Henter clinicId fra den logged in user(sekretær)
-    const clinicId = req.user!.clinicId;
-    // Henter brugerens ID til at tjekke om besked er til denne bruger
-    const userId = req.user!._id;
+    const clinicId = req.user!.clinicId.toString();
+    const userId = req.user!._id.toString();
 
-    // Finder alle ulæste beskeder (read: false)
-    const messages = (await MessageModel.find({ read: false })
-      // vigtigt med .populate, da sender- og receiver_id er objectID'er i mongo, så populate gør det til objekter med data -> Så vi kan få fat på brugerens data via den reference
-      .populate("sender_id", "name role clinic_id")
-      .populate(
-        "receiver_id",
-        "name role clinic_id"
-      )) as unknown as IPopulatedMessage[]; //ts-workaround - populate.() gør objectID til brugerobjekter i runtime men det ved TS ikke, da den stadig ser som objectID
+    const messages = await MessageModel.find({
+      // ulæste beskeder
+      read: false,
+      // beskeder enten sendt til alle eller nuværende bruger
+      $or: [{ receiver_id: "all" }, { receiver_id: req.user!._id }],
+      // brugerobjekt af sender_id da det er en objectID
+    }).populate("sender_id", "name role clinic_id");
+
+    //IPopulatedMessage: ts-workaround - populate.() gør objectID til brugerobjekter i runtime men det ved TS ikke, da den stadig ser som objectID
     //as unknown ← ignorer den type, TypeScript tror det er
     // as IPopulatedMessage[] ← brug i stedet denne type (vores interface)
+    // vi fortæller ts at messages faktisk er en array af vores interface for autocomplete og typesikkerhed
+    const filtered = (messages as unknown as IPopulatedMessage[]).filter(
+      (msg) => {
+        const sender = msg.sender_id;
+        // Tjekker at sender_id er et objekt og ikke null
+        // at det har et clinic og den matcher logged in brugers clinic
+        const fromSameClinic =
+          typeof sender === "object" &&
+          // "sender"-objektet har et felt der hedder "clinic_id"
+          "clinic_id" in sender &&
+          sender.clinic_id?.toString() === clinicId;
 
-    // filtrerer kun de beskeder, hvor modtageren (receiver_id) tilhører samme klinik som sekretæren der logget ind lige nu
-    const filtered = messages.filter((msg) => {
-      return (
-        // Beskeden skal være fra samme klinik som den sekretæren tilhører (senderid er et objekt med clinicid pga populate)
-        msg.sender_id.clinic_id === clinicId &&
-        // besked er enten sendt til alle eller den er sendt direkte til den aktuelle sekretær
-        (msg.receiver_id === null || msg.receiver_id._id === userId)
-      );
-    });
+        //Håndterer to tilfælde, om receiver_id er all eller til den sepcifkke bruger
+        // problemet er at receiver_id kan være to forskellige ting, en string "all" eller et objekt emd _id, navn osv
+        const toCurrentUser =
+          // er besked sendt til alle? så matcher den direkte
+          msg.receiver_id === "all" ||
+          // er receiver_id et objekt (typeof)
+          // hvis det ikke er en string, men faktisk et objekt, fordi det et populate resultat, så fortsæt
+          (typeof msg.receiver_id === "object" &&
+            // "in" indeholder det her objekt også et _id?
+            "_id" in msg.receiver_id &&
+            // as unknown: ts ved ik om receiver.id er all eller objectid osv. vi antager det som unknown
+            // as {id..}: nu antager vi at det faktisk er et objekt med et _id-felt
+            // lidt modsigende, men ts-teknik tila t bypasse ts' stramme typer indtil vi ved mere end ts gør -> men nu ved jeg.. fordi jeg tjekkede med typeof og in tidligere
+            (
+              msg.receiver_id as unknown as { _id: mongoose.Types.ObjectId }
+            )._id.toString() === userId);
+
+        // besked kommer kun frem i fitleret hvis begge tjek ovenfor er true, fra samme klinik og til denne her user
+        return fromSameClinic && toCurrentUser;
+      }
+    );
 
     res.status(200).json(filtered);
   } catch (error) {
