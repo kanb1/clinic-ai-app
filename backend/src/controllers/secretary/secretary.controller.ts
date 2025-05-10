@@ -20,7 +20,7 @@ export const getUnreadMessages = async (req: Request, res: Response) => {
       // vigtigt med .populate, da sender- og receiver_id er objectID'er i mongo, så populate gør det til objekter med data -> Så vi kan få fat på brugerens data via den reference
       .populate("sender_id", "name role clinic_id")
       .populate(
-        "recipient_id",
+        "receiver_id",
         "name role clinic_id"
       )) as unknown as IPopulatedMessage[]; //ts-workaround - populate.() gør objectID til brugerobjekter i runtime men det ved TS ikke, da den stadig ser som objectID
     //as unknown ← ignorer den type, TypeScript tror det er
@@ -38,6 +38,7 @@ export const getUnreadMessages = async (req: Request, res: Response) => {
 
     res.status(200).json(filtered);
   } catch (error) {
+    console.error("Error in getUnreadMessages:", error);
     res.status(500).json({ message: "Failed to get unread messages", error });
   }
 };
