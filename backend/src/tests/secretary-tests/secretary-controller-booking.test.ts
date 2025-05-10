@@ -66,6 +66,20 @@ describe("Secretary Booking Endpoints", () => {
     expect(slot?.is_booked).toBe(true);
   });
 
+  it("should return 400 if required fields are missing", async () => {
+    const res = await request(app)
+      .post("/api/secretary/appointments")
+      .set("Authorization", `Bearer ${secretaryToken}`)
+      .send({
+        // fx. mangler slot_id
+        patient_id: patientId,
+        doctor_id: doctorId,
+      });
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe("Missing required fields");
+  });
+
   it("PATCH /appointments/:id/secretary-note should add a note", async () => {
     // 👇 Vi bruger præcis de samme IDs som resten af testen
     const appointment = await AppointmentModel.create({
@@ -87,5 +101,73 @@ describe("Secretary Booking Endpoints", () => {
     expect(res.body.appointment.secretary_note).toBe(
       "Patient klagede over hovedpine"
     );
+  });
+
+  it("should return 400 if note is missing", async () => {
+    const appointment = await AppointmentModel.create({
+      patient_id: patientId,
+      doctor_id: doctorId,
+      clinic_id: clinicId,
+      date: new Date(),
+      time: "11:00",
+      status: "venter",
+    });
+
+    const res = await request(app)
+      .patch(`/api/secretary/appointments/${appointment._id}/secretary-note`)
+      .set("Authorization", `Bearer ${secretaryToken}`)
+      .send({}); // ingen note
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe("Note is required");
+  });
+
+  it("should return 400 if note already exists", async () => {
+    const appointment = await AppointmentModel.create({
+      patient_id: patientId,
+      doctor_id: doctorId,
+      clinic_id: clinicId,
+      date: new Date(),
+      time: "09:00",
+      status: "venter",
+      secretary_note: "Eksisterende note",
+    });
+
+    const res = await request(app)
+      .patch(`/api/secretary/appointments/${appointment._id}/secretary-note`)
+      .set("Authorization", `Bearer ${secretaryToken}`)
+      .send({ note: "Ny note" });
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe("Note already exists");
+  });
+
+  it("should return 404 if appointment is not found", async () => {
+    const fakeId = new mongoose.Types.ObjectId();
+
+    const res = await request(app)
+      .patch(`/api/secretary/appointments/${fakeId}/secretary-note`)
+      .set("Authorization", `Bearer ${secretaryToken}`)
+      .send({ note: "Test note" });
+
+    expect(res.status).toBe(404);
+    expect(res.body.message).toBe("Appointment not found");
+  });
+
+  it("should return 500 if DB error occurs in addSymptomNote", async () => {
+    const spy = jest.spyOn(AppointmentModel, "findById");
+    spy.mockRejectedValueOnce(new Error("Simulated DB error"));
+
+    const res = await request(app)
+      .patch(
+        `/api/secretary/appointments/${new mongoose.Types.ObjectId()}/secretary-note`
+      )
+      .set("Authorization", `Bearer ${secretaryToken}`)
+      .send({ note: "Trigger error" });
+
+    expect(res.status).toBe(500);
+    expect(res.body.message).toMatch(/Error adding note/i);
+
+    spy.mockRestore();
   });
 });

@@ -100,4 +100,31 @@ describe("Secretary Message Endpoints", () => {
     const updated = await MessageModel.findById(msg._id);
     expect(updated?.read).toBe(true);
   });
+
+  it("should return 400 if required fields are missing", async () => {
+    const res = await request(app)
+      .post("/api/secretary/messages")
+      .set("Authorization", `Bearer ${secretaryToken}`)
+      .send({
+        receiver_id: patientId,
+        // mangler content og type
+      });
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe("All fields are required");
+  });
+
+  it("should return 400 if receiver_id is invalid", async () => {
+    const res = await request(app)
+      .post("/api/secretary/messages")
+      .set("Authorization", `Bearer ${secretaryToken}`)
+      .send({
+        receiver_id: "ugyldig_id", // ikke en ObjectId
+        content: "Hej",
+        type: "besked",
+      });
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe("Invalid receiver_id");
+  });
 });
