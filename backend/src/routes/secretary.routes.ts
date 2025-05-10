@@ -5,6 +5,7 @@ import {
   addSymptomNote,
   createAppointment,
   getAppointments,
+  getAvailabilityOverview,
   getDoctors,
   getPatients,
   getTodaysAppointments,
@@ -32,7 +33,7 @@ router.get("/doctors", getDoctors);
 
 // Kalender og ledige tider
 router.get("/appointments", getAppointments);
-// availiability slots er i availabilityslots.routes.ts
+router.get("/availability", authenticateJWT, getAvailabilityOverview);
 
 // Booking og notering
 router.post("/appointments", createAppointment);
