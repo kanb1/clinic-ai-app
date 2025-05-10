@@ -250,6 +250,19 @@ export const getAvailabilityOverview = async (req: Request, res: Response) => {
       match.doctor_id = new mongoose.Types.ObjectId(doctorId as string);
     }
 
+    if (!weekStart) {
+      res
+        .status(400)
+        .json({ message: "weekStart is required (e.g. 2025-05-05)" });
+      return;
+    }
+
+    if (doctorId && !mongoose.Types.ObjectId.isValid(doctorId as string)) {
+      // Hvis der er en doctorId, men den er ugyldig → returner tomt array
+      res.status(200).json([]);
+      return;
+    }
+
     // Aggregations pipeline for at gruppere tiderne -> kompleks forespørgsel med en pipeline af mongo's operationer ($)
     const slots = await AvailabilitySlotModel.aggregate([
       // Vi starter en aggregation og filtrerer først med vores match (dato og evt. lægefilter)
