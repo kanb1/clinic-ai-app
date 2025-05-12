@@ -21,6 +21,10 @@ const TestStyle = () => {
       <Text fontSize="body" fontWeight="normal" fontFamily="body">
         This is body text
       </Text>
+      <Text color="primary.red">Primary-red</Text>
+      <Text color="primary.black">Primary-black</Text>
+      <Text color="secondary.blue">Secondary-blue</Text>
+      <Text color="secondary.green">Secondary-green</Text>
 
       <MyButton theme="solidRed">Aflys</MyButton>
       <MyButton theme="solidGreen">Bekræft</MyButton>

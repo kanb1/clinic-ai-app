@@ -95,12 +95,12 @@ export const customConfig = defineConfig({
     tokens: {
       colors: {
         primary: {
-          500: { value: "#B20D1C" },
-          900: { value: "#000000" },
+          red: { value: "#B20D1C" },
+          black: { value: "#000000" },
         },
         secondary: {
-          500: { value: "#0006b8" },
-          600: { value: "#1c5e3a" },
+          blue: { value: "#0006b8" },
+          green: { value: "#1c5e3a" },
         },
       },
       fontSizes: {
