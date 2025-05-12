@@ -26,6 +26,7 @@ export const buttonRecipe = defineSlotRecipe({
           bg: "#B20D1C",
           color: "white",
           padding: "1rem 2rem",
+          fontWeight: "500",
           minWidth: "10rem",
           borderRadius: "2rem",
           fontSize: "0.9rem",
@@ -40,8 +41,8 @@ export const buttonRecipe = defineSlotRecipe({
           bg: "#1c5e3a",
           color: "white",
           padding: "1rem 2rem",
+          fontWeight: "500",
           minWidth: "10rem",
-
           borderRadius: "2rem",
           fontSize: "0.9rem",
           border: "none",
@@ -55,6 +56,7 @@ export const buttonRecipe = defineSlotRecipe({
           bg: "white",
           color: "black",
           padding: "1rem 2rem",
+          fontWeight: "500",
           minWidth: "10rem",
           borderRadius: "2rem",
           fontSize: "0.9rem",
@@ -69,6 +71,7 @@ export const buttonRecipe = defineSlotRecipe({
           bg: "black",
           color: "white",
           padding: "1rem 2rem",
+          fontWeight: "500",
           minWidth: "10rem",
           borderRadius: "2rem",
           fontSize: "0.9rem",
@@ -109,6 +112,14 @@ export const customConfig = defineConfig({
       fonts: {
         heading: { value: "'Poppins', sans-serif" },
         body: { value: "'Inter', sans-serif" },
+      },
+      fontWeights: {
+        extrathin: { value: "100" },
+        thin: { value: "200" },
+        normal: { value: "400" },
+        medium: { value: "500" },
+        bold: { value: "700" },
+        extrabold: { value: "800" },
       },
     },
     recipes: {
