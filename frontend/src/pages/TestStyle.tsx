@@ -9,10 +9,10 @@ const TestStyle = () => {
       <Heading fontSize="h3">Heading 3</Heading>
       <Text fontSize="body">This is body text</Text>
 
-      <MyButton theme="solidRed">Red Button</MyButton>
-      <MyButton theme="solidGreen">Green Button</MyButton>
-      <MyButton theme="outlineWhite">White Outline Button</MyButton>
-      <MyButton theme="solidBlack">Black Button</MyButton>
+      <MyButton theme="solidRed">Aflys</MyButton>
+      <MyButton theme="solidGreen">Bekræft</MyButton>
+      <MyButton theme="outlineWhite">Læs mere</MyButton>
+      <MyButton theme="solidBlack">Send</MyButton>
     </VStack>
   );
 };

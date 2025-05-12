@@ -13,9 +13,8 @@ export const buttonRecipe = defineSlotRecipe({
   slots: ["root"],
   base: {
     root: {
-      fontWeight: "bold",
       borderRadius: "full",
-      fontFamily: "'Inter', sans-serif",
+      fontFamily: "'Poppins', sans-serif",
       px: "6",
       py: "3",
     },
@@ -26,6 +25,11 @@ export const buttonRecipe = defineSlotRecipe({
         root: {
           bg: "#B20D1C",
           color: "white",
+          padding: "1rem 2rem",
+          minWidth: "10rem",
+          borderRadius: "2rem",
+          fontSize: "0.9rem",
+          border: "none",
           _hover: {
             bg: "#9e0b18",
           },
@@ -35,6 +39,12 @@ export const buttonRecipe = defineSlotRecipe({
         root: {
           bg: "#1c5e3a",
           color: "white",
+          padding: "1rem 2rem",
+          minWidth: "10rem",
+
+          borderRadius: "2rem",
+          fontSize: "0.9rem",
+          border: "none",
           _hover: {
             bg: "#14552e",
           },
@@ -44,6 +54,10 @@ export const buttonRecipe = defineSlotRecipe({
         root: {
           bg: "white",
           color: "black",
+          padding: "1rem 2rem",
+          minWidth: "10rem",
+          borderRadius: "2rem",
+          fontSize: "0.9rem",
           border: "2px solid black",
           _hover: {
             bg: "gray.100",
@@ -54,6 +68,12 @@ export const buttonRecipe = defineSlotRecipe({
         root: {
           bg: "black",
           color: "white",
+          padding: "1rem 2rem",
+          minWidth: "10rem",
+          borderRadius: "2rem",
+          fontSize: "0.9rem",
+          border: "none",
+
           _hover: {
             bg: "#1a1a1a",
           },
