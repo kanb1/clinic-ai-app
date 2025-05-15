@@ -12,11 +12,18 @@ import "@fontsource/poppins/700.css"; // bold
 import "@fontsource/poppins/800.css"; // extrabold
 import "@fontsource/inter/400.css"; // normal
 import "@fontsource/inter/600.css"; // semi-bold
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
+const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ChakraProvider value={system}>
-      <App />
+      <QueryClientProvider client={queryClient}>
+        <App />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
     </ChakraProvider>
   </StrictMode>
 );
