@@ -19,11 +19,11 @@ const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ChakraProvider value={system}>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <ChakraProvider value={system}>
         <App />
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
-    </ChakraProvider>
+      </ChakraProvider>
+      <ReactQueryDevtools initialIsOpen={true} />
+    </QueryClientProvider>
   </StrictMode>
 );
