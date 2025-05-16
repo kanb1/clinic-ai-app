@@ -1,4 +1,3 @@
-// src/main.tsx
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { ChakraProvider } from "@chakra-ui/react";
@@ -14,6 +13,7 @@ import "@fontsource/inter/400.css"; // normal
 import "@fontsource/inter/600.css"; // semi-bold
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import GlobalStyles from "./theme/GlobalStyles.tsx";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +21,7 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <ChakraProvider value={system}>
+        <GlobalStyles />
         <App />
       </ChakraProvider>
       <ReactQueryDevtools initialIsOpen={true} />
