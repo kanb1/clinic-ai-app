@@ -1,15 +1,22 @@
-import { Routes, Route } from "react-router-dom";
+// src/router/FrontpageRoutes.tsx
+import { Routes, Route, Outlet, useNavigate } from "react-router-dom";
 import ChooseRolePage from "../pages/Frontpage/ChooseRolePage";
 import ClinicAuthPage from "../pages/Frontpage/ClinicAuthPage";
-import PatientLoginPage from "@/pages/Frontpage/PatientLoginPage";
+import PatientLoginPage from "../pages/Frontpage/PatientLoginPage";
+import Navbar from "@/components/layout/NavBar";
+import { Box } from "@chakra-ui/react";
 
 const FrontpageRoutes = () => {
   return (
-    <Routes>
-      <Route path="/" element={<ChooseRolePage />} />
-      <Route path="/clinic/auth" element={<ClinicAuthPage />} />
-      <Route path="/patient/login" element={<PatientLoginPage />} />
-    </Routes>
+    <Box minH="100vh">
+      <Routes>
+        <Route element={<Navbar />}>
+          <Route path="/" element={<ChooseRolePage />} />
+          <Route path="/clinic/auth" element={<ClinicAuthPage />} />
+          <Route path="/patient/login" element={<PatientLoginPage />} />
+        </Route>
+      </Routes>
+    </Box>
   );
 };
 

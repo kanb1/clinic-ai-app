@@ -6,7 +6,7 @@ const ChooseRolePage = () => {
   const navigate = useNavigate();
 
   return (
-    <Box p={10} textAlign="center">
+    <Box textAlign="center">
       <Heading fontWeight="extrabold" fontFamily="heading" fontSize="h1" mb={0}>
         Velkommen
       </Heading>
