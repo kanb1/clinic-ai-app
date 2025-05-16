@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { api } from "@/services/api";
+import { api } from "@/services/httpClient";
 
 const fetchPing = async () => {
   const res = await api.get("/ping");
