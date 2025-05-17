@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     navigate("/");
   };
 
-  // når jeg refresher, henter useEffect dem tilbage
+  // når jeg refresher, henter useEffect "user" og "token" tilbage
   // Så snart en komponent loader -> Henter user og token fra localstorage hvis de findes
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
