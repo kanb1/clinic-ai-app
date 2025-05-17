@@ -23,3 +23,21 @@ export const getClinics = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error fetching the clinics", error });
   }
 };
+
+// get specific clinic
+export const getClinicById = async (req: Request, res: Response) => {
+  try {
+    const clinicId = req.params.id;
+    const clinic = await ClinicModel.findById(clinicId);
+
+    if (!clinic) {
+      res.status(404).json({ message: "Clinic not found" });
+      return;
+    }
+
+    res.status(200).json(clinic);
+  } catch (error) {
+    console.error("Error fetching clinic by ID:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+};
