@@ -1,9 +1,10 @@
+import { useAuth } from "@/context/AuthContext";
 import { Box, Flex, Image, Spacer, Button, HStack } from "@chakra-ui/react";
 import { useNavigate, Outlet } from "react-router-dom";
 
 const Navbar = () => {
   const navigate = useNavigate();
-
+  const { user, logout } = useAuth();
   return (
     <>
       <Box
@@ -48,6 +49,19 @@ const Navbar = () => {
             >
               Hjælp
             </Button>
+            {/* Kun vis log ud hvis bruger er logget ind */}
+            {user && (
+              <Button
+                fontSize="body"
+                fontWeight="normal"
+                fontFamily="body"
+                onClick={logout}
+                colorScheme="red"
+                variant="solid"
+              >
+                Log ud
+              </Button>
+            )}
           </HStack>
         </Flex>
       </Box>
