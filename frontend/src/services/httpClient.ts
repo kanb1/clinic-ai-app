@@ -8,7 +8,7 @@ export const api = axios.create({
 });
 
 // Tilføjer token til alle requests, så det ik behøves at gøres manuelt hver gang
-// api.interceptors.request.use: Hver gang jeg sender en request via min api-instans (Axios), skal du lige gøre noget først
+// api.interceptors.request.use: Hver gang jeg sender en request via min api-instans (Axios), skal du lige gøre noget først (en slags mellemstatus)
 api.interceptors.request.use((config) => {
   //  tjekker om der ligger en JWT token gemt i localStorage fra tidligere login
   const token = localStorage.getItem("token");

@@ -1,10 +1,20 @@
 import Navbar from "@/components/layout/NavBar";
 import { RouteObject } from "react-router-dom";
+import RequireRole from "./RequireRole";
 import SecretaryDashboard from "@/pages/Secretary/SecretaryDashboard";
 
 export const secretaryRoutes: RouteObject[] = [
   {
-    element: <Navbar />,
-    children: [{ path: "dashboard", element: <SecretaryDashboard /> }],
+    element: (
+      <RequireRole allowedRoles={["secretary"]}>
+        <Navbar />
+      </RequireRole>
+    ),
+    children: [
+      {
+        path: "dashboard",
+        element: <SecretaryDashboard />,
+      },
+    ],
   },
 ];
