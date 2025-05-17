@@ -4,6 +4,7 @@ import {
   Input,
   NativeSelect,
   Button,
+  Text,
   Stack,
   Box,
   Heading,
@@ -17,13 +18,31 @@ const StaffLoginPage = () => {
   // data: clinics: gem resultatet af data i en variabel kaldet clinics (et array) -> tomt array som fallback hvis data endnu ik er hentet
   // isloading er true mens dataen bliver hentet og samme med error
   const { data: clinics = [], isLoading, error } = useClinics();
-
   const [clinicId, setClinicId] = useState("");
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  // state til fejlbeskeden
+  const [loginRoleError, setLoginRoleError] = useState("");
 
-  const { mutate: login, isPending, isError } = useLogin();
+  // Vi omdøber mutate (funktionen) til login herinde
+  // Her har vi så en funktion, login(), der udfører login svarende til mutate(), altså selve login-funktionen i vores useLogin-hook
+  const {
+    mutate: login,
+    isPending,
+    isError,
+    // kalder useLogin() og giver en funktion emd role som argument (altså vores callback)
+    // hvis du finder ud af at rollen er patient, så kald denne funktion jeg giver dig
+    //(role) => {...} -> callback funktion, som bliver gemt inde i useLogin, og kun bliver kaldt hvis role er patient under login
+    // useLogin modtager min funktion som onRoleError
+  } = useLogin((role) => {
+    if (role === "patient") {
+      // s hvis useLogin kalder onRoleError("patient") vil min kode reagere og vise fejlbesked i min komponent
+      setLoginRoleError("Patienter skal logge ind via patient-siden.");
+    }
+  });
 
+  // Med callback 1: Når bruger trykker log ind kalder vi login({email, password}). useLogin sender login-request til backend og backend svarer det er en patient. useLogin tænker at vi er pås taff-siden og det er en patient, så den kalder på den callback den fik, komponenten reagerer med at vise en fejlbesked
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     //her kalder vi mutate, bare omdøbt til loginen
@@ -78,11 +97,15 @@ const StaffLoginPage = () => {
           </Fieldset.Content>
 
           {/* Feedback */}
-          {isPending && <p>Logger ind...</p>}
+          {isPending && <Text>Logger ind...</Text>}
           {isError && (
-            <p style={{ color: "red" }}>Login mislykkedes. Prøv igen.</p>
+            <Text color="red.500">Login mislykkedes. Prøv igen.</Text>
           )}
-
+          {loginRoleError && (
+            <Text color="red" mt={2}>
+              {loginRoleError}
+            </Text>
+          )}
           <Button
             type="submit"
             alignSelf="flex-start"

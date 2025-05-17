@@ -3,7 +3,7 @@ import { api } from "../../services/httpClient";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
-export const useLogin = () => {
+export const useLogin = (onRoleError?: (role: string) => void) => {
   // REACT QUERY: Bruges til at ændre data (POST/PUT/DELETE) og holder styr på alt dette samtidig:
   // mutate -> (function) når jeg vil sende data, bliver brugt i pagen fx handleSubmit, POST fx login
   // isPending -> (boolean) der fortæller er mutation i gang lige nu?
@@ -17,6 +17,7 @@ export const useLogin = () => {
     // mutationFn: hovedfunktionen som kører når vi kalder mutate
     // modtager data: email og password her
     // hvad skal der ske når brugeren prøver logge ind?
+
     mutationFn: async (data: { email: string; password: string }) => {
       // sender login-info til backend
       const response = await api.post("/auth/login", data);
@@ -28,8 +29,16 @@ export const useLogin = () => {
       setToken(data.token); // gem JWT-token globalt
       setUser(data.user); // gem brugerinfo globalt
 
-      // Redirect baseret på rolle
+      // Modtager en callback onRoleError
+      // Hvis brugeren er patient og forsøger at logge ind via /staff/login bliver login stoppet og callback’en kaldt med rollen
       const role = data.user.role;
+      if (window.location.pathname === "/staff/login" && role === "patient") {
+        // Her bliver funktionen jeg gav aktiveret
+        onRoleError?.(role);
+        return;
+      }
+
+      // Redirect baseret på rolle
       switch (role) {
         case "admin":
           navigate("/admin/dashboard");
