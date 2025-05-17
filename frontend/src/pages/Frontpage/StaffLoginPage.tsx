@@ -11,6 +11,7 @@ import {
 import { useState } from "react";
 import { useClinics } from "@/hooks/fundament/useClinics";
 import { IClinic } from "@/types/clinic.types";
+import { useLogin } from "@/hooks/fundament/useLogin";
 
 const StaffLoginPage = () => {
   // data: clinics: gem resultatet af data i en variabel kaldet clinics (et array) -> tomt array som fallback hvis data endnu ik er hentet
@@ -21,10 +22,13 @@ const StaffLoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const { mutate: login, isPending, isError } = useLogin();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ clinicId, email, password });
-    // useLoginMutation() senere
+    //her kalder vi mutate, bare omdøbt til loginen
+    //funktion vi kalder når vi vils ende data afsted. Den trigger mutationFn, altså login-Post-requesten
+    login({ email, password });
   };
 
   if (isLoading) return <p>Indlæser klinikker...</p>;
@@ -39,31 +43,13 @@ const StaffLoginPage = () => {
       <form onSubmit={handleSubmit}>
         <Fieldset.Root gap={6}>
           <Stack gap={1}>
-            <Fieldset.Legend>Klinikoplysninger</Fieldset.Legend>
+            <Fieldset.Legend>Log ind</Fieldset.Legend>
             <Fieldset.HelperText>
-              Vælg din klinik og log ind med dine oplysninger
+              Indtast dine oplysninger herunder
             </Fieldset.HelperText>
           </Stack>
 
           <Fieldset.Content>
-            {/* Klinik dropdown */}
-            <Field.Root>
-              <Field.Label htmlFor="clinic">Klinik</Field.Label>
-              <NativeSelect.Root>
-                <NativeSelect.Field name="clinic">
-                  <option value="">Vælg klinik</option>
-                  {/* Looper over alle klinikker og laver option for hver i dropdown */}
-                  {/* key={clinic._id}, react kræver at alle elementer i en .map har unik nøgle */}
-                  {/* value={clinic._id}, det ID som bliver sendt videre når brugeren vælger denne her klinik */}
-                  {clinics.map((clinic: IClinic) => (
-                    <option key={clinic._id} value={clinic._id}>
-                      {clinic.name}
-                    </option>
-                  ))}
-                </NativeSelect.Field>
-              </NativeSelect.Root>
-            </Field.Root>
-
             {/* Email */}
             <Field.Root>
               <Field.Label htmlFor="email">Email</Field.Label>
@@ -91,7 +77,18 @@ const StaffLoginPage = () => {
             </Field.Root>
           </Fieldset.Content>
 
-          <Button type="submit" alignSelf="flex-start" colorScheme="red">
+          {/* Feedback */}
+          {isPending && <p>Logger ind...</p>}
+          {isError && (
+            <p style={{ color: "red" }}>Login mislykkedes. Prøv igen.</p>
+          )}
+
+          <Button
+            type="submit"
+            alignSelf="flex-start"
+            colorScheme="red"
+            loading={isPending}
+          >
             Log ind
           </Button>
         </Fieldset.Root>
