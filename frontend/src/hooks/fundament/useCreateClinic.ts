@@ -9,8 +9,10 @@ interface ClinicData {
 
 export const useCreateClinic = () => {
   return useMutation<IClinic, any, ClinicData>({
+    // min post request
     mutationFn: async (data: ClinicData) => {
       const response = await api.post("/clinics", data);
+      // IClinic er returtypen altså typet din model fra backend
       return response.data as IClinic;
     },
   });
