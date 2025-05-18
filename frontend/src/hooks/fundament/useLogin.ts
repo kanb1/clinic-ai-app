@@ -32,8 +32,16 @@ export const useLogin = (onRoleError?: (role: string) => void) => {
       // Modtager en callback onRoleError
       // Hvis brugeren er patient og forsøger at logge ind via /staff/login bliver login stoppet og callback’en kaldt med rollen
       const role = data.user.role;
+
+      // Hvis patient prøver at logge ind via /staff/login → afvis
       if (window.location.pathname === "/staff/login" && role === "patient") {
         // Her bliver funktionen jeg gav aktiveret
+        onRoleError?.(role);
+        return;
+      }
+
+      // Hvis anden rolle end patient prøver at logge ind via /patient/login → afvis
+      if (window.location.pathname === "/patient/login" && role !== "patient") {
         onRoleError?.(role);
         return;
       }
