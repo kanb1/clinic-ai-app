@@ -3,7 +3,10 @@ import { api } from "../../services/httpClient";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
-export const useLogin = (onRoleError?: (role: string) => void) => {
+export const useLogin = (
+  onRoleError?: (role: string) => void,
+  options?: { disableRedirect?: boolean }
+) => {
   // REACT QUERY: Bruges til at ændre data (POST/PUT/DELETE) og holder styr på alt dette samtidig:
   // mutate -> (function) når jeg vil sende data, bliver brugt i pagen fx handleSubmit, POST fx login
   // isPending -> (boolean) der fortæller er mutation i gang lige nu?
@@ -45,6 +48,9 @@ export const useLogin = (onRoleError?: (role: string) => void) => {
         onRoleError?.(role);
         return;
       }
+
+      // kun redirect hvis ikke deaktiveret, i createclinic slår vi det fra
+      if (options?.disableRedirect) return;
 
       // Redirect baseret på rolle
       switch (role) {

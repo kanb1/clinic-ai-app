@@ -6,6 +6,8 @@ import TestStyle from "./pages/TestStyle";
 import { adminRoutes } from "./router/AdminRoutes";
 import { doctorRoutes } from "./router/DoctorRoutes";
 import { secretaryRoutes } from "./router/SecretaryRoutes";
+// Chakra components:
+import { Toaster } from "../src/chakra_components/toaster";
 
 // bruger useRoutes til at læse hele min route struktur
 const App = () => {
@@ -35,7 +37,12 @@ const App = () => {
     },
   ]);
 
-  return routes;
+  return (
+    <>
+      {routes}
+      <Toaster />
+    </>
+  );
 };
 
 export default App;
