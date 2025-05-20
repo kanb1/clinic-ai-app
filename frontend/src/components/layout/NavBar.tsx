@@ -8,7 +8,7 @@ const Navbar = () => {
   return (
     <>
       <Box
-        bg="#f4f4f5"
+        bg="#F8F9FA"
         px={{ base: 4, md: 12 }}
         py={10}
         boxShadow="sm"
