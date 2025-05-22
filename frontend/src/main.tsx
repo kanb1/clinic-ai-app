@@ -2,7 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { ChakraProvider } from "@chakra-ui/react";
 import App from "./App.tsx";
-import { system } from "../src/theme/theme.ts";
+import theme from "../src/theme/theme";
 import "@fontsource/poppins/100.css"; // extra thin
 import "@fontsource/poppins/200.css"; // thin
 import "@fontsource/poppins/400.css"; // regular
@@ -23,7 +23,7 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <ChakraProvider value={system}>
+        <ChakraProvider theme={theme}>
           <GlobalStyles />
           <AuthProvider>
             <App />
