@@ -1,4 +1,4 @@
-import { Box, Heading, VStack, Button } from "@chakra-ui/react";
+import { Box, Heading, VStack, Button, Text } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 
 const ClinicAuthPage = () => {
@@ -11,15 +11,21 @@ const ClinicAuthPage = () => {
         fontFamily="heading"
         textStyle="heading1"
         mb={0}
+        mt={10}
       >
         Log venligst ind
       </Heading>
-      <Heading textStyle="body" fontWeight="thin" fontFamily="heading" mt={10}>
+      <Text
+        textStyle="body"
+        fontWeight="medium"
+        fontFamily="heading"
+        mt={{ sm: 3 }}
+      >
         Log ind i din klinik eller klik på "Opret Klinik", hvis du skal
         registrere din klinik i systemet
-      </Heading>
+      </Text>
 
-      <VStack gap={14} pt={20}>
+      <VStack gap={5} pt={{ sm: 6 }}>
         <Button
           variant="solidRed"
           minW="200px"
