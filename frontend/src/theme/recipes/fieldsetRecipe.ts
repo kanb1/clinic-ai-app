@@ -16,13 +16,14 @@ export const fieldsetRecipe = defineSlotRecipe({
       gap: "1rem",
       margin: "0 auto", // Centrerer horisontalt
       width: "100%",
-      maxWidth: "380px",
+      w: "full", // fylder parent-container
     },
 
     content: {
       display: "flex",
       flexDirection: "column",
       gap: "1rem",
+      width: "100%", // sikrer at children fylder containeren
     },
   },
 } as const);
