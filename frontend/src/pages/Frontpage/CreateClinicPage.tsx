@@ -124,9 +124,18 @@ const CreateClinicPage = () => {
         <>
           {/* vis loginform */}
 
-          <Heading fontSize="2xl" fontWeight="extrabold" mb={6}>
+          <Heading fontSize="2xl" fontWeight="extrabold">
             Admin login
           </Heading>
+          <Text
+            textStyle="body"
+            fontWeight="normal"
+            fontFamily="heading"
+            mb={{ sm: 4, md: 5, lg: 6 }}
+            mt={{ md: 1 }}
+          >
+            Du skal være logget ind som en admin for at udføre denne handling.
+          </Text>
           <form onSubmit={handleLogin}>
             <Stack spacing={6}>
               <FormControl isRequired>
@@ -154,7 +163,12 @@ const CreateClinicPage = () => {
                 </Text>
               )}
 
-              <Button type="submit" colorScheme="red" isLoading={loginPending}>
+              <Button
+                type="submit"
+                bg="primary.red"
+                color="white"
+                isLoading={loginPending}
+              >
                 Log ind
               </Button>
             </Stack>
