@@ -20,23 +20,13 @@ const Sidebar = () => {
       borderRight="1px solid"
       borderColor="gray.200"
     >
-      <Text
-        fontSize="2xl"
-        fontWeight="bold"
-        mb={8}
-        fontFamily="heading"
-        color="gray.700"
-      >
-        Klinika
-      </Text>
-
       <VStack align="stretch" spacing={3}>
         {items.map((item) => (
           <Button
             key={item.path}
             variant="ghost"
             justifyContent="flex-start"
-            fontWeight="normal"
+            fontWeight="medium"
             fontSize="md"
             colorScheme="gray"
             onClick={() => navigate(item.path)}
