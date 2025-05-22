@@ -45,9 +45,24 @@ const PatientLoginPage = () => {
 
   return (
     <Box maxW="md" mx="auto" mt={10} p={6}>
-      <Heading fontSize="2xl" fontWeight="extrabold" mb={6}>
+      <Heading
+        fontWeight="extrabold"
+        fontFamily="heading"
+        textStyle="heading1"
+        mb={{ sm: 1 }}
+        mt={{ sm: 5 }}
+      >
+        {" "}
         Log ind som patient
       </Heading>
+      <Text
+        textStyle="body"
+        fontWeight="normal"
+        fontFamily="heading"
+        mb={{ sm: 5, lg: 8 }}
+      >
+        Indtast venligst dine loginoplysninger.
+      </Text>
 
       <form onSubmit={handleSubmit}>
         <Stack spacing={6}>
@@ -81,7 +96,12 @@ const PatientLoginPage = () => {
             </Text>
           )}
 
-          <Button type="submit" colorScheme="red" isLoading={isPending}>
+          <Button
+            type="submit"
+            bg="primary.red"
+            color="white"
+            isLoading={isPending}
+          >
             Log ind
           </Button>
         </Stack>
