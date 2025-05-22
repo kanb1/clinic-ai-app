@@ -5,8 +5,9 @@ import {
   Input,
   Stack,
   Text,
-  Fieldset,
-  Field,
+  FormControl,
+  FormLabel,
+  useToast,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useLogin } from "@/hooks/fundament/useLogin";
@@ -17,15 +18,17 @@ import { useMyClinic } from "@/hooks/fundament/useMyClinic";
 
 const CreateClinicPage = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const { user } = useAuth();
 
   // login states
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
-
   // opret klinik states
+
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [clinicCreated, setClinicCreated] = useState(false);
@@ -36,6 +39,7 @@ const CreateClinicPage = () => {
     data: myClinic,
     isLoading: isClinicLoading,
     // bruges til at odpatere data efter oprettelse
+
     refetch: refetchMyClinic,
   } = useMyClinic();
 
@@ -48,6 +52,7 @@ const CreateClinicPage = () => {
   }, [user]);
 
   // callback funktion som tjekker rollen
+
   const {
     mutate: login,
     isPending: loginPending,
@@ -56,12 +61,20 @@ const CreateClinicPage = () => {
     (role) => {
       if (role !== "admin") {
         setLoginError("Kun admins må oprette klinikker.");
+        toast({
+          title: "Adgang nægtet",
+          description: "Kun admins må oprette klinikker.",
+          status: "error",
+          duration: 4000,
+          isClosable: true,
+        });
       }
     },
     { disableRedirect: true } //forhindrer auto redirect efter login, da vi selv vil styre flowet her (redirect sker auto i useLogin hook)
   );
 
   //simpelt kalder useCreateClinic() og kalder funktinonen createClinic.
+
   const {
     mutate: createClinic,
     isPending: clinicPending,
@@ -69,6 +82,7 @@ const CreateClinicPage = () => {
   } = useCreateClinic();
 
   // når admin prøver at logge ind
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError("");
@@ -80,15 +94,18 @@ const CreateClinicPage = () => {
   const handleCreateClinic = (e: React.FormEvent) => {
     // stopper browser standard opførsel som reload
     e.preventDefault();
+
     // første argument af vores hook er request data
     // await api.post("/clinics", data);
     createClinic(
       { name, address },
       // andet argumnet: Options-objekt til useMutation, hva der skal ske når lykkes/fejler
+
       {
         onSuccess: () => {
           setClinicCreated(true);
           // opdater clinic-data efter oprettelse
+
           refetchMyClinic();
         },
       }
@@ -96,6 +113,7 @@ const CreateClinicPage = () => {
   };
 
   // mens vi loader clinic
+
   if (isAdminLoggedIn && isClinicLoading) {
     return <Text>Indlæser klinikinformation...</Text>;
   }
@@ -105,41 +123,29 @@ const CreateClinicPage = () => {
       {!isAdminLoggedIn ? (
         <>
           {/* vis loginform */}
+
           <Heading fontSize="2xl" fontWeight="extrabold" mb={6}>
             Admin login
           </Heading>
           <form onSubmit={handleLogin}>
-            <Fieldset.Root gap={6}>
-              <Stack gap={1}>
-                <Fieldset.Legend>Log ind for at oprette klinik</Fieldset.Legend>
-                <Fieldset.HelperText>
-                  Indtast dine admin-login oplysninger
-                </Fieldset.HelperText>
-              </Stack>
+            <Stack spacing={6}>
+              <FormControl isRequired>
+                <FormLabel>Email</FormLabel>
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </FormControl>
 
-              <Fieldset.Content>
-                <Field.Root>
-                  <Field.Label htmlFor="email">Email</Field.Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </Field.Root>
-
-                <Field.Root>
-                  <Field.Label htmlFor="password">Adgangskode</Field.Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </Field.Root>
-              </Fieldset.Content>
+              <FormControl isRequired>
+                <FormLabel>Adgangskode</FormLabel>
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </FormControl>
 
               {loginPending && <Text>Logger ind...</Text>}
               {(loginFailed || loginError) && (
@@ -148,14 +154,15 @@ const CreateClinicPage = () => {
                 </Text>
               )}
 
-              <Button type="submit" colorScheme="red" loading={loginPending}>
+              <Button type="submit" colorScheme="red" isLoading={loginPending}>
                 Log ind
               </Button>
-            </Fieldset.Root>
+            </Stack>
           </form>
         </>
-      ) : myClinic ? (
-        // Hvis admin allerede har en klinik - vis besked og knao
+      ) : // Hvis admin allerede har en klinik - vis besked og knao
+
+      myClinic ? (
         <Box textAlign="center" mt={10}>
           <Heading fontSize="2xl" fontWeight="extrabold" mb={4}>
             Du har allerede oprettet en klinik
@@ -174,9 +181,9 @@ const CreateClinicPage = () => {
             Gå til dashboard
           </Button>
         </Box>
-      ) : clinicCreated ? (
-        // klinik blev lige oprettet → vis success UI
+      ) : // klinik blev lige oprettet → vis success UI
 
+      clinicCreated ? (
         <Box textAlign="center" mt={10}>
           <Heading fontSize="2xl" fontWeight="extrabold" mb={4}>
             Klinik oprettet!
@@ -194,52 +201,39 @@ const CreateClinicPage = () => {
           </Button>
         </Box>
       ) : (
-        // vis formular til oprettelse af klinik
         <>
+          // vis formular til oprettelse af klinik
           <Heading fontSize="2xl" fontWeight="extrabold" mb={6}>
             Opret ny klinik
           </Heading>
           <form onSubmit={handleCreateClinic}>
-            <Fieldset.Root gap={6}>
-              <Stack gap={1}>
-                <Fieldset.Legend>Klinikinformation</Fieldset.Legend>
-                <Fieldset.HelperText>
-                  Udfyld oplysninger om klinikken
-                </Fieldset.HelperText>
-              </Stack>
+            <Stack spacing={6}>
+              <FormControl isRequired>
+                <FormLabel>Kliniknavn</FormLabel>
+                <Input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </FormControl>
 
-              <Fieldset.Content>
-                <Field.Root>
-                  <Field.Label htmlFor="name">Kliniknavn</Field.Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
-                </Field.Root>
-
-                <Field.Root>
-                  <Field.Label htmlFor="address">Adresse</Field.Label>
-                  <Input
-                    id="address"
-                    type="text"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    required
-                  />
-                </Field.Root>
-              </Fieldset.Content>
+              <FormControl isRequired>
+                <FormLabel>Adresse</FormLabel>
+                <Input
+                  type="text"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                />
+              </FormControl>
 
               {clinicError && (
                 <Text color="red.500">Kunne ikke oprette klinikken.</Text>
               )}
 
-              <Button type="submit" colorScheme="red" loading={clinicPending}>
+              <Button type="submit" colorScheme="red" isLoading={clinicPending}>
                 Opret klinik
               </Button>
-            </Fieldset.Root>
+            </Stack>
           </form>
         </>
       )}

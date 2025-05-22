@@ -1,64 +1,64 @@
 import { useAuth } from "@/context/AuthContext";
-import { Box, Flex, Image, Spacer, Button, HStack } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Image,
+  Button,
+  HStack,
+  Spacer,
+  useBreakpointValue,
+} from "@chakra-ui/react";
 import { useNavigate, Outlet } from "react-router-dom";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+
+  // Brug mindre padding på mobil
+  const paddingX = useBreakpointValue({ base: 4, md: 12 });
+  const paddingY = useBreakpointValue({ base: 6, md: 10 });
+
   return (
     <>
       <Box
-        bg="#F8F9FA"
-        px={{ base: 4, md: 12 }}
-        py={10}
+        bg="gray.50"
+        px={paddingX}
+        py={paddingY}
         boxShadow="sm"
-        borderBottom="2px solid rgba(0, 0, 0, 0.1)"
+        borderBottom="1px solid"
+        borderColor="gray.200"
         position="relative"
+        zIndex={10}
       >
-        {" "}
-        <Flex align="center">
+        <Flex align="center" justify="space-between">
           <Image
             src="/images/KlinikaLogo.png"
             alt="Klinika Logo"
             height="50px"
+            cursor="pointer"
+            onClick={() => navigate("/")}
           />
 
-          <Spacer />
-
-          {/* Navigation links */}
-          <HStack gap={4}>
+          <HStack spacing={{ base: 4, md: 8 }}>
             <Button
-              fontSize="body"
+              variant="ghost"
               fontWeight="normal"
-              fontFamily="body"
+              fontSize="md"
               onClick={() => navigate("/about")}
-              border="none"
-              backgroundColor="transparent"
-              padding={10}
             >
               Om os
             </Button>
             <Button
-              fontSize="body"
+              variant="ghost"
               fontWeight="normal"
-              fontFamily="body"
+              fontSize="md"
               onClick={() => navigate("/help")}
-              border="none"
-              backgroundColor="transparent"
-              padding={20}
             >
               Hjælp
             </Button>
-            {/* Kun vis log ud hvis bruger er logget ind */}
+
             {user && (
-              <Button
-                fontSize="body"
-                fontWeight="normal"
-                fontFamily="body"
-                onClick={logout}
-                colorScheme="red"
-                variant="solid"
-              >
+              <Button variant="solid" colorScheme="red" onClick={logout}>
                 Log ud
               </Button>
             )}
@@ -66,8 +66,6 @@ const Navbar = () => {
         </Flex>
       </Box>
 
-      {/* Her vises children-routes */}
-      {/* Outlet bruges til at vise child routes. Uden den så ved React Router ikke hvor fx <ChooseRolePage /> skal rendres i frontpageroutes */}
       <Outlet />
     </>
   );

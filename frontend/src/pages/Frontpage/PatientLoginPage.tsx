@@ -5,8 +5,9 @@ import {
   Input,
   Stack,
   Text,
-  Fieldset,
-  Field,
+  FormControl,
+  FormLabel,
+  useToast,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useLogin } from "@/hooks/fundament/useLogin";
@@ -15,8 +16,10 @@ const PatientLoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginRoleError, setLoginRoleError] = useState("");
+  const toast = useToast();
 
   // Kald useLogin med denne callback funktion hvis brugeren ikke er patient
+
   const {
     mutate: login,
     isPending,
@@ -24,6 +27,14 @@ const PatientLoginPage = () => {
   } = useLogin((role) => {
     if (role !== "patient") {
       setLoginRoleError("Kun patienter kan logge ind her.");
+      toast({
+        title: "Forkert rolle",
+        description: "Kun patienter kan logge ind på denne side.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom-right",
+      });
     }
   });
 
@@ -39,41 +50,27 @@ const PatientLoginPage = () => {
       </Heading>
 
       <form onSubmit={handleSubmit}>
-        <Fieldset.Root gap={6}>
-          <Stack gap={1}>
-            <Fieldset.Legend>Login</Fieldset.Legend>
-            <Fieldset.HelperText>
-              Indtast dine oplysninger herunder
-            </Fieldset.HelperText>
-          </Stack>
+        <Stack spacing={6}>
+          <FormControl isRequired>
+            <FormLabel>Email</FormLabel>
+            <Input
+              name="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </FormControl>
 
-          <Fieldset.Content>
-            <Field.Root>
-              <Field.Label htmlFor="email">Email</Field.Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </Field.Root>
+          <FormControl isRequired>
+            <FormLabel>Adgangskode</FormLabel>
+            <Input
+              name="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </FormControl>
 
-            <Field.Root>
-              <Field.Label htmlFor="password">Adgangskode</Field.Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </Field.Root>
-          </Fieldset.Content>
-
-          {/* Feedback */}
           {isPending && <Text>Logger ind...</Text>}
           {isError && (
             <Text color="red.500">Login mislykkedes. Prøv igen.</Text>
@@ -84,15 +81,10 @@ const PatientLoginPage = () => {
             </Text>
           )}
 
-          <Button
-            type="submit"
-            alignSelf="flex-start"
-            colorScheme="red"
-            loading={isPending}
-          >
+          <Button type="submit" colorScheme="red" isLoading={isPending}>
             Log ind
           </Button>
-        </Fieldset.Root>
+        </Stack>
       </form>
     </Box>
   );
