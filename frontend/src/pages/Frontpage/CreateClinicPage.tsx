@@ -8,6 +8,7 @@ import {
   FormControl,
   FormLabel,
   useToast,
+  Icon,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useLogin } from "@/hooks/fundament/useLogin";
@@ -15,6 +16,8 @@ import { useCreateClinic } from "@/hooks/fundament/useCreateClinic";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useMyClinic } from "@/hooks/fundament/useMyClinic";
+import { CheckCircleIcon } from "@chakra-ui/icons";
+import { CloseIcon } from "@chakra-ui/icons";
 
 const CreateClinicPage = () => {
   const navigate = useNavigate();
@@ -119,7 +122,7 @@ const CreateClinicPage = () => {
   }
 
   return (
-    <Box maxW="md" mx="auto" mt={10} p={6}>
+    <Box maxW="md" mx="auto" mt={10}>
       {!isAdminLoggedIn ? (
         <>
           {/* vis loginform */}
@@ -174,49 +177,93 @@ const CreateClinicPage = () => {
             </Stack>
           </form>
         </>
-      ) : // Hvis admin allerede har en klinik - vis besked og knao
+      ) : // klinik blev lige oprettet → vis success UI
 
-      myClinic ? (
+      clinicCreated ? (
         <Box textAlign="center" mt={10}>
-          <Heading fontSize="2xl" fontWeight="extrabold" mb={4}>
-            Du har allerede oprettet en klinik
+          <Box textAlign="center" mt={10}>
+            <CheckCircleIcon boxSize="80px" color="green.400" />
+          </Box>
+          <Heading
+            fontWeight="extrabold"
+            fontFamily="heading"
+            textStyle="heading1"
+            mb={0}
+            mt={{ sm: 5 }}
+          >
+            Klinik oprettet!
           </Heading>
-          <Text fontSize="md" mb={2}>
-            <strong>{myClinic.name}</strong>
-          </Text>
-          <Text fontSize="sm" color="gray.600">
-            {myClinic.address}
+          <Text
+            textStyle="body"
+            fontWeight="normal"
+            fontFamily="heading"
+            mt={{ sm: 3 }}
+          >
+            Din klinik er nu oprettet i systemet. Du kan nu administrere din
+            klinik på din profil.
           </Text>
           <Button
             mt={6}
-            colorScheme="red"
+            variant="solidBlack"
             onClick={() => navigate("/admin/dashboard")}
           >
             Gå til dashboard
           </Button>
         </Box>
-      ) : // klinik blev lige oprettet → vis success UI
+      ) : // Hvis admin allerede har en klinik - vis besked og knao
 
-      clinicCreated ? (
+      myClinic ? (
         <Box textAlign="center" mt={10}>
-          <Heading fontSize="2xl" fontWeight="extrabold" mb={4}>
-            Klinik oprettet!
+          <Box
+            w="100px"
+            h="100px"
+            borderRadius="full"
+            bg="red.500"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            boxShadow="md"
+            mx="auto"
+          >
+            <Icon as={CloseIcon} boxSize="40px" color="white" />
+          </Box>
+          <Heading
+            fontWeight="extrabold"
+            fontFamily="heading"
+            textStyle="heading1"
+            mb={{ sm: 8 }}
+            mt={{ sm: 5 }}
+          >
+            Du har allerede oprettet en klinik:
           </Heading>
-          <Text fontSize="md">
-            Din klinik er nu oprettet i systemet. Du kan nu tilføje personale og
-            patienter.
-          </Text>
+          <Box
+            border="1px solid"
+            borderColor="gray.200"
+            borderRadius="xl"
+            p={6}
+            bg="white"
+            boxShadow="md"
+          >
+            <Text fontSize="md" fontWeight="bold" mb={1}>
+              {myClinic.name}
+            </Text>
+            <Text fontSize="sm" color="gray.600">
+              {myClinic.address}
+            </Text>
+          </Box>
           <Button
-            mt={6}
-            colorScheme="red"
+            variant="solidBlack"
+            minW="200px"
+            mt={{ sm: 10 }}
             onClick={() => navigate("/admin/dashboard")}
           >
             Gå til dashboard
           </Button>
         </Box>
       ) : (
+        // vis formular til oprettelse af klinik
+
         <>
-          // vis formular til oprettelse af klinik
           <Heading fontSize="2xl" fontWeight="extrabold" mb={6}>
             Opret ny klinik
           </Heading>
@@ -244,7 +291,12 @@ const CreateClinicPage = () => {
                 <Text color="red.500">Kunne ikke oprette klinikken.</Text>
               )}
 
-              <Button type="submit" colorScheme="red" isLoading={clinicPending}>
+              <Button
+                type="submit"
+                bg="primary.red"
+                color="white"
+                isLoading={clinicPending}
+              >
                 Opret klinik
               </Button>
             </Stack>
