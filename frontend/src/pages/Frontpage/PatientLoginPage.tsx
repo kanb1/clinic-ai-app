@@ -44,7 +44,7 @@ const PatientLoginPage = () => {
   };
 
   return (
-    <Box maxW="md" mx="auto" mt={10} p={6}>
+    <Box maxW="md" mx="auto" mt={10} p={4}>
       <Heading
         fontWeight="extrabold"
         fontFamily="heading"
