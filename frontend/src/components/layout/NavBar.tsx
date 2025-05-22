@@ -7,6 +7,7 @@ import {
   HStack,
   Spacer,
   useBreakpointValue,
+  color,
 } from "@chakra-ui/react";
 import { useNavigate, Outlet } from "react-router-dom";
 
@@ -58,7 +59,12 @@ const Navbar = () => {
             </Button>
 
             {user && (
-              <Button variant="solid" colorScheme="red" onClick={logout}>
+              <Button
+                color="white"
+                bg="primary.black"
+                _hover={{ bg: "gray" }}
+                onClick={logout}
+              >
                 Log ud
               </Button>
             )}
