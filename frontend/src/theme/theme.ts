@@ -5,8 +5,25 @@ import {
   defineSlotRecipe,
 } from "@chakra-ui/react";
 
-// defienSlotRecipe -> bruges til at lave komponentvarianter med slots, fx Button
+// baseconfig -> runtime logic - mens mine tokens er mine designværdier, så er baseConfig min hovedlogik ift hvad er hvad
+// fx md betyder 30em og mine tokens er min opsætning
+const baseConfig = {
+  ...defaultBaseConfig,
+  theme: {
+    ...defaultBaseConfig.theme,
+    // runtime responsiveness
+    breakpoints: {
+      base: "0em",
+      sm: "30em",
+      md: "48em",
+      lg: "62em",
+      xl: "80em",
+      "2xl": "96em",
+    },
+  },
+};
 
+// defienSlotRecipe -> bruges til at lave komponentvarianter med slots, fx Button
 export const buttonRecipe = defineSlotRecipe({
   className: "button",
   // slots -> en del af en komponent som kan styles indiivduelt, fx har Button et ikon og en label og selve knappen (root)
@@ -103,12 +120,7 @@ export const customConfig = defineConfig({
           green: { value: "#1c5e3a" },
         },
       },
-      fontSizes: {
-        h1: { value: "48px" },
-        h2: { value: "40px" },
-        h3: { value: "33px" },
-        body: { value: "16px" },
-      },
+
       fonts: {
         heading: { value: "'Poppins', sans-serif" },
         body: { value: "'Inter', sans-serif" },
@@ -122,6 +134,60 @@ export const customConfig = defineConfig({
         extrabold: { value: "800" },
       },
     },
+    textStyles: {
+      heading1: {
+        description: "Responsiv heading 1",
+        value: {
+          fontSize: {
+            base: "24px",
+            md: "36px",
+            lg: "48px",
+          },
+          fontWeight: "bold",
+          lineHeight: "120%",
+          fontFamily: "heading",
+        },
+      },
+      heading2: {
+        description: "Responsiv heading 2",
+        value: {
+          fontSize: {
+            base: "20px",
+            md: "30px",
+            lg: "40px",
+          },
+          fontWeight: "bold",
+          lineHeight: "120%",
+          fontFamily: "heading",
+        },
+      },
+      heading3: {
+        description: "Responsiv heading 3",
+        value: {
+          fontSize: {
+            base: "18px",
+            md: "24px",
+            lg: "32px",
+          },
+          fontWeight: "medium",
+          lineHeight: "120%",
+          fontFamily: "heading",
+        },
+      },
+      body: {
+        description: "Responsiv body text",
+        value: {
+          fontSize: {
+            base: "14px",
+            md: "16px",
+            lg: "18px",
+          },
+          fontWeight: "normal",
+          lineHeight: "160%",
+          fontFamily: "body",
+        },
+      },
+    },
     recipes: {
       Button: buttonRecipe, //kombinerer med mine knap-varianter
     },
@@ -130,4 +196,4 @@ export const customConfig = defineConfig({
 
 // createsystem -> kombinerer min config emd grundlæggende chak system
 // defautlBaseConfig -> udgangspunkt for chakra v3s nye theme arkitektur
-export const system = createSystem(defaultBaseConfig, customConfig);
+export const system = createSystem(baseConfig, customConfig);

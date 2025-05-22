@@ -4,21 +4,21 @@ import { MyButton } from "../chakra_components/MyButton";
 const TestStyle = () => {
   return (
     <VStack gap={6} p={10}>
-      <Heading fontSize="h1" fontWeight="extrabold" fontFamily="heading">
+      <Heading textStyle="heading1" fontWeight="extrabold" fontFamily="heading">
         Heading 1
       </Heading>
-      <Heading fontSize="h2" fontWeight="medium" fontFamily="heading">
+      <Heading textStyle="heading2" fontWeight="medium" fontFamily="heading">
         Heading 2
       </Heading>
       <Heading
-        fontSize="h3"
+        textStyle="heading3"
         fontWeight="thin"
         fontFamily="heading"
         fontStyle="italic"
       >
         Heading 3
       </Heading>
-      <Text fontSize="body" fontWeight="normal" fontFamily="body">
+      <Text textStyle="body" fontWeight="normal" fontFamily="body">
         This is body text
       </Text>
       <Text color="primary.red">Primary-red</Text>
