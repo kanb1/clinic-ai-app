@@ -362,6 +362,7 @@ export const createAppointment = async (req: Request, res: Response) => {
       clinic_id: clinicId,
       date: slot.date,
       time: slot.start_time,
+      end_time: slot.end_time,
       status: "venter", //default, når patient bekræfter, så ændrer vi status via patch-endpoint
     });
 
@@ -439,26 +440,59 @@ export const getTodaysAppointments = async (req: Request, res: Response) => {
   }
 };
 
-// Hent seneste besøg:
+// skal vise alle dagens aftaler indtil nu
+// Hente kun dagens aftaler, altså fra midnat og frem.
+// Filtrere dem baseret på tidspunkt, så det kun er tider før nu.
 export const getPastAppointmentsToday = async (req: Request, res: Response) => {
   try {
     const clinicId = req.user!.clinicId;
 
+    // aktuelle tidspunkt
     const now = new Date();
+    //er i dag kl. 00:00, så vi kan filtrere alt der sker fra i dag og frem
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
 
+    // find alle appointments som:
     const appointments = await AppointmentModel.find({
-      clinic_id: clinicId,
-      date: { $gte: startOfDay, $lte: now },
-      status: { $in: ["bekræftet", "udført"] },
+      clinic_id: clinicId, //der tilhører denne klinik
+      date: { $gte: startOfDay }, // som har en date fra i dag og frem
+      status: { $in: ["bekræftet", "udført", "aflyst"] }, //de her statusser vil vi gerne se
     })
       .populate("patient_id", "name")
-      .populate("doctor_id", "name")
-      .sort({ date: -1, time: -1 })
-      .limit(4);
+      .populate("doctor_id", "name"); //Populerer patient og læge navn, så vi får deres navne med i stedet for bare deres ID’er.
 
-    res.status(200).json(appointments);
+    // Trækker timer og minutter ud af now (altså tidspunktet lige nu), fx 17 og 25
+    const nowHours = now.getHours();
+    const nowMinutes = now.getMinutes();
+
+    const filtered = appointments.filter((appt) => {
+      // Splitter appt.time, som fx er "10:30", til hourStr = "10" og minuteStr = "30"
+      const [hourStr, minuteStr] = appt.time.split(":");
+      // Konverterer dem til tal, så vi kan sammenligne dem med det aktuelle tidspunkt
+      const apptHour = parseInt(hourStr);
+      const apptMin = parseInt(minuteStr);
+      // Filtrerer kun de aftaler som:
+      return (
+        // er i dag
+        appt.date.toDateString() === now.toDateString() &&
+        // og som allerede er begyndt eller overstået (tidspunkt tidligere end nu)
+        (apptHour < nowHours ||
+          (apptHour === nowHours && apptMin <= nowMinutes))
+      );
+    });
+
+    // Sorter og begræns til de 4 nyeste
+    const sorted = filtered
+      .sort((a, b) => {
+        if (a.date.getTime() !== b.date.getTime()) {
+          return b.date.getTime() - a.date.getTime(); // nyeste dato først, selvom de alle er i dag, men for en sikkerhedsskyld
+        }
+        return b.time.localeCompare(a.time); // nyeste tid først (efter tjekket dato)
+      })
+      .slice(0, 4); //derefter begrænser vi til de 4 nyeste
+
+    res.status(200).json(sorted);
   } catch (error) {
     console.error("Error fetching past appointments:", error);
     res
