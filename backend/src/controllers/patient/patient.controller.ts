@@ -16,10 +16,16 @@ export const getUnreadMessagesForPatient = async (
     const messages = await MessageModel.find({
       read: false,
       $or: [
-        { receiver_id: new mongoose.Types.ObjectId(userId) }, // patient
-        { receiver_id: "all" }, // broadcast
+        { receiver_scope: "all" },
+        { receiver_scope: "patients" },
+        {
+          receiver_scope: "individual",
+          receiver_id: new mongoose.Types.ObjectId(userId),
+        },
       ],
     });
+    console.log("🔎 User ID:", userId);
+    console.log("📩 Query result:", messages);
 
     res.status(200).json(messages);
   } catch (error) {
