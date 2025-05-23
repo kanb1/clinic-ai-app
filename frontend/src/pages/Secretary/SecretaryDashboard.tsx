@@ -3,6 +3,7 @@ import { useMarkMessageAsRead } from "../../hooks/secretary/dashboardHooks/useMa
 import { useStaffStatus } from "../../hooks/secretary/dashboardHooks/useStaffStatus";
 import { useUpdateMyStatus } from "../../hooks/secretary/dashboardHooks/useUpdateMyStatus";
 import ToggleStatusButton from "../../components/ui/ToggleStatusButton";
+import { usePastAppointmentsToday } from "../../hooks/secretary/dashboardHooks/useTodaysPastAppointments";
 
 import {
   Badge,
@@ -22,6 +23,8 @@ const SecretaryDashboard = () => {
   const { data: staff } = useStaffStatus();
   const { mutate: updateStatus } = useUpdateMyStatus();
   const { user } = useAuth();
+  const { data: pastAppointments, isLoading: isLoadingPast } =
+    usePastAppointmentsToday();
 
   const handleToggle = (currentStatus: "ledig" | "optaget") => {
     const newStatus = currentStatus === "ledig" ? "optaget" : "ledig";
@@ -29,7 +32,51 @@ const SecretaryDashboard = () => {
   };
 
   return (
-    <Flex p={4} gap={8} alignItems="flex-start">
+    <Flex gap={4} overflowX="auto">
+      {" "}
+      <Box mb={8}>
+        <Heading size="md" mb={2}>
+          Livefeed
+        </Heading>
+        {isLoadingPast && <Spinner />}
+        <Flex gap={4} overflowX="auto">
+          {pastAppointments?.map((appt) => (
+            <Box
+              key={appt._id}
+              minW="200px"
+              bg="gray.100"
+              p={4}
+              borderRadius="md"
+              boxShadow="sm"
+            >
+              <Text fontWeight="bold">
+                {" "}
+                {appt.time} – {appt.end_time || "?"}
+              </Text>
+              <Text fontSize="sm">
+                {appt.patient_id?.name || "Ukendt patient"}
+              </Text>
+              <Text fontSize="sm" color="gray.500">
+                Hos: {appt.doctor_id?.name || "Ukendt læge"}
+              </Text>
+              <Badge
+                mt={2}
+                colorScheme={
+                  appt.status === "bekræftet"
+                    ? "green"
+                    : appt.status === "aflyst"
+                    ? "red"
+                    : appt.status === "udført"
+                    ? "blue"
+                    : "gray"
+                }
+              >
+                {appt.status}
+              </Badge>
+            </Box>
+          ))}
+        </Flex>
+      </Box>
       <Box flex={1}>
         <Heading size="md" mb={4}>
           📨 Nye beskeder til klinikken
@@ -76,7 +123,6 @@ const SecretaryDashboard = () => {
           )}
         </VStack>
       </Box>
-
       <Box w="xs">
         <Heading size="sm" mb={4}>
           Personale
