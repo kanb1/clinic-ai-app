@@ -3,6 +3,7 @@ import { UserModel } from "../../models/user.model";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 import crypto from "crypto";
+import { MessageModel } from "../../models/message.model";
 
 // FÅ FAT PÅ ALLE MEDARBEJDERE
 export const getStaff = async (req: Request, res: Response) => {
@@ -336,3 +337,7 @@ export const deletePatient = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error deleting patient", error });
   }
 };
+
+// ************************************************* */ SEND MESSAGES AS ADMIN
+
+// Vi genbruger samme besked-api "sendMessage" som sekretæren bruger

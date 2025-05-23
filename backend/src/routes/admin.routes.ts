@@ -14,6 +14,7 @@ import {
 } from "../controllers/admin/staff.controller";
 import { authenticateJWT } from "../middleware/authenticateJWT.middleware";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
+import { sendMessage } from "../controllers/secretary/secretary.controller";
 
 const router = express.Router();
 
@@ -37,5 +38,8 @@ router.get("/lookup/:cpr", lookupPatientByCpr);
 router.put("/:id", updatePatient);
 
 router.delete("/:id", deletePatient);
+
+// Genbrug fra sekretær:
+router.post("/messages", sendMessage);
 
 export default router;
