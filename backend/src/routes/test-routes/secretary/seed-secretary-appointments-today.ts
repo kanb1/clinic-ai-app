@@ -7,7 +7,7 @@ import { UserModel } from "../../../models/user.model";
 export const seedAppointmentsToday = async (req: Request, res: Response) => {
   try {
     const clinicId = req.user!.clinicId;
-    const doctorId = new mongoose.Types.ObjectId("681766d7417431c949707908");
+    const doctorId = new mongoose.Types.ObjectId("683058dd5cd97ccaae22a880");
 
     const patient = await UserModel.findOne({
       role: "patient",
@@ -26,15 +26,15 @@ export const seedAppointmentsToday = async (req: Request, res: Response) => {
       {
         doctor_id: doctorId,
         date: today,
-        start_time: "09:00",
-        end_time: "09:30",
+        start_time: "10:00",
+        end_time: "10:30",
         is_booked: true,
       },
       {
         doctor_id: doctorId,
         date: today,
-        start_time: "10:00",
-        end_time: "10:30",
+        start_time: "14:00",
+        end_time: "14:30",
         is_booked: true,
       },
     ];
@@ -49,6 +49,7 @@ export const seedAppointmentsToday = async (req: Request, res: Response) => {
           clinic_id: clinicId,
           date: slot.date,
           time: slot.start_time,
+          end_time: slot.end_time,
           status: "bekræftet",
         })
       )
