@@ -95,7 +95,10 @@ export const sendMessage = async (req: Request, res: Response) => {
     const newMessage = await MessageModel.create({
       sender_id: req.user!._id, // sekretæren der er logget ind
       // ternary operator(kort version af ifelse) Hvis receiver_scope er "individual", så brug den receiver_id, som vi har fået med i req.body. Ellers sæt receiver_id til null
-      receiver_id: receiver_scope === "individual" ? receiver_id : null,
+      receiver_id:
+        receiver_scope === "individual"
+          ? new mongoose.Types.ObjectId(receiver_id)
+          : null,
       receiver_scope,
       content,
       type,
