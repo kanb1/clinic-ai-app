@@ -36,3 +36,24 @@ export const getStaffStatuses = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Failed to fetch staff statuses", error });
   }
 };
+
+// Update status - til toggle button
+export const updateUserStatus = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const user = await UserModel.findById(id);
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    user.status = status;
+    await user.save();
+
+    res.status(200).json({ message: "Status updated", user });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating status", error });
+  }
+};
