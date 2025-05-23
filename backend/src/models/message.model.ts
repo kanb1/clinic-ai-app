@@ -19,7 +19,7 @@ const MessageSchema: Schema = new Schema(
     },
     receiver_id: {
       type: mongoose.Schema.Types.Mixed, // tillader både ObjectId og string ("all")
-      required: true,
+      required: false, //ikke required globalt, men validerer i selve controller hvis scope er indiivudel
     },
     receiver_scope: {
       type: String,

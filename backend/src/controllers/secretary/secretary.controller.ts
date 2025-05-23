@@ -70,25 +70,33 @@ export const getUnreadMessages = async (req: Request, res: Response) => {
 // SEND NY BESKED TIL PATIENT
 export const sendMessage = async (req: Request, res: Response) => {
   try {
-    const { receiver_id, content, type } = req.body;
+    const { content, type, receiver_scope, receiver_id } = req.body;
 
-    if (!receiver_id || !content || !type) {
+    if (!content || !type || !receiver_scope) {
       res.status(400).json({ message: "All fields are required" });
       return;
     }
 
-    // Hvis receiver_id ikke er "all", skal det være en ObjectId
-    if (
-      receiver_id !== "all" &&
-      !mongoose.Types.ObjectId.isValid(receiver_id)
-    ) {
-      res.status(400).json({ message: "Invalid receiver_id" });
+    if (receiver_scope === "individual" && !receiver_id) {
+      res
+        .status(400)
+        .json({ message: "receiver_id is required for individual messages" });
       return;
+    }
+
+    // Hvis receiver_id ikke er "all", skal det være en ObjectId
+    if (receiver_scope === "individual") {
+      if (!receiver_id || !mongoose.Types.ObjectId.isValid(receiver_id)) {
+        res.status(400).json({ message: "Invalid receiver_id" });
+        return;
+      }
     }
 
     const newMessage = await MessageModel.create({
       sender_id: req.user!._id, // sekretæren der er logget ind
-      receiver_id,
+      // ternary operator(kort version af ifelse) Hvis receiver_scope er "individual", så brug den receiver_id, som vi har fået med i req.body. Ellers sæt receiver_id til null
+      receiver_id: receiver_scope === "individual" ? receiver_id : null,
+      receiver_scope,
       content,
       type,
     });
