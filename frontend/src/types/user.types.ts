@@ -5,4 +5,5 @@ export interface IUser {
   email: string;
   role: "admin" | "doctor" | "secretary" | "patient";
   clinic_id: string;
+  status: "ledig" | "optaget" | "fri";
 }
