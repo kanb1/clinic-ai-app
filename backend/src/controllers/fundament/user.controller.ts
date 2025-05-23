@@ -38,12 +38,12 @@ export const getStaffStatuses = async (req: Request, res: Response) => {
 };
 
 // Update status - til toggle button
-export const updateUserStatus = async (req: Request, res: Response) => {
+export const updateMyOwnStatus = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const userId = req.user!._id;
     const { status } = req.body;
 
-    const user = await UserModel.findById(id);
+    const user = await UserModel.findById(userId);
     if (!user) {
       res.status(404).json({ message: "User not found" });
       return;

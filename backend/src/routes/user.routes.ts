@@ -2,7 +2,7 @@ import express from "express";
 import {
   getMyProfile,
   getStaffStatuses,
-  updateUserStatus,
+  updateMyOwnStatus,
 } from "../controllers/fundament/user.controller";
 import { authenticateJWT } from "../middleware/authenticateJWT.middleware";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
@@ -17,10 +17,10 @@ router.get(
   getStaffStatuses
 );
 router.patch(
-  "/update-status/:id",
+  "/update-status/me",
   authenticateJWT,
   authorizeRoles(["secretary", "doctor"]),
-  updateUserStatus
+  updateMyOwnStatus
 );
 
 export default router;
