@@ -13,17 +13,17 @@ const ToggleStatusButton = ({
       size="sm"
       colorScheme={
         currentStatus === "ledig"
-          ? "green"
-          : currentStatus === "optaget"
           ? "red"
+          : currentStatus === "optaget"
+          ? "green"
           : "yellow"
       }
       onClick={onToggle}
     >
       {currentStatus === "ledig"
-        ? "Ledig"
+        ? "Gå optaget"
         : currentStatus === "optaget"
-        ? "Optaget"
+        ? "Gå ledig"
         : "Fri"}
     </Button>
   );
