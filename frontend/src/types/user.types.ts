@@ -1,4 +1,5 @@
 export interface IUser {
+  birth_date: Date;
   _id: string;
   id: string; // svarer til _id i backend
   name: string;
