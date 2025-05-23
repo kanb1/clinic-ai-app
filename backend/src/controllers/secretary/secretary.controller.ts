@@ -410,7 +410,7 @@ export const addSymptomNote = async (req: Request, res: Response) => {
 
 // **************************************************** Dashboard og historik
 
-// Hent seneste besøg
+// Hent besøg for i dag
 export const getTodaysAppointments = async (req: Request, res: Response) => {
   try {
     const clinicId = req.user!.clinicId;
@@ -436,5 +436,33 @@ export const getTodaysAppointments = async (req: Request, res: Response) => {
     res
       .status(500)
       .json({ message: "Failed to fetch today’s appointments", error });
+  }
+};
+
+// Hent seneste besøg:
+export const getPastAppointmentsToday = async (req: Request, res: Response) => {
+  try {
+    const clinicId = req.user!.clinicId;
+
+    const now = new Date();
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const appointments = await AppointmentModel.find({
+      clinic_id: clinicId,
+      date: { $gte: startOfDay, $lte: now },
+      status: { $in: ["bekræftet", "udført"] },
+    })
+      .populate("patient_id", "name")
+      .populate("doctor_id", "name")
+      .sort({ date: -1, time: -1 })
+      .limit(4);
+
+    res.status(200).json(appointments);
+  } catch (error) {
+    console.error("Error fetching past appointments:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to fetch past appointments", error });
   }
 };
