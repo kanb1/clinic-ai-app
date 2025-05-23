@@ -42,7 +42,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/secretary", secretaryRoutes);
 // Routes - Doctor
 app.use("/api/doctors", doctorRoutes);
-app.use("/api", testRouter);
+app.use("/api/test", testRouter);
 
 // Routes - Patient
 app.use("/api/patients", patientRoutes);
