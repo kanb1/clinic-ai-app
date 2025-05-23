@@ -7,6 +7,7 @@ import {
   getAppointments,
   getAvailabilityOverview,
   getDoctors,
+  getPastAppointmentsToday,
   getPatients,
   getTodaysAppointments,
   getUnreadMessages,
@@ -41,6 +42,11 @@ router.patch("/appointments/:id/secretary-note", addSymptomNote);
 
 // Dashboard og historik
 router.get("/appointments/today", getTodaysAppointments);
+router.get("/appointments/past-today", getPastAppointmentsToday);
 // staffstatus ligger i user
+
+// ************** SEED ROUTE (KUN MIDLERTIDIGT - SLET SENERE) **************
+import { seedAppointmentsToday } from "./test-routes/secretary/seed-secretary-appointments-today";
+router.post("/appointments/seed-today", seedAppointmentsToday);
 
 export default router;

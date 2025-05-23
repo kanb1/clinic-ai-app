@@ -1,10 +1,10 @@
 import express from "express";
 import mongoose from "mongoose";
-import { UserModel } from "../models/user.model";
-import { MessageModel } from "../models/message.model";
-import { AppointmentModel } from "../models/appointment.model";
-import { ClinicModel } from "../models/clinic.model";
-import { AvailabilitySlotModel } from "../models/availabilityslots.model";
+import { UserModel } from "../../models/user.model";
+import { MessageModel } from "../../models/message.model";
+import { AppointmentModel } from "../../models/appointment.model";
+import { ClinicModel } from "../../models/clinic.model";
+import { AvailabilitySlotModel } from "../../models/availabilityslots.model";
 
 const router = express.Router();
 
@@ -66,14 +66,25 @@ router.post("/seed-secretary-flow", async (req, res) => {
       birth_date: new Date("1999-01-01"),
     });
 
-    // Opret besked fra læge til sekretær
-    await MessageModel.create({
-      sender_id: doctor._id,
-      receiver_id: secretary._id,
-      content: "Husk at tjekke laboratorieresultater.",
-      type: "besked",
-      read: false,
-    });
+    // Opret beskeder sendt fra sekretæren
+    await MessageModel.create([
+      {
+        sender_id: secretary._id, // sekretæren sender
+        receiver_id: "all",
+        receiver_scope: "all",
+        content: "Klinikken holder lukket på fredag pga. personalemøde.",
+        type: "besked",
+        read: false,
+      },
+      {
+        sender_id: secretary._id,
+        receiver_id: patient._id, // direkte besked til patient
+        receiver_scope: "individual",
+        content: "Husk at medbringe sundhedskort til konsultationen i morgen.",
+        type: "besked",
+        read: false,
+      },
+    ]);
 
     // Opret en aftale i dag
     const today = new Date();
