@@ -3,6 +3,7 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface IMessage extends Document {
   sender_id: mongoose.Types.ObjectId;
   receiver_id: mongoose.Types.ObjectId | "all";
+  receiver_scope: "all" | "staff" | "patients" | "individual";
   content: string;
   read: boolean;
   type: "besked" | "aflysning" | "system";
@@ -18,8 +19,13 @@ const MessageSchema: Schema = new Schema(
     },
     receiver_id: {
       type: mongoose.Schema.Types.Mixed, // tillader både ObjectId og string ("all")
-      ref: "User",
       required: true,
+    },
+    receiver_scope: {
+      type: String,
+      enum: ["all", "staff", "patients", "individual"],
+      required: true,
+      default: "individual",
     },
     type: {
       type: String,

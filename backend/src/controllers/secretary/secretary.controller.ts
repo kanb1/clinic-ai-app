@@ -12,14 +12,12 @@ export const getUnreadMessages = async (req: Request, res: Response) => {
   try {
     const clinicId = req.user!.clinicId.toString();
     const userId = req.user!._id.toString();
+    const myRole = req.user!.role;
 
-    const messages = await MessageModel.find({
-      // ulæste beskeder
-      read: false,
-      // beskeder enten sendt til alle eller nuværende bruger
-      $or: [{ receiver_id: "all" }, { receiver_id: req.user!._id }],
-      // brugerobjekt af sender_id da det er en objectID
-    }).populate("sender_id", "name role clinic_id");
+    // ulæste beskeder
+    const messages = await MessageModel.find({ read: false })
+      .populate("sender_id", "name role clinic_id") // brugerobjekt af sender_id da det er en objectID
+      .populate("receiver_id", "name role");
 
     //IPopulatedMessage: ts-workaround - populate.() gør objectID til brugerobjekter i runtime men det ved TS ikke, da den stadig ser som objectID
     //as unknown ← ignorer den type, TypeScript tror det er
@@ -36,14 +34,18 @@ export const getUnreadMessages = async (req: Request, res: Response) => {
           "clinic_id" in sender &&
           sender.clinic_id?.toString() === clinicId;
 
-        //Håndterer to tilfælde, om receiver_id er all eller til den sepcifkke bruger
-        // problemet er at receiver_id kan være to forskellige ting, en string "all" eller et objekt emd _id, navn osv
+        //Håndterer flere tilfælde, om receiver_scope er til all eller staff eller en indiivudel eller patienter
+        // problemet er at receiver_scope kan være flere forskellige ting, en string "all" eller et objekt emd _id, navn osv
         const toCurrentUser =
           // er besked sendt til alle? så matcher den direkte
-          msg.receiver_id === "all" ||
-          // er receiver_id et objekt (typeof)
-          // hvis det ikke er en string, men faktisk et objekt, fordi det et populate resultat, så fortsæt
-          (typeof msg.receiver_id === "object" &&
+          msg.receiver_scope === "all" ||
+          (msg.receiver_scope === "staff" &&
+            (myRole === "doctor" || myRole === "secretary")) ||
+          (msg.receiver_scope === "patients" && myRole === "patient") ||
+          (msg.receiver_scope === "individual" &&
+            // er receiver_id et objekt (typeof)
+            // hvis det ikke er en string, men faktisk et objekt, fordi det et populate resultat, så fortsæt
+            typeof msg.receiver_id === "object" &&
             // "in" indeholder det her objekt også et _id?
             "_id" in msg.receiver_id &&
             // as unknown: ts ved ik om receiver.id er all eller objectid osv. vi antager det som unknown
