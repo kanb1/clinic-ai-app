@@ -1,6 +1,6 @@
 export interface IUser {
-  // svarer til _id i backend
-  id: string;
+  _id: string;
+  id: string; // svarer til _id i backend
   name: string;
   email: string;
   role: "admin" | "doctor" | "secretary" | "patient";

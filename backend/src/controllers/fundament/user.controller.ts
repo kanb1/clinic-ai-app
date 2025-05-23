@@ -28,7 +28,6 @@ export const getStaffStatuses = async (req: Request, res: Response) => {
     const staff = await UserModel.find({
       clinic_id: clinicId,
       role: { $in: ["doctor", "secretary"] },
-      _id: { $ne: userId }, // filtrér logged user fra
     }).select("name role status");
 
     res.status(200).json(staff);
