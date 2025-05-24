@@ -22,6 +22,20 @@ export const getStaff = async (req: Request, res: Response) => {
 };
 
 //************************* */ MANAGE DOCTORS
+export const getDoctors = async (req: Request, res: Response) => {
+  try {
+    const clinicId = req.user!.clinicId;
+    const doctors = await UserModel.find({
+      role: "doctor",
+      clinic_id: clinicId,
+    }).select("-password_hash");
+
+    res.status(200).json(doctors);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch doctors", error });
+  }
+};
+
 export const addDoctor = async (req: Request, res: Response) => {
   try {
     // destrukterer til at hente de felter vi forventer fra frontend (req.body)

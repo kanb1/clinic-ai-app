@@ -5,6 +5,7 @@ import {
   deleteDoctor,
   deletePatient,
   deleteSecretary,
+  getDoctors,
   getPatients,
   getStaff,
   lookupPatientByCpr,
@@ -20,6 +21,19 @@ const router = express.Router();
 
 // Alle routes her kræver login og admin rolle
 router.use(authenticateJWT);
+// Get patients list
+router.get(
+  "/patients-list",
+  authorizeRoles(["admin", "secretary"]),
+  getPatients
+);
+// Get doctors list
+router.get(
+  "/staff/doctors-list",
+  authorizeRoles(["admin", "secretary"]),
+  getDoctors
+);
+
 router.use(authorizeRoles(["admin"]));
 
 router.get("/staff", getStaff);
@@ -29,8 +43,6 @@ router.put("/staff/doctors/:id", updateDoctor);
 router.put("/staff/secretaries/:id", updateSecretary);
 router.delete("/staff/doctors/:id", deleteDoctor);
 router.delete("/staff/secretaries/:id", deleteSecretary);
-// Get patients list
-router.get("/", getPatients);
 
 //CPR-lookup
 router.get("/lookup/:cpr", lookupPatientByCpr);
