@@ -14,6 +14,7 @@ import {
   Button,
   Flex,
   Spinner,
+  Tooltip,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import moment from "moment";
@@ -35,6 +36,11 @@ interface Props {
 }
 
 const hours = Array.from({ length: 9 }, (_, i) => 8 + i); // 08:00–16:00
+
+const doctorColors: Record<string, string> = {
+  "Simon Eisbo": "green.400",
+  "Mie Christensen": "purple.400",
+};
 
 export const CustomCalendar = ({ appointments, refetch }: Props) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -112,31 +118,43 @@ export const CustomCalendar = ({ appointments, refetch }: Props) => {
             </GridItem>
 
             {days.map((day) => {
-              const appt = appointments.find(
+              const appts = appointments.filter(
                 (a) =>
                   moment(a.date).isSame(day, "day") &&
                   parseInt(a.time.split(":")[0]) === hour
               );
 
               return (
-                <GridItem key={`${day.toISOString()}-${hour}`}>
-                  {appt ? (
-                    <Box
-                      bg="teal.100"
-                      p={2}
-                      borderRadius="md"
-                      cursor="pointer"
-                      _hover={{ bg: "teal.200" }}
-                      onClick={() => handleClick(appt)}
+                <GridItem key={`cell-${day}-${hour}`}>
+                  {appts.map((appt, index) => (
+                    <Tooltip
+                      key={index}
+                      label={
+                        <Box>
+                          <Text fontWeight="bold">{appt.patient_id.name}</Text>
+                          <Text>m. {appt.doctor_id.name}</Text>
+                          <Text>
+                            {appt.time} – {appt.end_time}
+                          </Text>
+                        </Box>
+                      }
+                      hasArrow
+                      placement="top"
+                      bg="gray.700"
+                      color="white"
                     >
-                      <Text fontSize="xs" fontWeight="bold">
-                        {appt.patient_id.name}
-                      </Text>
-                      <Text fontSize="xs">m. {appt.doctor_id.name}</Text>
-                    </Box>
-                  ) : (
-                    <Box height="40px" />
-                  )}
+                      <Box
+                        w="10px"
+                        h="10px"
+                        borderRadius="full"
+                        bg={doctorColors[appt.doctor_id.name] || "gray.400"}
+                        m={1}
+                        display="inline-block"
+                        cursor="pointer"
+                        onClick={() => handleClick(appt)}
+                      />
+                    </Tooltip>
+                  ))}
                 </GridItem>
               );
             })}
