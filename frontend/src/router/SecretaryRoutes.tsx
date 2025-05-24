@@ -3,7 +3,7 @@ import { RouteObject } from "react-router-dom";
 import RequireRole from "./RequireRole";
 import SecretaryDashboard from "@/pages/Secretary/SecretaryDashboard";
 import MessagePage from "@/pages/Secretary/MessagePage";
-import BookingPage from "@/pages/Secretary/BookingPage";
+import BookingPage from "@/pages/Secretary/BookAppointmentPage";
 import SecretarySettingsPage from "@/pages/Secretary/SecretarySettingsPage";
 
 export const secretaryRoutes: RouteObject[] = [
