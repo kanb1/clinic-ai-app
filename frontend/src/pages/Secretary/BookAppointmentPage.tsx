@@ -20,6 +20,7 @@ const BookingPage = () => {
     null
   );
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleOpenModal = (patientId: string) => {
     setSelectedPatientId(patientId);
@@ -47,25 +48,49 @@ const BookingPage = () => {
         <Heading size="lg" mb={4}>
           Sekretær Bookingpage
         </Heading>
+        <Box mb={6}>
+          <input
+            type="text"
+            placeholder="Søg efter patient"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "10px",
+              border: "1px solid #ccc",
+              borderRadius: "8px",
+            }}
+          />
+        </Box>
 
         {isLoading ? (
           <Spinner />
         ) : (
           <VStack align="start" spacing={4}>
-            {patients?.map((p) => (
-              <Box key={p._id} p={4} borderWidth={1} borderRadius="md" w="100%">
-                <Text fontWeight="bold">{p.name}</Text>
-                <Text>
-                  Fødselsdato:{" "}
-                  {p.birth_date
-                    ? new Date(p.birth_date).toLocaleDateString("da-DK")
-                    : "Ukendt"}
-                </Text>
-                <Button mt={2} onClick={() => handleOpenModal(p._id)}>
-                  Book tid
-                </Button>
-              </Box>
-            ))}
+            {patients
+              ?.filter((p) =>
+                p.name.toLowerCase().includes(searchTerm.toLowerCase())
+              )
+              .map((p) => (
+                <Box
+                  key={p._id}
+                  p={4}
+                  borderWidth={1}
+                  borderRadius="md"
+                  w="100%"
+                >
+                  <Text fontWeight="bold">{p.name}</Text>
+                  <Text>
+                    Fødselsdato:{" "}
+                    {p.birth_date
+                      ? new Date(p.birth_date).toLocaleDateString("da-DK")
+                      : "Ukendt"}
+                  </Text>
+                  <Button mt={2} onClick={() => handleOpenModal(p._id)}>
+                    Book tid
+                  </Button>
+                </Box>
+              ))}
           </VStack>
         )}
 
