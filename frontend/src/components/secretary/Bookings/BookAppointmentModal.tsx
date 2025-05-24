@@ -19,6 +19,7 @@ import { useState } from "react";
 import { SimpleGrid } from "@chakra-ui/react";
 import AvailabilityDisplay from "./AvailabilityDisplay";
 import AddSecretaryNote from "./AddSecretaryNote";
+import ConfirmBookingModal from "./ConfirmBookingModal";
 
 interface BookAppointmentModalProps {
   isOpen: boolean;
@@ -34,7 +35,9 @@ const BookAppointmentModal = ({
   weekStart,
 }: BookAppointmentModalProps) => {
   const toast = useToast();
-  const [view, setView] = useState<"overview" | "slots" | "note">("overview");
+  const [view, setView] = useState<"overview" | "slots" | "note" | "confirm">(
+    "overview"
+  );
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
   const [secretaryNote, setSecretaryNote] = useState("");
@@ -47,17 +50,16 @@ const BookAppointmentModal = ({
     ? slotsData?.filter((slot) => slot.date === selectedDate)
     : [];
 
-  const handleBook = (
-    doctorId: string,
-    slotId: string,
-    secretary_note: string
-  ) => {
+  const selectedSlot = filteredSlots?.find((s) => s.slotId === selectedSlotId);
+
+  const handleBook = () => {
+    if (!selectedSlot || !secretaryNote) return;
     bookAppointment(
       {
         patient_id: patientId,
-        doctor_id: doctorId,
-        slot_id: slotId,
-        secretary_note,
+        doctor_id: selectedSlot.doctorId,
+        slot_id: selectedSlot.slotId,
+        secretary_note: secretaryNote,
       },
       {
         onSuccess: () => {
@@ -127,7 +129,7 @@ const BookAppointmentModal = ({
                           setView("note");
                         }}
                       >
-                        Vælg denne tid
+                        Vælg
                       </Button>
                     </Box>
                   ))}
@@ -148,16 +150,25 @@ const BookAppointmentModal = ({
             <AddSecretaryNote
               onConfirm={(note) => {
                 setSecretaryNote(note);
-                const slot = filteredSlots?.find(
-                  (s) => s.slotId === selectedSlotId
-                );
-                if (slot) {
-                  handleBook(slot.doctorId, slot.slotId, note);
-                }
+                setView("confirm");
               }}
               onCancel={() => setView("slots")}
             />
           )}
+
+          {/* STEP 4: Confirm */}
+          {view === "confirm" && selectedSlot && (
+            <ConfirmBookingModal
+              date={new Date(selectedSlot.date).toLocaleDateString("da-DK")}
+              time={`${selectedSlot.start_time} - ${selectedSlot.end_time}`}
+              doctorName={selectedSlot.doctorName}
+              note={secretaryNote}
+              onConfirm={handleBook}
+              onCancel={() => setView("note")}
+            />
+          )}
+
+          {/* STEP 5: SEND NOTIFIKATION?????????? */}
         </ModalBody>
         <ModalFooter>
           <Button onClick={onClose}>Luk</Button>
