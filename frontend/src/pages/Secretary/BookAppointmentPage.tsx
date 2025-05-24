@@ -9,7 +9,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { usePatients } from "@/hooks/secretary/messageHooks/usePatients";
+import { usePatients } from "@/hooks/common/usePatients";
 import BookAppointmentModal from "@/components/secretary/Bookings/BookAppointmentModal";
 import { formatISO } from "date-fns";
 import { api } from "@/services/httpClient";

@@ -12,6 +12,7 @@ import {
   useToast,
   Spinner,
   Heading,
+  Select,
 } from "@chakra-ui/react";
 import { useAvailabilitySlots } from "../../../hooks/secretary/bookingHooks/useAvailableSlots";
 import { useCreateAppointment } from "../../../hooks/secretary/bookingHooks/useCreateAppointment";
@@ -20,6 +21,7 @@ import { SimpleGrid } from "@chakra-ui/react";
 import AvailabilityDisplay from "./AvailabilityDisplay";
 import AddSecretaryNote from "./AddSecretaryNote";
 import ConfirmBookingModal from "./ConfirmBookingModal";
+import { useDoctors } from "../../../hooks/common/useDoctors";
 
 interface BookAppointmentModalProps {
   isOpen: boolean;
@@ -38,16 +40,24 @@ const BookAppointmentModal = ({
   const [view, setView] = useState<"overview" | "slots" | "note" | "confirm">(
     "overview"
   );
+  const [selectedDoctorId, setSelectedDoctorId] = useState<
+    string | undefined
+  >();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
   const [secretaryNote, setSecretaryNote] = useState("");
+  const { data: doctors = [] } = useDoctors();
 
   const { data: slotsData, isLoading: slotsLoading } =
     useAvailabilitySlots(weekStart);
   const { mutate: bookAppointment, isPending } = useCreateAppointment();
 
   const filteredSlots = selectedDate
-    ? slotsData?.filter((slot) => slot.date === selectedDate)
+    ? slotsData?.filter(
+        (slot) =>
+          slot.date === selectedDate &&
+          (!selectedDoctorId || slot.doctorId === selectedDoctorId)
+      )
     : [];
 
   const selectedSlot = filteredSlots?.find((s) => s.slotId === selectedSlotId);
@@ -88,14 +98,29 @@ const BookAppointmentModal = ({
 
           {/* STEP 1: Vis oversigt med uger/dage */}
           {view === "overview" && (
-            <AvailabilityDisplay
-              weekStart={weekStart}
-              doctorId={undefined}
-              onSelectDate={(date) => {
-                setSelectedDate(date);
-                setView("slots");
-              }}
-            />
+            <>
+              <Select
+                placeholder="Vælg læge"
+                onChange={(e) => setSelectedDoctorId(e.target.value)}
+              >
+                {doctors.map((doc) => (
+                  <option key={doc._id} value={doc._id}>
+                    {doc.name}
+                  </option>
+                ))}
+              </Select>
+
+              {selectedDoctorId && (
+                <AvailabilityDisplay
+                  weekStart={weekStart}
+                  doctorId={selectedDoctorId}
+                  onSelectDate={(date) => {
+                    setSelectedDate(date);
+                    setView("slots");
+                  }}
+                />
+              )}
+            </>
           )}
 
           {/* STEP 2: Vælg specifik tid */}
@@ -167,8 +192,6 @@ const BookAppointmentModal = ({
               onCancel={() => setView("note")}
             />
           )}
-
-          {/* STEP 5: SEND NOTIFIKATION?????????? */}
         </ModalBody>
         <ModalFooter>
           <Button onClick={onClose}>Luk</Button>

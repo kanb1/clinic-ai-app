@@ -41,7 +41,7 @@ const AvailabilityDisplay = ({ weekStart, doctorId, onSelectDate }: Props) => {
           </Text>
           <SimpleGrid columns={5} spacing={4}>
             {weekdays.map((dayName) => {
-              const daySlot = slots.find(
+              const slotsForDay = slots.filter(
                 (slot) =>
                   slot.date &&
                   format(new Date(slot.date), "EEEE", {
@@ -50,40 +50,43 @@ const AvailabilityDisplay = ({ weekStart, doctorId, onSelectDate }: Props) => {
               );
 
               return (
-                <Box
-                  key={dayName}
-                  p={3}
-                  borderWidth={1}
-                  borderRadius="md"
-                  bg="gray.50"
-                  textAlign="center"
-                >
-                  <Text fontWeight="semibold">
-                    {daySlot?.date
-                      ? format(new Date(daySlot.date), "EEEE", {
-                          locale: da,
-                        })
-                      : "Ugyldig dato"}
+                <VStack key={dayName} align="start" spacing={2}>
+                  <Text fontWeight="semibold" textTransform="capitalize">
+                    {dayName}
                   </Text>
-                  <Text fontSize="sm">
-                    {daySlot?.doctorName || "Ingen læge"}
-                  </Text>
-                  <Text fontSize="sm" mt={1}>
-                    {daySlot
-                      ? `${daySlot.availableSlots} tider`
-                      : "Ingen tider"}
-                  </Text>
-                  <Button
-                    size="sm"
-                    mt={2}
-                    isDisabled={!daySlot}
-                    onClick={() =>
-                      daySlot?.date && onSelectDate?.(daySlot.date)
-                    }
-                  >
-                    Vælg
-                  </Button>
-                </Box>
+                  {slotsForDay.length > 0 ? (
+                    slotsForDay.map((slot) => (
+                      <Box
+                        key={`${slot.date}-${slot.doctorId}`}
+                        p={3}
+                        borderWidth={1}
+                        borderRadius="md"
+                        bg="gray.50"
+                        textAlign="center"
+                      >
+                        <Text fontSize="sm">{slot.doctorName}</Text>
+                        <Text fontSize="sm">{slot.availableSlots} tider</Text>
+                        <Button
+                          size="sm"
+                          mt={2}
+                          onClick={() => onSelectDate?.(slot.date)}
+                        >
+                          Vælg
+                        </Button>
+                      </Box>
+                    ))
+                  ) : (
+                    <Box
+                      p={3}
+                      borderWidth={1}
+                      borderRadius="md"
+                      bg="gray.50"
+                      textAlign="center"
+                    >
+                      <Text fontSize="sm">Ingen tider</Text>
+                    </Box>
+                  )}
+                </VStack>
               );
             })}
           </SimpleGrid>
