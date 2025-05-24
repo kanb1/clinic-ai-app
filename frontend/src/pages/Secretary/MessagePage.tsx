@@ -10,7 +10,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { usePatients } from "../../hooks/secretary/messageHooks/usePatients";
+import { usePatients } from "../../hooks/common/usePatients";
 import MessageModal from "../../components/secretary/Messages/MessageModal";
 import Layout from "@/components/layout/Layout";
 
