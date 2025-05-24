@@ -18,6 +18,7 @@ import { useCreateAppointment } from "../../../hooks/secretary/bookingHooks/useC
 import { useState } from "react";
 import { SimpleGrid } from "@chakra-ui/react";
 import AvailabilityDisplay from "./AvailabilityDisplay";
+import AddSecretaryNote from "./AddSecretaryNote";
 
 interface BookAppointmentModalProps {
   isOpen: boolean;
@@ -33,9 +34,10 @@ const BookAppointmentModal = ({
   weekStart,
 }: BookAppointmentModalProps) => {
   const toast = useToast();
-  const [view, setView] = useState<"overview" | "slots">("overview");
+  const [view, setView] = useState<"overview" | "slots" | "note">("overview");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
+  const [secretaryNote, setSecretaryNote] = useState("");
 
   const { data: slotsData, isLoading: slotsLoading } =
     useAvailabilitySlots(weekStart);
@@ -45,9 +47,18 @@ const BookAppointmentModal = ({
     ? slotsData?.filter((slot) => slot.date === selectedDate)
     : [];
 
-  const handleBook = (doctorId: string, slotId: string) => {
+  const handleBook = (
+    doctorId: string,
+    slotId: string,
+    secretary_note: string
+  ) => {
     bookAppointment(
-      { patient_id: patientId, doctor_id: doctorId, slot_id: slotId },
+      {
+        patient_id: patientId,
+        doctor_id: doctorId,
+        slot_id: slotId,
+        secretary_note,
+      },
       {
         onSuccess: () => {
           toast({ title: "Aftale oprettet", status: "success" });
@@ -72,6 +83,8 @@ const BookAppointmentModal = ({
             {selectedDate && new Date(selectedDate).toLocaleDateString("da-DK")}
             )
           </Heading>
+
+          {/* STEP 1: Vis oversigt med uger/dage */}
           {view === "overview" && (
             <AvailabilityDisplay
               weekStart={weekStart}
@@ -83,6 +96,7 @@ const BookAppointmentModal = ({
             />
           )}
 
+          {/* STEP 2: Vælg specifik tid */}
           {view === "slots" && (
             <>
               {slotsLoading ? (
@@ -108,10 +122,12 @@ const BookAppointmentModal = ({
                         mt={2}
                         size="sm"
                         colorScheme="blue"
-                        isLoading={isPending && selectedSlotId === slot.slotId}
-                        onClick={() => handleBook(slot.doctorId, slot.slotId)}
+                        onClick={() => {
+                          setSelectedSlotId(slot.slotId);
+                          setView("note");
+                        }}
                       >
-                        Book tid
+                        Vælg denne tid
                       </Button>
                     </Box>
                   ))}
@@ -125,6 +141,22 @@ const BookAppointmentModal = ({
                 </SimpleGrid>
               )}
             </>
+          )}
+
+          {/* STEP 3: Tilføj note */}
+          {view === "note" && (
+            <AddSecretaryNote
+              onConfirm={(note) => {
+                setSecretaryNote(note);
+                const slot = filteredSlots?.find(
+                  (s) => s.slotId === selectedSlotId
+                );
+                if (slot) {
+                  handleBook(slot.doctorId, slot.slotId, note);
+                }
+              }}
+              onCancel={() => setView("slots")}
+            />
           )}
         </ModalBody>
         <ModalFooter>

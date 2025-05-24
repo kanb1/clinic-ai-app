@@ -5,6 +5,7 @@ interface AppointmentPayload {
   patient_id: string;
   doctor_id: string;
   slot_id: string;
+  secretary_note: string;
 }
 
 export const useCreateAppointment = () => {
