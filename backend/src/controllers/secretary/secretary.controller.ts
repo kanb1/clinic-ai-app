@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import { UserModel } from "../../models/user.model";
 import { AppointmentModel } from "../../models/appointment.model";
 import { AvailabilitySlotModel } from "../../models/availabilityslots.model";
+import { generateTimeSlots } from "../../utils/slot.utils";
 
 // **************************************************** BESKEDER
 // HENT NYE BESKEDER
@@ -401,47 +402,46 @@ export const checkAndSeedSlots = async (req: Request, res: Response) => {
     });
 
     if (!doctors.length) {
-      res.status(404).json({ message: "No doctors found" });
+      res
+        .status(404)
+        .json({ message: "Ingen læger fundet tilknyttet klinikken." });
       return;
     }
 
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
-    const futureDate = new Date(now);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const futureDate = new Date(today);
     futureDate.setDate(futureDate.getDate() + 20);
 
-    // Er der allerede slots indtil om 3 uger?
-
-    const latestSlot = await AvailabilitySlotModel.findOne({
+    // Check om der allerede findes slots 20 dage frem
+    const existingSlots = await AvailabilitySlotModel.find({
       clinic_id: clinicId,
-    })
-      .sort({ date: -1 })
-      .limit(1);
+      date: { $gte: today, $lte: futureDate },
+    });
 
-    if (latestSlot && latestSlot.date >= futureDate) {
-      res.status(200).json({ message: "Slots already up to date" });
-      return;
-    }
+    const existingDates = new Set(
+      existingSlots.map((slot) => slot.date.toISOString().split("T")[0])
+    );
 
-    // Ellers seed manglende slots
+    let seededCount = 0;
     const slotsToInsert: any[] = [];
 
-    for (let i = 0; i <= 20; i++) {
-      const date = new Date(now);
+    for (let i = 0; i < 21; i++) {
+      const date = new Date(today);
       date.setDate(date.getDate() + i);
+      const isoDate = date.toISOString().split("T")[0];
 
-      const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+      if (existingDates.has(isoDate)) continue;
+
+      const isWeekend = date.getDay() === 6 || date.getDay() === 0;
       if (isWeekend) continue;
 
       for (const doctor of doctors) {
-        for (let h = 8; h < 13; h++) {
-          const start = `${h.toString().padStart(2, "0")}:00`;
-          const end = `${h.toString().padStart(2, "0")}:30`;
-
+        for (const { start, end } of generateTimeSlots()) {
           slotsToInsert.push({
-            clinic_id: clinicId,
             doctor_id: doctor._id,
-            date,
+            clinic_id: doctor.clinic_id,
+            date: new Date(date),
             start_time: start,
             end_time: end,
             is_booked: false,
@@ -450,15 +450,26 @@ export const checkAndSeedSlots = async (req: Request, res: Response) => {
       }
     }
 
-    await AvailabilitySlotModel.insertMany(slotsToInsert);
-
-    res.status(201).json({
-      message: "Slots seeded for missing dates",
-      count: slotsToInsert.length,
-    });
+    if (slotsToInsert.length > 0) {
+      await AvailabilitySlotModel.insertMany(slotsToInsert);
+      console.log(`Seeded ${slotsToInsert.length} nye tider.`);
+      res.status(201).json({
+        message: "Seeded nye tider.",
+        count: slotsToInsert.length,
+      });
+      return;
+    } else {
+      console.log(
+        "Slots dækker allerede 3 uger frem – ingen seeding nødvendig."
+      );
+      res.status(200).json({
+        message: "Allerede opdateret. Ingen grund til at seede.",
+      });
+      return;
+    }
   } catch (error) {
-    console.error("Error checking/seeding slots:", error);
-    res.status(500).json({ message: "Failed to check/seed slots", error });
+    console.error("Fejl under check-and-seed:", error);
+    res.status(500).json({ message: "Serverfejl", error });
   }
 };
 
