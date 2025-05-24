@@ -388,6 +388,79 @@ export const getAvailabilitySlots = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Server error", error });
   }
 };
+// **************************************************** AvailabilitySlots Seeding Fallback
+// automatisk fallback-logik, som kun seeder availability slots on-demand ved åbning af booking-siden
+// men kun hvis der mangler slots for de næste 21 dage
+export const checkAndSeedSlots = async (req: Request, res: Response) => {
+  try {
+    const clinicId = req.user!.clinicId;
+
+    const doctors = await UserModel.find({
+      clinic_id: clinicId,
+      role: "doctor",
+    });
+
+    if (!doctors.length) {
+      res.status(404).json({ message: "No doctors found" });
+      return;
+    }
+
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const futureDate = new Date(now);
+    futureDate.setDate(futureDate.getDate() + 20);
+
+    // Er der allerede slots indtil om 3 uger?
+
+    const latestSlot = await AvailabilitySlotModel.findOne({
+      clinic_id: clinicId,
+    })
+      .sort({ date: -1 })
+      .limit(1);
+
+    if (latestSlot && latestSlot.date >= futureDate) {
+      res.status(200).json({ message: "Slots already up to date" });
+      return;
+    }
+
+    // Ellers seed manglende slots
+    const slotsToInsert: any[] = [];
+
+    for (let i = 0; i <= 20; i++) {
+      const date = new Date(now);
+      date.setDate(date.getDate() + i);
+
+      const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+      if (isWeekend) continue;
+
+      for (const doctor of doctors) {
+        for (let h = 8; h < 13; h++) {
+          const start = `${h.toString().padStart(2, "0")}:00`;
+          const end = `${h.toString().padStart(2, "0")}:30`;
+
+          slotsToInsert.push({
+            clinic_id: clinicId,
+            doctor_id: doctor._id,
+            date,
+            start_time: start,
+            end_time: end,
+            is_booked: false,
+          });
+        }
+      }
+    }
+
+    await AvailabilitySlotModel.insertMany(slotsToInsert);
+
+    res.status(201).json({
+      message: "Slots seeded for missing dates",
+      count: slotsToInsert.length,
+    });
+  } catch (error) {
+    console.error("Error checking/seeding slots:", error);
+    res.status(500).json({ message: "Failed to check/seed slots", error });
+  }
+};
 
 // **************************************************** Booking og notering
 export const createAppointment = async (req: Request, res: Response) => {

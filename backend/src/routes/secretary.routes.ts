@@ -3,6 +3,7 @@ import { authenticateJWT } from "../middleware/authenticateJWT.middleware";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import {
   addSymptomNote,
+  checkAndSeedSlots,
   createAppointment,
   getAppointments,
   getAvailabilityOverview,
@@ -37,6 +38,7 @@ router.get("/doctors", getDoctors);
 router.get("/appointments", getAppointments);
 router.get("/availability", authenticateJWT, getAvailabilityOverview);
 router.get("/availability-slots", authenticateJWT, getAvailabilitySlots);
+router.get("/check-and-seed-slots", authenticateJWT, checkAndSeedSlots);
 
 // Booking og notering
 router.post("/appointments", createAppointment);
