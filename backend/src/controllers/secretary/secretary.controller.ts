@@ -230,7 +230,7 @@ export const getAppointments = async (req: Request, res: Response) => {
   }
 };
 
-// Henter alle ikke-bookede tider i de kommende 3 uger.
+// Dette endpoint viser et overblik over hvor mange tider der er ledige for hver læge grupperet per dag
 // Valgfri filtrering på doctorId
 // Returnerer antal ledige tider grupperet per læge per dag
 // Sorter: dato stigende, navn A–Z.
@@ -330,6 +330,62 @@ export const getAvailabilityOverview = async (req: Request, res: Response) => {
     res
       .status(500)
       .json({ message: "Failed to fetch availability slots", error });
+  }
+};
+
+//Dette endpoint viser de konkrete ledige tider, altså tidspunkt og dato for hver ledig tid for hver læge
+export const getAvailabilitySlots = async (req: Request, res: Response) => {
+  try {
+    const clinicId = req.user!.clinicId;
+    const { weekStart, doctorId } = req.query;
+
+    if (!weekStart) {
+      res.status(400).json({ message: "weekStart is required" });
+      return;
+    }
+
+    const startDate = new Date(weekStart as string);
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + 20);
+
+    const match: any = {
+      clinic_id: clinicId,
+      date: { $gte: startDate, $lte: endDate },
+      is_booked: false,
+    };
+
+    if (doctorId && mongoose.Types.ObjectId.isValid(doctorId as string)) {
+      match.doctor_id = new mongoose.Types.ObjectId(doctorId as string);
+    }
+
+    const slots = await AvailabilitySlotModel.find(match)
+      .populate("doctor_id", "name")
+      .sort({ date: 1, start_time: 1 });
+
+    interface PopulatedSlot {
+      _id: string;
+      doctor_id: {
+        _id: string;
+        name: string;
+      };
+      date: string;
+      start_time: string;
+      end_time: string;
+    }
+
+    const formatted = (slots as unknown as PopulatedSlot[]).map((slot) => ({
+      slotId: slot._id,
+      doctorId: slot.doctor_id._id,
+      doctorName: slot.doctor_id.name,
+      date: slot.date,
+      start_time: slot.start_time,
+      end_time: slot.end_time,
+    }));
+
+    res.status(200).json(formatted);
+  } catch (error) {
+    console.error("Failed to fetch slots:", error);
+    res.status(500).json({ message: "Server error", error });
   }
 };
 

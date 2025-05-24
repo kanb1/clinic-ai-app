@@ -1,9 +1,10 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
 // The availability of the doctors
 
 export interface IAvailabilitySlot extends Document {
   doctor_id: mongoose.Types.ObjectId;
+  clinic_id: mongoose.Types.ObjectId;
   date: Date;
   start_time: string;
   end_time: string;
@@ -14,7 +15,12 @@ const AvailabilitySlotSchema: Schema = new Schema(
   {
     doctor_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
+      required: true,
+    },
+    clinic_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Clinic",
       required: true,
     },
     date: { type: Date, required: true },
@@ -26,6 +32,6 @@ const AvailabilitySlotSchema: Schema = new Schema(
 );
 
 export const AvailabilitySlotModel = mongoose.model<IAvailabilitySlot>(
-  'AvailabilitySlot',
+  "AvailabilitySlot",
   AvailabilitySlotSchema
 );

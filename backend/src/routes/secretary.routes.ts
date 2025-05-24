@@ -6,6 +6,7 @@ import {
   createAppointment,
   getAppointments,
   getAvailabilityOverview,
+  getAvailabilitySlots,
   getDoctors,
   getPastAppointmentsToday,
   getPatients,
@@ -35,6 +36,7 @@ router.get("/doctors", getDoctors);
 // Kalender og ledige tider
 router.get("/appointments", getAppointments);
 router.get("/availability", authenticateJWT, getAvailabilityOverview);
+router.get("/availability-slots", authenticateJWT, getAvailabilitySlots);
 
 // Booking og notering
 router.post("/appointments", createAppointment);
@@ -47,6 +49,9 @@ router.get("/appointments/past-today", getPastAppointmentsToday);
 
 // ************** SEED ROUTE (KUN MIDLERTIDIGT - SLET SENERE) **************
 import { seedAppointmentsToday } from "./test-routes/secretary/seed-secretary-appointments-today";
+import { seedAvailabilitySlots } from "./test-routes/secretary/seed-secretary-availability";
+
 router.post("/appointments/seed-today", seedAppointmentsToday);
+router.post("/availability/seed", seedAvailabilitySlots);
 
 export default router;
