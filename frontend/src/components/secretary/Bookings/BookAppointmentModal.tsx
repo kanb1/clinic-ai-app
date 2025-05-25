@@ -91,9 +91,7 @@ const BookAppointmentModal = ({
         <ModalCloseButton />
         <ModalBody>
           <Heading size="md" mb={2}>
-            Vælg tidspunkt (
-            {selectedDate && new Date(selectedDate).toLocaleDateString("da-DK")}
-            )
+            Vælg læge og tidspunkt
           </Heading>
 
           {/* STEP 1: Vis oversigt med uger/dage */}
