@@ -54,10 +54,15 @@ const SecretaryDashboard = () => {
 
   return (
     <Layout>
-      <Stack spacing={6} w="full">
+      <Stack spacing={6} w="full" p={{ md: 4 }}>
+        <Heading textStyle="heading1">Dashboard</Heading>
         {/* Seneste besøg */}
         <Box w="full">
-          <Heading size="md" mb={4}>
+          <Heading
+            textStyle="heading2"
+            fontWeight="medium"
+            mb={{ base: "10px", sm: "12px", md: "14px" }}
+          >
             Seneste besøg
           </Heading>
           {isLoadingPast && <Spinner />}
@@ -160,20 +165,26 @@ const SecretaryDashboard = () => {
         {/* Beskeder + Personale */}
         <Stack
           direction={{ base: "column", xl: "row" }}
-          spacing={6}
+          spacing={{ base: 12, sm: 14, xl: 6 }}
           align="start"
           wrap="wrap"
           w="full"
+          pt={{ base: 6, sm: 8, xl: 4 }}
         >
           {/* Beskeder */}
           <Box
             flex={1}
             minW={0}
-            maxW={{ base: "35%", sm: "56%", md: "93%", lg: "65%" }}
+            maxW={{ base: "35%", sm: "56%", md: "90%", lg: "86%" }}
             w="100%"
           >
-            <Heading size="md" mb={4}>
-              Nye beskeder til klinikken
+            <Heading
+              textStyle="heading2"
+              fontWeight="medium"
+              mb={{ base: "10px", sm: "12px", md: "14px" }}
+            >
+              {" "}
+              Nye beskeder
             </Heading>
 
             {isLoading && <Spinner />}
@@ -225,10 +236,15 @@ const SecretaryDashboard = () => {
           {/* Personale */}
           <Box
             w="100%"
-            maxW={{ base: "35%", sm: "56%", md: "93%", lg: "65%" }}
+            maxW={{ base: "35%", sm: "56%", md: "90%", lg: "86%", xl: "65%" }}
             overflowX="hidden"
           >
-            <Heading size="sm" mb={4}>
+            <Heading
+              textStyle="heading2"
+              fontWeight="medium"
+              mb={{ base: "10px", sm: "12px", md: "14px" }}
+            >
+              {" "}
               Personale
             </Heading>
             <VStack align="start" spacing={3} w="full">
