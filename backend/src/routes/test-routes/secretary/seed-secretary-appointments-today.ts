@@ -7,7 +7,8 @@ import { UserModel } from "../../../models/user.model";
 export const seedAppointmentsToday = async (req: Request, res: Response) => {
   try {
     const clinicId = req.user!.clinicId;
-    const doctorId = new mongoose.Types.ObjectId("683058dd5cd97ccaae22a880");
+
+    const doctorId = new mongoose.Types.ObjectId("6831c8fdd9a1db06f75fe297");
 
     const patient = await UserModel.findOne({
       role: "patient",
@@ -25,18 +26,28 @@ export const seedAppointmentsToday = async (req: Request, res: Response) => {
     const slots = [
       {
         doctor_id: doctorId,
+        clinic_id: clinicId,
         date: today,
-        start_time: "10:00",
-        end_time: "10:30",
+        start_time: "08:00",
+        end_time: "08:30",
         is_booked: true,
       },
-      {
-        doctor_id: doctorId,
-        date: today,
-        start_time: "14:00",
-        end_time: "14:30",
-        is_booked: true,
-      },
+      // {
+      //   doctor_id: doctorId,
+      //   clinic_id: clinicId,
+      //   date: today,
+      //   start_time: "14:00",
+      //   end_time: "14:30",
+      //   is_booked: true,
+      // },
+      // {
+      //   doctor_id: doctorId,
+      //   clinic_id: clinicId,
+      //   date: today,
+      //   start_time: "16:00",
+      //   end_time: "16:30",
+      //   is_booked: true,
+      // },
     ];
 
     const createdSlots = await AvailabilitySlotModel.insertMany(slots);

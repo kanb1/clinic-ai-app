@@ -685,7 +685,7 @@ export const getPastAppointmentsToday = async (req: Request, res: Response) => {
       );
     });
 
-    // Sorter og begræns til de 4 nyeste
+    // Sorter og begræns til de 6 nyeste
     const sorted = filtered
       .sort((a, b) => {
         if (a.date.getTime() !== b.date.getTime()) {
@@ -693,7 +693,7 @@ export const getPastAppointmentsToday = async (req: Request, res: Response) => {
         }
         return b.time.localeCompare(a.time); // nyeste tid først (efter tjekket dato)
       })
-      .slice(0, 4); //derefter begrænser vi til de 4 nyeste
+      .slice(0, 6); //derefter begrænser vi til de 6 nyeste
 
     res.status(200).json(sorted);
   } catch (error) {
