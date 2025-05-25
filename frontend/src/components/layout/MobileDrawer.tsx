@@ -20,7 +20,7 @@ const MobileDrawer = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  const isMobile = useBreakpointValue({ base: true, lg: false });
 
   if (!user || !isMobile) return null;
 

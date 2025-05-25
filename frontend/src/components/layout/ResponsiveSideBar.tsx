@@ -8,7 +8,7 @@ const ResponsiveSidebar = () => {
       minH="100vh"
       borderRight="1px solid"
       borderColor="gray.200"
-      display={{ base: "none", md: "block" }} // kun vis på md og op, da mobiledrawer i navbaren tager over til mindre skærme
+      display={{ base: "none", lg: "block" }} // kun vis på md og op, da mobiledrawer i navbaren tager over til mindre skærme
     >
       <Sidebar />
     </Box>

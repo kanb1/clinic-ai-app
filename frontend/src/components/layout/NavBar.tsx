@@ -26,7 +26,7 @@ const Navbar = () => {
 
   const isMobile = useBreakpointValue({ base: true, md: false });
   const paddingX = useBreakpointValue({ base: 4, md: 12 });
-  const paddingY = useBreakpointValue({ base: 6, md: 10 });
+  const paddingY = useBreakpointValue({ base: 4, md: 6 });
 
   const sidebarLinks = user ? sidebarItems[user.role] : [];
 
@@ -41,16 +41,25 @@ const Navbar = () => {
         borderColor="gray.200"
         position="relative"
         zIndex={10}
+        w="full"
       >
-        <Flex align="center" justify="space-between">
+        <Flex
+          align="center"
+          justify="space-between"
+          w="full"
+          maxW="container.xl"
+          mx="auto"
+        >
           {/* Logo */}
-          <Image
-            src="/images/KlinikaLogo.png"
-            alt="Klinika Logo"
-            height="50px"
-            cursor="pointer"
-            onClick={() => navigate("/")}
-          />
+          <Box flexShrink={0} w={{ base: "130px", md: "150px" }}>
+            <Image
+              src="/images/KlinikaLogo.png"
+              alt="Klinika Logo"
+              w="full"
+              cursor="pointer"
+              onClick={() => navigate("/")}
+            />
+          </Box>
 
           {/* Desktop nav */}
           {!isMobile && (
@@ -88,8 +97,8 @@ const Navbar = () => {
               <IconButton
                 icon={<HamburgerIcon />}
                 aria-label="Åbn menu"
-                variant="solid"
-                size={"lg"}
+                variant="ghost"
+                size="lg"
                 onClick={onOpen}
               />
               <Drawer placement="left" onClose={onClose} isOpen={isOpen}>
@@ -111,8 +120,6 @@ const Navbar = () => {
                           {item.label}
                         </Button>
                       ))}
-
-                      {/* Top nav */}
                       <Button
                         variant="ghost"
                         onClick={() => {
