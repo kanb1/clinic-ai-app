@@ -12,12 +12,14 @@ const GlobalStyles = () => (
         width: "100%",
         margin: 0,
         padding: 0,
+        overflowX: "hidden",
       },
       body: {
         height: "100%",
         width: "100%",
         margin: 0,
         padding: 0,
+        overflowX: "hidden",
       },
       "#root": {
         height: "100%",
