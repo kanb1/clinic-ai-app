@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { MessageModel } from "../../models/message.model";
 import { IPopulatedMessage } from "../../interfaces/IPopulatedMessage";
-import mongoose from "mongoose";
+import mongoose, { ObjectId, Types } from "mongoose";
 import { UserModel } from "../../models/user.model";
 import { AppointmentModel } from "../../models/appointment.model";
 import { AvailabilitySlotModel } from "../../models/availabilityslots.model";
@@ -231,13 +231,15 @@ export const getAppointments = async (req: Request, res: Response) => {
   }
 };
 
-// Dette endpoint viser et overblik over hvor mange tider der er ledige for hver læge grupperet per dag
+// Dette endpoint viser et overblik over hvor mange tider der er ledige pr læge grupperet per dag
 // Valgfri filtrering på doctorId
 // Returnerer antal ledige tider grupperet per læge per dag
 // Sorter: dato stigende, navn A–Z.
+// ét objekt pr læge pr dag: fx:{ doctorName: \"Simon\", date: \"2025-06-01\", availableSlots: 5 }
+// giver et overblik over antal ledige tider pr. læge pr. dag
 export const getAvailabilityOverview = async (req: Request, res: Response) => {
   try {
-    // weekstart altså startdatoen
+    // Læser weekstart (dato for startuge) og doctorId fra URL'en
     const { weekStart, doctorId } = req.query;
 
     if (!weekStart) {
@@ -247,19 +249,21 @@ export const getAvailabilityOverview = async (req: Request, res: Response) => {
       return;
     }
 
-    // Konverterer weekStart til en Date-objekt, og laver en endDate der er 20 dage frem i tid (næsten 3 uger) for at filtrere tiderne
-    const startDate = new Date(weekStart as string);
+    // Opretter to datoer, start og end date
+    const startDate = new Date(weekStart as string); // Konverterer weekStart til en Date-objekt
     const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + 20); // 3 uger frem
+    //sætter enddate der er 20 dage frem i tid (næsten 3 uger) for at filtrere tiderne (definerer itnervallet vi vil undersøge slots i)
+    endDate.setDate(endDate.getDate() + 20);
 
-    // Forbereder mongo match query:
+    // match: mognodb query filter
+    // vi vil finde slots som:
     const match: any = {
-      date: { $gte: startDate, $lte: endDate }, //date skal være mellem startDate og endDate
-      is_booked: false, //is_booked skal være false (altså ledige tider)
+      date: { $gte: startDate, $lte: endDate }, //har en date som er mellem startDate og endDate
+      is_booked: false, //ikke er booket
     };
 
-    // Tilføj lægefilter hvis doctorId er angivet
-    // Hvis doctorId findes og er gyldig (et objectid), tilføjer vi det til vores filter, så vi kun får tider for 1 bestemt læge.
+    // Hvis doctorId er angivet af brugeren - og er gyldig (et objectid) - tilføjer vi det til vores filtered
+    // resultat: får kun slots for den læge
     if (doctorId && mongoose.Types.ObjectId.isValid(doctorId as string)) {
       match.doctor_id = new mongoose.Types.ObjectId(doctorId as string);
     }
@@ -271,19 +275,23 @@ export const getAvailabilityOverview = async (req: Request, res: Response) => {
       return;
     }
 
+    // Hvis der er en doctorId, men den er ugyldig
     if (doctorId && !mongoose.Types.ObjectId.isValid(doctorId as string)) {
-      // Hvis der er en doctorId, men den er ugyldig → returner tomt array
+      //returner tomt array
       res.status(200).json([]);
       return;
     }
 
-    // Aggregations pipeline for at gruppere tiderne -> kompleks forespørgsel med en pipeline af mongo's operationer ($)
+    // Bruger .aggresgate() (mongodbs aggregations pipeline)
+    // avanceret forespørgsel i flere trin
+    // svarer til GROUP BY i SQL men med mere fleksibilitet
     const slots = await AvailabilitySlotModel.aggregate([
-      // Vi starter en aggregation og filtrerer først med vores match (dato og evt. lægefilter)
+      // Først filtrer vi slots så vi kun arbejder med relevante slots (fra datointervallet og evt lægen)
+      // vi har angivet den query længere oppe
       { $match: match },
-      // Vi grupperer resultaterne efter læge og dato og tæller hvor mange ledige tider der er ($sum: 1)
-      // Svarer til GROUP BY i SQL
-      // fx 2 ledige tider for hanne hansen og 3 for jens jensen så får jeg dem som separate rækker
+      // Vi grupperer resultaterne baseret på:
+      // hvilken læge det er (doctorId)
+      // hvilken dag det er (date)
       // "Læg alle slots sammen, hvor lægen og datoen er den samme"
       {
         $group: {
@@ -291,12 +299,14 @@ export const getAvailabilityOverview = async (req: Request, res: Response) => {
             doctor_id: "$doctor_id",
             date: "$date",
           },
+          // vi tæller hvor mange ledige slots der er
           // → “læg +1 sammen for hvert dokument” → tælling
           availableSlots: { $sum: 1 },
         },
       },
       //$lookup for at hente info om lægen fra users-collectionen og tilføjer det som et felt kaldet doctor, fungerer lidt som JOIN
       {
+        // For hver doctor_id gør vi:
         $lookup: {
           // Gå ind i users-collectionen
           from: "users",
@@ -308,9 +318,9 @@ export const getAvailabilityOverview = async (req: Request, res: Response) => {
           as: "doctor",
         },
       },
-      // $unwind gør så doctor bliver et enkelt ojbject og ik et array. "Pakker" en array ud til ét dokument per element
+      // $unwind gør så doctor bliver et enkelt ojbject og ik et array.
       { $unwind: "$doctor" },
-      // Vi definerer hvilke felter vi vil have med i resultatet
+      // Vi definerer hvilke felter vi vil have med i resultatet - og omdøber nogle
       // doctor oplysninger, hvornår tiderne er og hvor mange tider
       {
         $project: {
@@ -318,7 +328,7 @@ export const getAvailabilityOverview = async (req: Request, res: Response) => {
           doctorName: "$doctor.name",
           role: "$doctor.role",
           date: "$_id.date",
-          availableSlots: 1,
+          availableSlots: 1, //mongo-way of saying keep this field in the output that we counted from the grouping before, "0" would be remove the field
         },
       },
       // Sorter resultatet: vi vil have datoer i stigende rækkefølge, fx man-fre og navne i alfabetisk orden
@@ -334,10 +344,14 @@ export const getAvailabilityOverview = async (req: Request, res: Response) => {
   }
 };
 
-//Dette endpoint viser de konkrete ledige tider, altså tidspunkt og dato for hver ledig tid for hver læge
+//Dette endpoint returnerer hver enkelt ledig tid (dato + tidspunkt) for en given klinik og (valgfrit) bestemt læge
+// et objekt pr slot fx: { doctorName: \"Simon\", date: \"2025-06-01\", start_time: \"08:00\", end_time: \"08:15\" }
+// giver hver enkelt eldig tid med klokkeslæt
 export const getAvailabilitySlots = async (req: Request, res: Response) => {
   try {
+    // trækker clinicid ud fra den authetnitcated bruger
     const clinicId = req.user!.clinicId;
+    // trækker weekstart og doctorId fr aURLens query-parametre
     const { weekStart, doctorId } = req.query;
 
     if (!weekStart) {
@@ -345,24 +359,42 @@ export const getAvailabilitySlots = async (req: Request, res: Response) => {
       return;
     }
 
+    // definerer start- og slutdato for søgningen
     const startDate = new Date(weekStart as string);
     const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + 20);
+    endDate.setDate(endDate.getDate() + 20); //en periode på 21 dage (3 uger frem)
 
+    // bygger et match-filter til mongodb
+    // vi vil gerne matche tider i databasen baseret på:
     const match: any = {
-      clinic_id: clinicId,
-      date: { $gte: startDate, $lte: endDate },
-      is_booked: false,
+      clinic_id: clinicId, //kun fra den aktuelle klinik
+      date: { $gte: startDate, $lte: endDate }, //kun mellem start- og end date
+      is_booked: false, //ledige tider
     };
 
+    // Hvis vi fik doctorId i URL'en og den er gyldig, så filtrerer vi på det også
+    //Ellers henter vi slots for alle læger i klinikken
     if (doctorId && mongoose.Types.ObjectId.isValid(doctorId as string)) {
       match.doctor_id = new mongoose.Types.ObjectId(doctorId as string);
     }
 
+    // vi hetner alle tiderne der matcher fra databasen
     const slots = await AvailabilitySlotModel.find(match)
+      // populate at få lægens navn med, udover id
       .populate("doctor_id", "name")
+      // stigende dato, og inden for samme dag (tidligste tider først) - modsat er -1
       .sort({ date: 1, start_time: 1 });
+    // vi får fx:
+    // {
+    //   _id: "123",
+    //   doctor_id: { _id: "456", name: "Mie Christensen" },
+    //   date: "2025-06-03",
+    //   start_time: "09:00",
+    //   end_time: "09:15",
+    //   is_booked: false
+    // }
 
+    // beskriver hvordna hvert slot ser ud efter populate, typesikkerhed
     interface PopulatedSlot {
       _id: string;
       doctor_id: {
@@ -374,6 +406,7 @@ export const getAvailabilitySlots = async (req: Request, res: Response) => {
       end_time: string;
     }
 
+    // mapper over alle slots (enkelte tider) og formaterer dataen til et enklere og renere format til frontend
     const formatted = (slots as unknown as PopulatedSlot[]).map((slot) => ({
       slotId: slot._id,
       doctorId: slot.doctor_id._id,
@@ -396,6 +429,7 @@ export const checkAndSeedSlots = async (req: Request, res: Response) => {
   try {
     const clinicId = req.user!.clinicId;
 
+    // finder alle læger i den aktuelle klinik, da vi skal generere slots for hver læge
     const doctors = await UserModel.find({
       clinic_id: clinicId,
       role: "doctor",
@@ -409,37 +443,61 @@ export const checkAndSeedSlots = async (req: Request, res: Response) => {
     }
 
     const today = new Date();
+    // sætter today til dags dato kl 00.00 - for at sammenligne slots med i dag og frem
     today.setHours(0, 0, 0, 0);
     const futureDate = new Date(today);
+    // laver en futuredate some r 3 uger (21 dage frem i tiden)
     futureDate.setDate(futureDate.getDate() + 20);
 
-    // Check om der allerede findes slots 20 dage frem
+    // !!check om der allerede findes slots 20 dage frem
+    // finder alle eksisterende slots i den klinik fra i dag til 3 uger frem – om de er booket eller ej
     const existingSlots = await AvailabilitySlotModel.find({
       clinic_id: clinicId,
       date: { $gte: today, $lte: futureDate },
     });
 
+    // laver en set (unik samling) af alle datoer, hvor der allerede findes slots
     const existingDates = new Set(
+      // fx ["2025-06-01", "2025-06-02", "2025-06-03", ...]
       existingSlots.map((slot) => slot.date.toISOString().split("T")[0])
     );
 
+    // forbereder nye slots hvis der mangler
     let seededCount = 0;
-    const slotsToInsert: any[] = [];
 
+    interface SlotInput {
+      doctor_id: Types.ObjectId;
+      clinic_id: Types.ObjectId;
+      date: Date;
+      start_time: string;
+      end_time: string;
+      is_booked: boolean;
+    }
+    // opretter en tom array til nye slots der skal insertes
+    const slotsToInsert: SlotInput[] = [];
+
+    // loop over hver dag de næste 21 dage
     for (let i = 0; i < 21; i++) {
       const date = new Date(today);
+      // Vi går dag for dag fra i dag og 21 dage frem
       date.setDate(date.getDate() + i);
+      // isoDate er datoen som string (fx "2025-06-01")
       const isoDate = date.toISOString().split("T")[0];
 
+      // Skip hvis datoen allerede har slots, for at undgå doubleseeding
       if (existingDates.has(isoDate)) continue;
 
+      // Skip hvis det er weekend
+      // springer lørdage (6) og søndage (0) over..
       const isWeekend = date.getDay() === 6 || date.getDay() === 0;
       if (isWeekend) continue;
 
+      // generer tider for hver læge for denne dag
       for (const doctor of doctors) {
+        // util funktion der opretter timeslots
         for (const { start, end } of generateTimeSlots()) {
           slotsToInsert.push({
-            doctor_id: doctor._id,
+            doctor_id: doctor._id as mongoose.Types.ObjectId,
             clinic_id: doctor.clinic_id,
             date: new Date(date),
             start_time: start,
@@ -450,6 +508,8 @@ export const checkAndSeedSlots = async (req: Request, res: Response) => {
       }
     }
 
+    // God logging til udvikling!
+    // Hvis der var noget at indsætte, bruger vi insertMany()
     if (slotsToInsert.length > 0) {
       await AvailabilitySlotModel.insertMany(slotsToInsert);
       console.log(`Seeded ${slotsToInsert.length} nye tider.`);
