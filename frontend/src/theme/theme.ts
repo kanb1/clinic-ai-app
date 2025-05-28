@@ -2,13 +2,14 @@ import { extendTheme } from "@chakra-ui/react";
 
 const theme = extendTheme({
   breakpoints: {
-    base: "0em",
-    sm: "30em", // 480px
-    md: "48em", // 768px
-    lg: "62em", // 992px
-    xl: "80em", // 1280px
-    "2xl": "96em", // 1536px
+    base: "0px",
+    sm: "480px",
+    md: "768px",
+    lg: "992px",
+    xl: "1280px",
+    "2xl": "1536px",
   },
+
   colors: {
     primary: {
       red: "#B20D1C",
@@ -19,10 +20,12 @@ const theme = extendTheme({
       green: "#1c5e3a",
     },
   },
+
   fonts: {
     heading: "'Poppins', sans-serif",
     body: "'Inter', sans-serif",
   },
+
   fontWeights: {
     extrathin: 100,
     thin: 200,
@@ -31,45 +34,78 @@ const theme = extendTheme({
     bold: 700,
     extrabold: 800,
   },
-  textStyles: {
-    heading1: {
-      fontSize: { base: "24px", md: "36px", lg: "48px" },
-      fontWeight: "bold",
-      lineHeight: "120%",
-      fontFamily: "heading",
-    },
-    heading2: {
-      fontSize: { base: "20px", md: "30px", lg: "40px" },
-      fontWeight: "bold",
-      lineHeight: "120%",
-      fontFamily: "heading",
-    },
-    heading3: {
-      fontSize: { base: "18px", md: "24px", lg: "32px" },
-      fontWeight: "medium",
-      lineHeight: "120%",
-      fontFamily: "heading",
-    },
-    body: {
-      fontSize: { base: "16px", md: "18px", lg: "20px" },
-      fontWeight: "normal",
-      lineHeight: "160%",
-      fontFamily: "body",
-    },
-  },
+
   components: {
+    Heading: {
+      baseStyle: {
+        fontFamily: "'Poppins', sans-serif",
+        lineHeight: "120%",
+      },
+      sizes: {
+        heading1: {
+          fontSize: {
+            base: "30px",
+            sm: "36px",
+            md: "48px",
+            lg: "48px",
+            xl: "50px",
+          },
+          fontWeight: "bold",
+        },
+        heading2: {
+          fontSize: {
+            base: "24px",
+            sm: "28px",
+            md: "38px",
+            lg: "40px",
+            xl: "40px",
+          },
+          fontWeight: "medium",
+        },
+        heading3: {
+          fontSize: {
+            base: "22px",
+            sm: "26px",
+            md: "32px",
+            lg: "32px",
+            xl: "32px",
+          },
+          fontWeight: "thin",
+          fontStyle: "italic",
+        },
+      },
+    },
+
+    Text: {
+      baseStyle: {
+        fontFamily: "'Inter', sans-serif",
+        lineHeight: "160%",
+      },
+      sizes: {
+        body: {
+          fontSize: {
+            base: "16px",
+            sm: "18px",
+            md: "16px",
+            lg: "16px",
+            xl: "16px",
+          },
+          fontWeight: "normal",
+        },
+      },
+    },
+
     Button: {
       baseStyle: {
         borderRadius: "full",
         fontFamily: "'Poppins', sans-serif",
-        px: 6,
-        py: 3,
+        px: 4,
+        py: 7,
       },
       variants: {
         solidRed: {
           bg: "#B20D1C",
           color: "white",
-          padding: "2rem 2rem",
           fontWeight: "600",
           minWidth: "10rem",
           borderRadius: "2rem",
@@ -79,7 +115,6 @@ const theme = extendTheme({
         solidGreen: {
           bg: "#1c5e3a",
           color: "white",
-          padding: "2rem 2rem",
           fontWeight: "600",
           minWidth: "10rem",
           borderRadius: "2rem",
@@ -89,7 +124,6 @@ const theme = extendTheme({
         outlineWhite: {
           bg: "white",
           color: "black",
-          padding: "2rem 2rem",
           fontWeight: "600",
           minWidth: "10rem",
           borderRadius: "2rem",
@@ -100,7 +134,6 @@ const theme = extendTheme({
         solidBlack: {
           bg: "black",
           color: "white",
-          padding: "2rem 2rem",
           fontWeight: "600",
           minWidth: "10rem",
           borderRadius: "2rem",
