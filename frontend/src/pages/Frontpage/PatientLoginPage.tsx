@@ -44,23 +44,12 @@ const PatientLoginPage = () => {
   };
 
   return (
-    <Box maxW="md" mx="auto" mt={10} p={4}>
-      <Heading
-        fontWeight="extrabold"
-        fontFamily="heading"
-        textStyle="heading1"
-        mb={{ sm: 1 }}
-        mt={{ sm: 5 }}
-      >
+    <Box maxW="md" mx="auto" mt={{ base: 5 }} p={{ base: 5 }}>
+      <Heading size="heading1" mb={{ base: 1, sm: 1 }} mt={{ sm: 5 }}>
         {" "}
         Log ind som patient
       </Heading>
-      <Text
-        textStyle="body"
-        fontWeight="normal"
-        fontFamily="heading"
-        mb={{ sm: 5, lg: 8 }}
-      >
+      <Text size="body" mb={{ base: 4, sm: 5, lg: 8 }}>
         Indtast venligst dine loginoplysninger.
       </Text>
 
