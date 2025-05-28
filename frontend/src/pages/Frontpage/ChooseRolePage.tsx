@@ -5,26 +5,15 @@ const ChooseRolePage = () => {
   const navigate = useNavigate();
 
   return (
-    <Box textAlign="center" px={{ sm: 10, md: 0 }}>
-      <Heading
-        fontWeight="extrabold"
-        fontFamily="heading"
-        textStyle="heading1"
-        mb={0}
-        mt={10}
-      >
+    <Box textAlign="center" px={{ base: 3, sm: 10, md: 0 }}>
+      <Heading size="heading1" mb={0} mt={10}>
         Velkommen til Klinika
       </Heading>
-      <Text
-        textStyle="body"
-        fontWeight="medium"
-        fontFamily="heading"
-        mt={{ lg: 3 }}
-      >
+      <Text size="body" mt={{ base: 2, lg: 3 }} textAlign="center">
         Er du patient eller arbejder hos en klinik? Vælg din adgang herunder.
       </Text>
 
-      <VStack gap={5} pt={{ sm: 6 }}>
+      <VStack gap={5} pt={{ base: 6, sm: 6 }}>
         <Button
           variant="solidRed"
           minW="200px"
