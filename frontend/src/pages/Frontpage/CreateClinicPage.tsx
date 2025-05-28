@@ -122,25 +122,21 @@ const CreateClinicPage = () => {
   }
 
   return (
-    <Box maxW="md" mx="auto" mt={10}>
+    <Box maxW="md" mx="auto" mt={10} px={{ base: 8, lg: 0 }}>
       {!isAdminLoggedIn ? (
         <>
           {/* vis loginform */}
 
-          <Heading fontSize="2xl" fontWeight="extrabold">
-            Admin login
-          </Heading>
+          <Heading size="heading1">Admin login</Heading>
           <Text
-            textStyle="body"
-            fontWeight="normal"
-            fontFamily="heading"
-            mb={{ sm: 4, md: 5, lg: 6 }}
-            mt={{ md: 1 }}
+            size="body"
+            mb={{ base: 3, sm: 4, md: 5, lg: 6 }}
+            mt={{ base: 1, md: 1 }}
           >
             Du skal være logget ind som en admin for at udføre denne handling.
           </Text>
           <form onSubmit={handleLogin}>
-            <Stack spacing={6}>
+            <Stack spacing={6} mt={{ base: 4 }}>
               <FormControl isRequired>
                 <FormLabel>Email</FormLabel>
                 <Input
@@ -184,26 +180,15 @@ const CreateClinicPage = () => {
           <Box textAlign="center" mt={10}>
             <CheckCircleIcon boxSize="80px" color="green.400" />
           </Box>
-          <Heading
-            fontWeight="extrabold"
-            fontFamily="heading"
-            textStyle="heading1"
-            mb={0}
-            mt={{ sm: 5 }}
-          >
-            Klinik oprettet!
+
+          <Heading size="heading2" mt={{ base: 5, sm: 5 }}>
+            Success!
           </Heading>
-          <Text
-            textStyle="body"
-            fontWeight="normal"
-            fontFamily="heading"
-            mt={{ sm: 3 }}
-          >
+          <Text size="body" mb={{ base: 5, sm: 6 }}>
             Din klinik er nu oprettet i systemet. Du kan nu administrere din
-            klinik på din profil.
+            klinik på din profil.{" "}
           </Text>
           <Button
-            mt={6}
             variant="solidBlack"
             onClick={() => navigate("/admin/dashboard")}
           >
@@ -227,15 +212,12 @@ const CreateClinicPage = () => {
           >
             <Icon as={CloseIcon} boxSize="40px" color="white" />
           </Box>
-          <Heading
-            fontWeight="extrabold"
-            fontFamily="heading"
-            textStyle="heading1"
-            mb={{ sm: 8 }}
-            mt={{ sm: 5 }}
-          >
-            Du har allerede oprettet en klinik:
+          <Heading size="heading2" mt={{ base: 5, sm: 5 }}>
+            Fejl!
           </Heading>
+          <Text size="body" mb={{ base: 5, sm: 8 }}>
+            Du har allerede en klinik
+          </Text>
           <Box
             border="1px solid"
             borderColor="gray.200"
@@ -244,7 +226,7 @@ const CreateClinicPage = () => {
             bg="white"
             boxShadow="md"
           >
-            <Text fontSize="md" fontWeight="bold" mb={1}>
+            <Text size="body" mb={1}>
               {myClinic.name}
             </Text>
             <Text fontSize="sm" color="gray.600">
@@ -254,7 +236,7 @@ const CreateClinicPage = () => {
           <Button
             variant="solidBlack"
             minW="200px"
-            mt={{ sm: 10 }}
+            mt={{ base: 5, sm: 7 }}
             onClick={() => navigate("/admin/dashboard")}
           >
             Gå til dashboard
@@ -264,7 +246,7 @@ const CreateClinicPage = () => {
         // vis formular til oprettelse af klinik
 
         <>
-          <Heading fontSize="2xl" fontWeight="extrabold" mb={6}>
+          <Heading size="heading1" mb={6}>
             Opret ny klinik
           </Heading>
           <form onSubmit={handleCreateClinic}>
