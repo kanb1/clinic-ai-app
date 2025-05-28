@@ -59,28 +59,17 @@ const StaffLoginPage = () => {
   if (error) return <p>Kunne ikke hente klinikker</p>;
 
   return (
-    <Box maxW="md" mx="auto" mt={10} p={{ sm: 4, md: 2 }}>
-      <Heading
-        fontWeight="extrabold"
-        fontFamily="heading"
-        textStyle="heading1"
-        mb={{ sm: 1 }}
-        mt={{ sm: 5 }}
-      >
+    <Box maxW="md" mx="auto" mt={{ base: 5 }} p={{ base: 5 }}>
+      <Heading size="heading1" mb={{ base: 1, sm: 1 }} mt={{ sm: 5 }}>
         {" "}
         Log ind som personale
       </Heading>
-      <Text
-        textStyle="body"
-        fontWeight="normal"
-        fontFamily="heading"
-        mb={{ sm: 5, lg: 4 }}
-      >
+      <Text size="body" mb={{ base: 4, sm: 5, lg: 8 }}>
         Indtast venligst dine loginoplysninger.
       </Text>
 
       <form onSubmit={handleSubmit}>
-        <Stack spacing={6} py={6}>
+        <Stack spacing={6}>
           <FormControl isRequired>
             <FormLabel htmlFor="email">Email</FormLabel>
             <Input
