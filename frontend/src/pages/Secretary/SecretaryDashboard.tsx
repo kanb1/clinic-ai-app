@@ -20,6 +20,7 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import { useAuth } from "@/context/AuthContext";
+import RecentAppointmentsCarousel from "@/components/secretary/Dashboard/RecentAppointmentsCarousel";
 
 const SecretaryDashboard = () => {
   const { data, isLoading, error } = useUnreadMessages();
@@ -27,8 +28,8 @@ const SecretaryDashboard = () => {
   const { data: staff } = useStaffStatus();
   const { mutate: updateStatus } = useUpdateMyStatus();
   const { user } = useAuth();
-  const { data: pastAppointments, isLoading: isLoadingPast } =
-    usePastAppointmentsToday();
+
+  const isScrollable = useBreakpointValue({ base: false, sm: true });
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const isMobile = useBreakpointValue({ base: true, md: false });
@@ -54,113 +55,13 @@ const SecretaryDashboard = () => {
 
   return (
     <Layout>
-      <Stack spacing={6} w="full" p={{ md: 4 }}>
-        <Heading textStyle="heading1">Dashboard</Heading>
-        {/* Seneste besøg */}
-        <Box w="full">
-          <Heading
-            textStyle="heading2"
-            fontWeight="medium"
-            mb={{ base: "10px", sm: "12px", md: "14px" }}
-          >
-            Seneste besøg
-          </Heading>
-          {isLoadingPast && <Spinner />}
+      <Stack spacing={6} w="full" p={{ base: 2, md: 4 }}>
+        <Heading textStyle="heading1" textAlign="center">
+          Dashboard
+        </Heading>
 
-          <Box position="relative">
-            <Flex
-              ref={scrollRef}
-              gap={4}
-              overflowX="auto"
-              scrollBehavior="smooth"
-              pb={2}
-              px={1}
-              sx={{
-                scrollSnapType: "x mandatory",
-                scrollPadding: "1rem",
-                WebkitOverflowScrolling: "touch",
-              }}
-            >
-              {pastAppointments?.map((appt) => (
-                <Box
-                  key={appt._id}
-                  minW={{
-                    base: "20%",
-                    sm: "20%",
-                    md: "30%",
-                    lg: "30%",
-                    xl: "30%",
-                  }}
-                  maxW="100%"
-                  bg="gray.100"
-                  p={4}
-                  borderRadius="md"
-                  boxShadow="sm"
-                  flexShrink={0}
-                  scrollSnapAlign="start"
-                >
-                  <Text fontWeight="bold">
-                    {appt.time} – {appt.end_time || "?"}
-                  </Text>
-                  <Text fontSize="sm">
-                    {appt.patient_id?.name || "Ukendt patient"}
-                  </Text>
-                  <Text fontSize="sm" color="gray.500">
-                    Hos: {appt.doctor_id?.name || "Ukendt læge"}
-                  </Text>
-                  <Badge
-                    mt={2}
-                    colorScheme={
-                      appt.status === "bekræftet"
-                        ? "green"
-                        : appt.status === "aflyst"
-                        ? "red"
-                        : appt.status === "udført"
-                        ? "blue"
-                        : "gray"
-                    }
-                  >
-                    {appt.status.toUpperCase()}
-                  </Badge>
-                </Box>
-              ))}
-            </Flex>
-
-            {/* Scroll knapper */}
-            <Button
-              position="absolute"
-              bottom={{ base: "-10%" }}
-              left="0"
-              zIndex="1"
-              size="md"
-              display={{ base: "flex", md: "flex" }}
-              onClick={() =>
-                scrollRef.current?.scrollBy({
-                  left: -220,
-                  behavior: "smooth",
-                })
-              }
-            >
-              ←
-            </Button>
-            <Button
-              position="absolute"
-              bottom={{ base: "-10%" }}
-              right={{ base: "65%", sm: "43%", md: "8%", xl: "0%" }}
-              zIndex="1"
-              size="md"
-              display={{ base: "flex", md: "flex" }}
-              onClick={() =>
-                scrollRef.current?.scrollBy({
-                  left: 220,
-                  behavior: "smooth",
-                })
-              }
-            >
-              →
-            </Button>
-          </Box>
-        </Box>
+        {/* Livefeed - seneste besøg */}
+        <RecentAppointmentsCarousel />
 
         {/* Beskeder + Personale */}
         <Stack
@@ -169,7 +70,7 @@ const SecretaryDashboard = () => {
           align="start"
           wrap="wrap"
           w="full"
-          pt={{ base: 6, sm: 8, xl: 4 }}
+          pt={{ base: 10, sm: 8, xl: 4 }}
         >
           {/* Beskeder */}
           <Box
