@@ -5,27 +5,15 @@ const ClinicAuthPage = () => {
   const navigate = useNavigate();
 
   return (
-    <Box textAlign="center">
-      <Heading
-        fontWeight="extrabold"
-        fontFamily="heading"
-        textStyle="heading1"
-        mb={0}
-        mt={10}
-      >
+    <Box textAlign="center" px={{ base: 4, sm: 5 }}>
+      <Heading size="heading1" mt={{ base: 10 }}>
         Log venligst ind
       </Heading>
-      <Text
-        textStyle="body"
-        fontWeight="medium"
-        fontFamily="heading"
-        mt={{ sm: 3 }}
-      >
-        Log ind i din klinik eller klik på "Opret Klinik", hvis du skal
-        registrere din klinik i systemet
+      <Text size="body" mt={{ base: 2, sm: 3 }}>
+        Log ind i din klinik eller registrér din klinik i systemet.
       </Text>
 
-      <VStack gap={5} pt={{ sm: 6 }}>
+      <VStack gap={5} pt={{ base: 4, sm: 6 }}>
         <Button
           variant="solidRed"
           minW="200px"
