@@ -81,7 +81,7 @@ export const CustomCalendar = ({ appointments, refetch }: Props) => {
   const handlePrevWeek = () => setWeekOffset((prev) => prev - 1);
 
   return (
-    <Box p={4} overflowX="auto">
+    <Box p={4} overflowX="auto" maxW="100%" w="full" mx="auto">
       <Flex
         justify="space-between"
         align="center"
@@ -89,7 +89,7 @@ export const CustomCalendar = ({ appointments, refetch }: Props) => {
         gap={4}
         flexWrap="wrap"
       >
-        <Button onClick={handlePrevWeek} size="sm">
+        <Button onClick={handlePrevWeek} size="sm" p={7}>
           ◀ Forrige uge
         </Button>
         <Text fontWeight="bold" fontSize="lg" textAlign="center">
@@ -99,7 +99,7 @@ export const CustomCalendar = ({ appointments, refetch }: Props) => {
         {checkingNext ? (
           <Spinner size="sm" />
         ) : hasNextWeek ? (
-          <Button onClick={handleNextWeek} size="sm">
+          <Button onClick={handleNextWeek} size="sm" p={7}>
             Næste uge ▶
           </Button>
         ) : (
