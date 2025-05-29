@@ -1,4 +1,4 @@
-import { Box, Button, Text, VStack } from "@chakra-ui/react";
+import { Box, Button, Flex, Text, VStack } from "@chakra-ui/react";
 
 interface ConfirmBookingModalProps {
   date: string;
@@ -36,12 +36,18 @@ const ConfirmBookingModal = ({
           <strong>Note:</strong> {note || "Ingen note angivet"}
         </Text>
       </VStack>
-      <Button mt={4} colorScheme="green" mr={2} onClick={onConfirm}>
-        Bekræft
-      </Button>
-      <Button mt={4} colorScheme="red" variant="outline" onClick={onCancel}>
-        Fortryd
-      </Button>
+      <Flex
+        justifyContent={{ base: "start", sm: "end" }}
+        flexDirection="row"
+        gap={1}
+      >
+        <Button mt={4} colorScheme="green" mr={2} onClick={onConfirm}>
+          Bekræft
+        </Button>
+        <Button mt={4} colorScheme="red" onClick={onCancel}>
+          Fortryd
+        </Button>
+      </Flex>
     </Box>
   );
 };

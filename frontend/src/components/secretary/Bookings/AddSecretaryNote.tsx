@@ -1,4 +1,4 @@
-import { Box, Button, Textarea, Text } from "@chakra-ui/react";
+import { Box, Button, Textarea, Text, Flex } from "@chakra-ui/react";
 import { useState } from "react";
 
 interface Props {
@@ -11,7 +11,7 @@ const AddSecretaryNote = ({ onConfirm, onCancel }: Props) => {
 
   return (
     <Box>
-      <Text mb={2} fontWeight="semibold">
+      <Text mb={{ base: 6 }} fontWeight="semibold">
         Tilføj note til konsultation
       </Text>
       <Textarea
@@ -20,12 +20,18 @@ const AddSecretaryNote = ({ onConfirm, onCancel }: Props) => {
         onChange={(e) => setNote(e.target.value)}
         mb={4}
       />
-      <Button colorScheme="green" onClick={() => onConfirm(note)} mr={2}>
-        Færdig
-      </Button>
-      <Button variant="ghost" onClick={onCancel}>
-        Fortryd
-      </Button>
+      <Flex
+        justifyContent={{ base: "start", sm: "end" }}
+        flexDirection="row"
+        gap={1}
+      >
+        <Button colorScheme="green" onClick={() => onConfirm(note)} mr={2}>
+          Færdig
+        </Button>
+        <Button colorScheme="red" onClick={onCancel}>
+          Fortryd
+        </Button>
+      </Flex>
     </Box>
   );
 };
