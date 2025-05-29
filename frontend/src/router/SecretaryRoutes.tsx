@@ -4,7 +4,6 @@ import RequireRole from "./RequireRole";
 import SecretaryDashboard from "@/pages/Secretary/SecretaryDashboard";
 import MessagePage from "@/pages/Secretary/MessagePage";
 import BookingPage from "@/pages/Secretary/BookAppointmentPage";
-import SecretarySettingsPage from "@/pages/Secretary/SecretarySettingsPage";
 import CalendarPage from "@/pages/Secretary/SecretaryCalendarPage";
 
 export const secretaryRoutes: RouteObject[] = [
@@ -30,10 +29,6 @@ export const secretaryRoutes: RouteObject[] = [
       {
         path: "calendar",
         element: <CalendarPage />,
-      },
-      {
-        path: "settings",
-        element: <SecretarySettingsPage />,
       },
     ],
   },

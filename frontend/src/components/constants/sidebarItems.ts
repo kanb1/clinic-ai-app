@@ -23,7 +23,6 @@ export const sidebarItems = {
     { label: "Kalender", path: "/secretary/calendar" },
     { label: "Ny besked", path: "/secretary/messages/new" },
     { label: "Ny aftale", path: "/secretary/appointments/new" },
-    { label: "Indstillinger", path: "/secretary/settings" },
   ],
   patient: [
     { label: "Dashboard", path: "/patient/dashboard" },
