@@ -37,12 +37,12 @@ const RecentAppointmentsCarousel = () => {
   if (!pastAppointments || isLoading) return null;
 
   return (
-    <Box w="full" position="relative">
+    <Box w="full" position="relative" mt={{ lg: 5 }}>
       <Heading
         textStyle="heading2"
         fontWeight="medium"
         mb={4}
-        textAlign="center"
+        textAlign={{ base: "center", lg: "left" }}
       >
         Seneste besøg
       </Heading>

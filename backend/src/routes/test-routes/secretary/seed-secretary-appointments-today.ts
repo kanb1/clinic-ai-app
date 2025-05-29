@@ -24,14 +24,14 @@ export const seedAppointmentsToday = async (req: Request, res: Response) => {
     today.setHours(0, 0, 0, 0);
 
     const slots = [
-      // {
-      //   doctor_id: doctorId,
-      //   clinic_id: clinicId,
-      //   date: today,
-      //   start_time: "08:00",
-      //   end_time: "08:30",
-      //   is_booked: true,
-      // },
+      {
+        doctor_id: doctorId,
+        clinic_id: clinicId,
+        date: today,
+        start_time: "08:00",
+        end_time: "08:30",
+        is_booked: true,
+      },
       {
         doctor_id: doctorId,
         clinic_id: clinicId,

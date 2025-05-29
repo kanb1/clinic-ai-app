@@ -56,8 +56,8 @@ const SecretaryDashboard = () => {
   return (
     <Layout>
       <Stack spacing={6} w="full" p={{ base: 2, md: 4 }}>
-        <Heading textStyle="heading1" textAlign="center">
-          Dashboard
+        <Heading textStyle="heading1" textAlign={{ base: "center" }}>
+          Velkommen, {user?.name}
         </Heading>
 
         {/* Livefeed - seneste besøg */}
@@ -76,7 +76,13 @@ const SecretaryDashboard = () => {
           <Box
             flex={1}
             minW={0}
-            maxW={{ base: "35%", sm: "56%", md: "90%", lg: "86%" }}
+            maxW={{
+              base: "100%",
+              sm: "100%",
+              md: "100%",
+              lg: "100%",
+              xl: "86%",
+            }}
             w="100%"
           >
             <Heading
@@ -106,28 +112,37 @@ const SecretaryDashboard = () => {
                     <Text fontWeight="bold">
                       {msg.sender_id.name} ({msg.sender_id.role})
                     </Text>
-                    <Text mb={2}>{msg.content}</Text>
+                    <Text mb={2}>"{msg.content}"</Text>
                     <Text fontSize="sm" color="gray.600">
                       {new Date(msg.createdAt).toLocaleString("da-DK")}
                     </Text>
 
-                    {!msg.read && (
-                      <Button
-                        mt={2}
-                        size="sm"
-                        onClick={() => markAsRead(msg._id)}
-                      >
-                        Markér som læst
-                      </Button>
-                    )}
-
-                    <Text
-                      mt={2}
-                      color={msg.read ? "green.600" : "red.600"}
-                      fontWeight="medium"
+                    <Flex
+                      display="flex"
+                      flexDirection={{ base: "row" }}
+                      gap={{ base: 2 }}
+                      mt={{ base: 4, lg: 6 }}
                     >
-                      {msg.read ? "✅ Læst" : "📩 Ulæst"}
-                    </Text>
+                      {!msg.read && (
+                        <Button
+                          mt={2}
+                          size="sm"
+                          onClick={() => markAsRead(msg._id)}
+                          bgColor={"blue.100"}
+                          p={{ base: 3 }}
+                        >
+                          Markér som læst
+                        </Button>
+                      )}
+
+                      <Text
+                        size="body"
+                        mt={{ base: 3 }}
+                        color={msg.read ? "green.600" : "red.600"}
+                      >
+                        {msg.read ? "🟢 Læst" : "🔴 Ulæst"}
+                      </Text>
+                    </Flex>
                   </Box>
                 ))
               )}
@@ -137,7 +152,13 @@ const SecretaryDashboard = () => {
           {/* Personale */}
           <Box
             w="100%"
-            maxW={{ base: "35%", sm: "56%", md: "90%", lg: "86%", xl: "65%" }}
+            maxW={{
+              base: "100%",
+              sm: "100%",
+              md: "100%",
+              lg: "100%",
+              xl: "65%",
+            }}
             overflowX="hidden"
           >
             <Heading
@@ -163,34 +184,46 @@ const SecretaryDashboard = () => {
                     w="full"
                     display="flex"
                     justifyContent="space-between"
-                    alignItems="center"
+                    alignItems={{ base: "flex-start", sm: "center" }}
+                    flexDirection={{ base: "column", sm: "row" }}
+                    gap={3}
                     boxShadow="sm"
                   >
+                    {/* Left: Navn + rolle */}
                     <Box>
                       <Text fontWeight="bold">{person.name}</Text>
                       <Text fontSize="sm">{person.role}</Text>
                     </Box>
 
-                    <Badge
-                      colorScheme={
-                        person.status === "ledig"
-                          ? "green"
-                          : person.status === "optaget"
-                          ? "red"
-                          : "yellow"
-                      }
+                    {/* Right: Status + knap */}
+                    <Flex
+                      direction={{ base: "column", sm: "row" }}
+                      align={{ base: "flex-start", md: "center" }}
+                      gap={2}
                     >
-                      {person.status}
-                    </Badge>
-
-                    {canToggle && (
-                      <ToggleStatusButton
-                        currentStatus={person.status as "ledig" | "optaget"}
-                        onToggle={() =>
-                          handleToggle(person.status as "ledig" | "optaget")
+                      <Badge
+                        colorScheme={
+                          person.status === "ledig"
+                            ? "green"
+                            : person.status === "optaget"
+                            ? "red"
+                            : "yellow"
                         }
-                      />
-                    )}
+                        p={{ base: 2 }}
+                        borderRadius={{ base: 10 }}
+                      >
+                        {person.status}
+                      </Badge>
+
+                      {canToggle && (
+                        <ToggleStatusButton
+                          currentStatus={person.status as "ledig" | "optaget"}
+                          onToggle={() =>
+                            handleToggle(person.status as "ledig" | "optaget")
+                          }
+                        />
+                      )}
+                    </Flex>
                   </Box>
                 );
               })}
