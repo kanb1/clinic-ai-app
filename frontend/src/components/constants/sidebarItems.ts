@@ -5,11 +5,10 @@ export const sidebarItems = {
   admin: [
     // label: den tekst der vises i sidebar-knappen
     // url: hvad der bliver navigeret til
-    { label: "Dashboard", path: "/admin/dashboard" },
+    { label: "Dashboard", path: "/admin/frontpage" },
     { label: "Administrér Patient", path: "/admin/patients" },
     { label: "Administrér Læge", path: "/admin/doctors" },
     { label: "Administrér Sekretær", path: "/admin/secretaries" },
-    { label: "Indstillinger", path: "/admin/settings" },
   ],
   doctor: [
     { label: "Dashboard", path: "/doctor/dashboard" },

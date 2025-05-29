@@ -237,9 +237,9 @@ const CreateClinicPage = () => {
             variant="solidBlack"
             minW="200px"
             mt={{ base: 5, sm: 7 }}
-            onClick={() => navigate("/admin/dashboard")}
+            onClick={() => navigate("/admin/frontpage")}
           >
-            Gå til dashboard
+            Gå til din startside
           </Button>
         </Box>
       ) : (

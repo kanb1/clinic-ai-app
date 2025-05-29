@@ -1,7 +1,7 @@
 import { RouteObject } from "react-router-dom";
-import AdminDashboard from "@/pages/Admin/AdminDashboard";
 import RequireRole from "./RequireRole";
 import Navbar from "@/components/layout/NavBar";
+import AdminFrontpage from "@/pages/Admin/AdminFrontpage";
 
 export const adminRoutes: RouteObject[] = [
   {
@@ -15,8 +15,8 @@ export const adminRoutes: RouteObject[] = [
     ),
     children: [
       {
-        path: "dashboard",
-        element: <AdminDashboard />,
+        path: "frontpage",
+        element: <AdminFrontpage />,
       },
     ],
   },

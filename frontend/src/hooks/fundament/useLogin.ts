@@ -55,7 +55,7 @@ export const useLogin = (
       // Redirect baseret på rolle
       switch (role) {
         case "admin":
-          navigate("/admin/dashboard");
+          navigate("/admin/frontpage");
           break;
         case "doctor":
           navigate("/doctor/dashboard");
