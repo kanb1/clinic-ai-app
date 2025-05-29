@@ -13,6 +13,7 @@ import {
   Spinner,
   Heading,
   Select,
+  Flex,
 } from "@chakra-ui/react";
 import { useAvailabilitySlots } from "../../../hooks/secretary/bookingHooks/useAvailableSlots";
 import { useCreateAppointment } from "../../../hooks/secretary/bookingHooks/useCreateAppointment";
@@ -127,25 +128,32 @@ const BookAppointmentModal = ({
               {slotsLoading ? (
                 <Spinner />
               ) : (
-                <SimpleGrid columns={[1, 2, 3]} spacing={4} mt={4}>
+                <SimpleGrid
+                  columns={{ base: 1, sm: 2, lg: 3 }}
+                  spacing={4}
+                  mt={4}
+                >
                   {filteredSlots?.map((slot) => (
                     <Box
                       key={slot.slotId}
-                      p={3}
+                      p={{ base: 2, md: 3 }}
                       borderWidth={1}
                       borderRadius="md"
                       bg="gray.50"
+                      fontSize={{ base: "sm", md: "md" }}
                     >
                       <Text fontWeight="bold">{slot.doctorName}</Text>
-                      <Text fontSize="sm">
+                      <Text>
                         {new Date(slot.date).toLocaleDateString("da-DK")}
                       </Text>
-                      <Text fontSize="sm">
+                      <Text>
                         Tid: {slot.start_time} - {slot.end_time}
                       </Text>
                       <Button
                         mt={2}
-                        size="sm"
+                        size={{ base: "xs" }}
+                        py={{ base: 4 }}
+                        px={{ base: 4 }}
                         colorScheme="blue"
                         onClick={() => {
                           setSelectedSlotId(slot.slotId);
@@ -156,15 +164,13 @@ const BookAppointmentModal = ({
                       </Button>
                     </Box>
                   ))}
-                  <Button
-                    variant="ghost"
-                    mt={4}
-                    onClick={() => setView("overview")}
-                  >
-                    Tilbage
-                  </Button>
                 </SimpleGrid>
               )}
+              <Flex justify="flex-start" mt={4}>
+                <Button variant="ghost" onClick={() => setView("overview")}>
+                  Tilbage
+                </Button>
+              </Flex>
             </>
           )}
 
@@ -191,9 +197,7 @@ const BookAppointmentModal = ({
             />
           )}
         </ModalBody>
-        <ModalFooter>
-          <Button onClick={onClose}>Luk</Button>
-        </ModalFooter>
+        <ModalFooter></ModalFooter>
       </ModalContent>
     </Modal>
   );
