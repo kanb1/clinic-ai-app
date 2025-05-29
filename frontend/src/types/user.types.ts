@@ -7,4 +7,7 @@ export interface IUser {
   role: "admin" | "doctor" | "secretary" | "patient";
   clinic_id: string;
   status: "ledig" | "optaget" | "fri";
+  phone?: string;
+  address?: string;
+  cpr_number: string;
 }
