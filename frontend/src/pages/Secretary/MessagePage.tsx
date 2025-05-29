@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Flex,
   Grid,
   Heading,
   Input,
@@ -16,33 +17,25 @@ import Layout from "@/components/layout/Layout";
 
 const MessagePage = () => {
   const { data: patients, isLoading } = usePatients();
-  // States til søgning
-  const [search, setSearch] = useState(""); //hvad brugeren søger
-  // id’et på den patient man klikker på (bruges til at sende individuel besked)
+  const [search, setSearch] = useState("");
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(
     null
   );
-  // styrer om modal er åben/lukket
   const { isOpen, onOpen, onClose } = useDisclosure();
-  // angiver hvilken gruppe beskeden sendes til
   const [receiverScope, setReceiverScope] = useState<"patients" | "individual">(
     "patients"
   );
 
-  //filtrerer listen af patienter ud fra søgefeltet – insensitiv søgning.
   const filteredPatients = patients?.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  // *****Klik funktioner******
-  // Åbner modal til alle patienter
   const handleOpenAllPatientsModal = () => {
     setReceiverScope("patients");
     setSelectedPatientId(null);
     onOpen();
   };
 
-  // Åbner modal til en specifik patient
   const handleOpenIndividualModal = (patientId: string) => {
     setReceiverScope("individual");
     setSelectedPatientId(patientId);
@@ -51,66 +44,108 @@ const MessagePage = () => {
 
   return (
     <Layout>
-      <Box p={8}>
-        <Heading mb={6}>Send en besked</Heading>
+      <Flex
+        direction="column"
+        alignItems="center"
+        w="full"
+        maxW={{ base: "400px", md: "100%" }}
+        p={{ base: 0, md: 4, xl: 6 }}
+        mx="auto"
+      >
+        <Box
+          w="full"
+          maxW={{ base: "400px", md: "100%" }}
+          textAlign="center"
+          pt={{ xl: 3 }}
+        >
+          <Heading textAlign="center">Send en besked</Heading>
 
-        {/* Knap til at åbne modal for fællesbesked */}
-        <Button mb={4} onClick={handleOpenAllPatientsModal} colorScheme="blue">
-          + Ny besked til alle patienter
-        </Button>
+          <Button
+            mt={{ base: 6 }}
+            mb={{ base: 6 }}
+            onClick={handleOpenAllPatientsModal}
+            colorScheme="blue"
+            size={{ base: "xs", sm: "sm", md: "md" }}
+            px={{ base: 3 }}
+            py={{ base: 5 }}
+          >
+            + Ny besked til alle patienter
+          </Button>
 
-        {/* Søgefelt med state-binding. */}
-        {/* sttatebinding: kobler en værdi i ui sammen med komponentens (state) */}
-        <Input
-          placeholder="Søg efter patient"
-          //  {/* search er vores nuværende state variabel og value fortæller at vis værdien af search fra inputfeltet */}
-          value={search}
-          // Når brugeren skriver noget, så opdater state
-          onChange={(e) => setSearch(e.target.value)}
-          mb={6}
-        />
+          <Input
+            placeholder="Søg efter patient"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            mb={6}
+          />
 
-        {/* Viser en spinner mens patienter hentes, ellers vises grid-layout med cards på users */}
-        {isLoading ? (
-          <Spinner />
-        ) : (
-          <Grid templateColumns="repeat(auto-fill, minmax(220px, 1fr))" gap={4}>
-            {/* patientkort */}
-            {filteredPatients?.map((patient) => (
-              <Box
-                key={patient._id}
-                p={4}
-                bg="gray.100"
-                borderRadius="md"
-                boxShadow="sm"
+          {isLoading ? (
+            <Spinner />
+          ) : (
+            <Box
+              maxH={{ base: "70vh", sm: "50vh", md: "80%", lg: "100%" }}
+              overflowY="auto"
+              pr={2}
+              sx={{
+                "&::-webkit-scrollbar": {
+                  width: "6px",
+                },
+                "&::-webkit-scrollbar-track": {
+                  background: "gray.100",
+                  borderRadius: "full",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  background: "gray.400",
+                  borderRadius: "full",
+                },
+              }}
+            >
+              <Grid
+                templateColumns={{
+                  base: "1fr",
+                  md: "repeat(3, 1fr)",
+                }}
+                gap={4}
               >
-                <Text fontWeight="bold">{patient.name}</Text>
-                <Text fontSize="sm" color="gray.500">
-                  {patient.birth_date
-                    ? new Date(patient.birth_date).toLocaleDateString("da-DK")
-                    : "Ingen fødselsdato"}
-                </Text>
-                <Button
-                  size="sm"
-                  mt={2}
-                  variant="outline"
-                  onClick={() => handleOpenIndividualModal(patient._id)}
-                >
-                  Send besked
-                </Button>
-              </Box>
-            ))}
-          </Grid>
-        )}
+                {filteredPatients?.map((patient) => (
+                  <Box
+                    key={patient._id}
+                    p={4}
+                    bg="gray.100"
+                    borderRadius="md"
+                    boxShadow="sm"
+                  >
+                    <Text fontWeight="bold">{patient.name}</Text>
+                    <Text fontSize="sm" color="gray.500">
+                      {patient.birth_date
+                        ? new Date(patient.birth_date).toLocaleDateString(
+                            "da-DK"
+                          )
+                        : "Ingen fødselsdato"}
+                    </Text>
+                    <Button
+                      size="sm"
+                      mt={2}
+                      onClick={() => handleOpenIndividualModal(patient._id)}
+                      backgroundColor={"blue.200"}
+                      px={6}
+                    >
+                      Send besked
+                    </Button>
+                  </Box>
+                ))}
+              </Grid>
+            </Box>
+          )}
 
-        {/* modalen der åbnes - receiver er enten specifik patient eller alle patienter */}
-        <MessageModal
-          isOpen={isOpen}
-          onClose={onClose}
-          receiverScope={receiverScope}
-          receiverId={selectedPatientId || undefined}
-        />
-      </Box>
+          <MessageModal
+            isOpen={isOpen}
+            onClose={onClose}
+            receiverScope={receiverScope}
+            receiverId={selectedPatientId || undefined}
+          />
+        </Box>
+      </Flex>
     </Layout>
   );
 };
