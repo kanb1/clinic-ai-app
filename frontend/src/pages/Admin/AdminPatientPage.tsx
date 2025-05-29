@@ -10,13 +10,18 @@ import {
   Input,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { useAdminPatients } from "../../hooks/admin/useAdminPatients";
+import { useAdminPatients } from "../../hooks/admin/admin-patientHooks/useAdminPatients";
 import Layout from "@/components/layout/Layout";
+import EditPatientModal from "../../components/admin/Patients/EditPatientModal";
+import { useDisclosure } from "@chakra-ui/react";
+import { IUser } from "@/types/user.types";
 
 const AdminPatientPage = () => {
   const { data: patients = [], isLoading, error } = useAdminPatients();
   const gridColumns = useBreakpointValue({ base: 1, sm: 2, md: 3 });
   const [search, setSearch] = useState("");
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [selectedPatient, setSelectedPatient] = useState<IUser | null>(null);
 
   const filteredPatients = patients.filter((patient) =>
     `${patient.name} ${patient.email}`
@@ -77,7 +82,15 @@ const AdminPatientPage = () => {
                     ? new Date(patient.birth_date).toLocaleDateString("da-DK")
                     : "Ikke oplyst"}
                 </Text>
-                <Button mt={3} colorScheme="blue" size="sm">
+                <Button
+                  mt={3}
+                  colorScheme="blue"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedPatient(patient);
+                    onOpen();
+                  }}
+                >
                   Redigér
                 </Button>
               </Box>
@@ -85,6 +98,11 @@ const AdminPatientPage = () => {
           </SimpleGrid>
         )}
       </Box>
+      <EditPatientModal
+        isOpen={isOpen}
+        onClose={onClose}
+        patient={selectedPatient}
+      />
     </Layout>
   );
 };
