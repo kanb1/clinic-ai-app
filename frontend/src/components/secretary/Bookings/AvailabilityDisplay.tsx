@@ -1,4 +1,11 @@
-import { Text, VStack, Box, Button, SimpleGrid } from "@chakra-ui/react";
+import {
+  Text,
+  VStack,
+  Box,
+  Button,
+  SimpleGrid,
+  Heading,
+} from "@chakra-ui/react";
 import { useAvailabilityOverview } from "../../../hooks/secretary/bookingHooks/useAvailabilityOverview";
 import { format, getWeek } from "date-fns";
 import { da } from "date-fns/locale";
@@ -33,13 +40,19 @@ const AvailabilityDisplay = ({ weekStart, doctorId, onSelectDate }: Props) => {
   const weekdays = ["mandag", "tirsdag", "onsdag", "torsdag", "fredag"];
 
   return (
-    <VStack align="start" spacing={8}>
+    <VStack align="center" spacing={8}>
       {Object.entries(groupedByWeek).map(([week, slots]) => (
         <Box key={week} w="full">
-          <Text fontWeight="bold" fontSize="lg" mb={2}>
+          <Heading
+            size="heading3"
+            color="secondary.blue"
+            my={{ base: 6 }}
+            textAlign={"center"}
+          >
             {week}
-          </Text>
-          <SimpleGrid columns={5} spacing={4}>
+          </Heading>
+          <SimpleGrid columns={{ base: 2, sm: 3, md: 4 }} spacing={4}>
+            {" "}
             {weekdays.map((dayName) => {
               const slotsForDay = slots.filter(
                 (slot) =>
@@ -51,7 +64,12 @@ const AvailabilityDisplay = ({ weekStart, doctorId, onSelectDate }: Props) => {
 
               return (
                 <VStack key={dayName} align="start" spacing={2}>
-                  <Text fontWeight="semibold" textTransform="capitalize">
+                  <Text
+                    fontWeight="semibold"
+                    textTransform="capitalize"
+                    textAlign="center"
+                    w="full"
+                  >
                     {dayName}
                   </Text>
                   {slotsForDay.length > 0 ? (
@@ -63,11 +81,15 @@ const AvailabilityDisplay = ({ weekStart, doctorId, onSelectDate }: Props) => {
                         borderRadius="md"
                         bg="gray.50"
                         textAlign="center"
+                        w="100%"
+                        minW={0}
                       >
                         <Text fontSize="sm">{slot.doctorName}</Text>
                         <Text fontSize="sm">{slot.availableSlots} tider</Text>
                         <Button
-                          size="sm"
+                          colorScheme="blue"
+                          size={{ base: "xs", sm: "sm", md: "md" }}
+                          py={{ base: 4 }}
                           mt={2}
                           onClick={() => onSelectDate?.(slot.date)}
                         >
@@ -82,6 +104,8 @@ const AvailabilityDisplay = ({ weekStart, doctorId, onSelectDate }: Props) => {
                       borderRadius="md"
                       bg="gray.50"
                       textAlign="center"
+                      w="100%"
+                      minW={0}
                     >
                       <Text fontSize="sm">Ingen tider</Text>
                     </Box>
