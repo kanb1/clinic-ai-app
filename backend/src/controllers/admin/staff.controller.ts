@@ -39,9 +39,9 @@ export const getDoctors = async (req: Request, res: Response) => {
 export const addDoctor = async (req: Request, res: Response) => {
   try {
     // destrukterer til at hente de felter vi forventer fra frontend (req.body)
-    const { name, email, password, clinic_id } = req.body;
+    const { name, email, password } = req.body;
 
-    if (!name || !email || !password || !clinic_id) {
+    if (!name || !email || !password) {
       res.status(400).json({ message: "Please enter all the required fields" });
       return;
     }
