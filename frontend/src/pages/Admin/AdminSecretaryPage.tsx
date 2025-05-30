@@ -7,6 +7,8 @@ import {
   useDisclosure,
   useToast,
   Spinner,
+  Input,
+  Flex,
   AlertDialog,
   AlertDialogBody,
   AlertDialogFooter,
@@ -14,15 +16,24 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
 } from "@chakra-ui/react";
-import { useRef, useState } from "react";
+import { useRef } from "react";
+
+import { useState } from "react";
 import { useAdminSecretaries } from "@/hooks/admin/admin-secretaryHooks/useAdminSecretaries";
 import { IUser } from "@/types/user.types";
-import EditSecretaryModal from "../../components/admin/Secretaries/EditSecretaryModal";
+import EditSecretaryModal from "@/components/admin/Secretaries/EditSecretaryModal";
+import CreateSecretaryModal from "@/components/admin/Secretaries/AddSecretaryModal";
 import { useDeleteSecretary } from "@/hooks/admin/admin-secretaryHooks/useDeleteSecretary";
 
 const AdminSecretaryPage = () => {
   const { data: secretaries = [], isLoading } = useAdminSecretaries();
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
+  const { mutate: deleteSecretary } = useDeleteSecretary();
+
+  // AlertDialog
+  const [secretaryToDelete, setSecretaryToDelete] = useState<IUser | null>(
+    null
+  );
   const {
     isOpen: isDeleteOpen,
     onOpen: onDeleteOpen,
@@ -30,20 +41,33 @@ const AdminSecretaryPage = () => {
   } = useDisclosure();
   const cancelRef = useRef(null);
 
+  const [search, setSearch] = useState("");
   const [selectedSecretary, setSelectedSecretary] = useState<IUser | null>(
     null
   );
-  const [secretaryToDelete, setSecretaryToDelete] = useState<IUser | null>(
-    null
-  );
 
-  const toast = useToast();
-  const { mutate: deleteSecretary } = useDeleteSecretary();
+  const {
+    isOpen: isEditOpen,
+    onOpen: onEditOpen,
+    onClose: onEditClose,
+  } = useDisclosure();
+
+  const {
+    isOpen: isCreateOpen,
+    onOpen: onCreateOpen,
+    onClose: onCreateClose,
+  } = useDisclosure();
 
   const handleEditClick = (secretary: IUser) => {
     setSelectedSecretary(secretary);
-    onOpen();
+    onEditOpen();
   };
+
+  const filteredSecretaries = secretaries.filter((secretary) =>
+    `${secretary.name} ${secretary.email}`
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  );
 
   const handleDeleteClick = (secretary: IUser) => {
     setSecretaryToDelete(secretary);
@@ -61,30 +85,46 @@ const AdminSecretaryPage = () => {
           duration: 3000,
           isClosable: true,
         });
+        onDeleteClose();
+        setSecretaryToDelete(null);
       },
       onError: () => {
         toast({
           title: "Noget gik galt",
-          description: "Kunne ikke slette sekretær",
+          description: "Kunne ikke slette sekretæren",
           status: "error",
           duration: 3000,
           isClosable: true,
         });
       },
     });
-
-    onDeleteClose();
   };
 
   return (
     <Box p={8}>
       <Heading mb={6}>Administrér Sekretærer</Heading>
 
+      <Flex
+        justify="space-between"
+        mb={4}
+        gap={4}
+        flexDir={{ base: "column", sm: "row" }}
+      >
+        <Input
+          placeholder="Søg efter navn eller email"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <Button colorScheme="green" onClick={onCreateOpen}>
+          + Opret sekretær
+        </Button>
+      </Flex>
+
       {isLoading ? (
         <Spinner />
       ) : (
         <Stack spacing={4}>
-          {secretaries.map((secretary) => (
+          {filteredSecretaries.map((secretary) => (
             <Box
               key={secretary._id}
               borderWidth="1px"
@@ -96,35 +136,35 @@ const AdminSecretaryPage = () => {
               <Text>Email: {secretary.email}</Text>
               <Text>Telefon: {secretary.phone || "Ikke angivet"}</Text>
 
-              <Stack direction="row" spacing={3} mt={3}>
-                <Button
-                  size="sm"
-                  colorScheme="blue"
-                  onClick={() => handleEditClick(secretary)}
-                >
-                  Rediger
-                </Button>
-                <Button
-                  size="sm"
-                  colorScheme="red"
-                  onClick={() => handleDeleteClick(secretary)}
-                >
-                  Slet
-                </Button>
-              </Stack>
+              <Button
+                mt={3}
+                size="sm"
+                colorScheme="blue"
+                onClick={() => handleEditClick(secretary)}
+              >
+                Rediger
+              </Button>
+              <Button
+                mt={3}
+                ml={2}
+                size="sm"
+                colorScheme="red"
+                onClick={() => handleDeleteClick(secretary)}
+              >
+                Slet
+              </Button>
             </Box>
           ))}
         </Stack>
       )}
 
-      {/* Redigering */}
       <EditSecretaryModal
-        isOpen={isOpen}
-        onClose={onClose}
+        isOpen={isEditOpen}
+        onClose={onEditClose}
         secretary={selectedSecretary}
       />
 
-      {/* Slet-dialog */}
+      <CreateSecretaryModal isOpen={isCreateOpen} onClose={onCreateClose} />
       <AlertDialog
         isOpen={isDeleteOpen}
         leastDestructiveRef={cancelRef}
@@ -135,9 +175,13 @@ const AdminSecretaryPage = () => {
             <AlertDialogHeader fontSize="lg" fontWeight="bold">
               Slet sekretær
             </AlertDialogHeader>
+
             <AlertDialogBody>
-              Er du sikker på, at du vil slette denne sekretær?
+              Er du sikker på, at du vil slette{" "}
+              <strong>{secretaryToDelete?.name}</strong>? Denne handling kan
+              ikke fortrydes.
             </AlertDialogBody>
+
             <AlertDialogFooter>
               <Button ref={cancelRef} onClick={onDeleteClose}>
                 Annuller
