@@ -12,6 +12,7 @@ import {
   FormLabel,
   VStack,
   useToast,
+  FormControl,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useCreateDoctor } from "../../../hooks/admin/admin-doctorHooks/useCreateDoctor";
@@ -61,28 +62,65 @@ const AddDoctorModal = ({ isOpen, onClose }: Props) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      isCentered
+      size={{ base: "xs", sm: "md", md: "lg" }}
+    >
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Opret læge</ModalHeader>
+        <ModalHeader fontSize="xl" fontWeight="bold">
+          Opret læge
+        </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <VStack spacing={4}>
-            <FormLabel>Navn</FormLabel>
-            <Input name="name" value={form.name} onChange={handleChange} />
-            <FormLabel>Email</FormLabel>
-            <Input name="email" value={form.email} onChange={handleChange} />
-            <FormLabel>Telefon</FormLabel>
-            <Input name="phone" value={form.phone} onChange={handleChange} />
-            <FormLabel>Adgangskode</FormLabel>
-            <Input
-              name="password"
-              type="password"
-              value={form.password}
-              onChange={handleChange}
-            />
+          <VStack spacing={4} align="stretch">
+            <FormControl>
+              <FormLabel fontWeight="bold">Navn</FormLabel>
+              <Input
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                placeholder="Indtast navn"
+              />
+            </FormControl>
+
+            <FormControl>
+              <FormLabel fontWeight="bold">Email</FormLabel>
+              <Input
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                type="email"
+                placeholder="Indtast email"
+              />
+            </FormControl>
+
+            <FormControl>
+              <FormLabel fontWeight="bold">Telefon</FormLabel>
+              <Input
+                name="phone"
+                value={form.phone}
+                onChange={handleChange}
+                type="tel"
+                placeholder="Indtast telefonnummer"
+              />
+            </FormControl>
+
+            <FormControl>
+              <FormLabel fontWeight="bold">Adgangskode</FormLabel>
+              <Input
+                name="password"
+                type="password"
+                value={form.password}
+                onChange={handleChange}
+                placeholder="Vælg adgangskode"
+              />
+            </FormControl>
           </VStack>
         </ModalBody>
+
         <ModalFooter>
           <Button onClick={onClose} variant="ghost" mr={3}>
             Annuller

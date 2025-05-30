@@ -15,6 +15,8 @@ import {
   AlertDialogHeader,
   AlertDialogContent,
   AlertDialogOverlay,
+  SimpleGrid,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { useRef, useState } from "react";
 import { useAdminDoctors } from "@/hooks/admin/admin-doctorHooks/useAdminDoctors";
@@ -28,7 +30,7 @@ const AdminDoctorPage = () => {
   const { data: doctors = [], isLoading } = useAdminDoctors();
   const toast = useToast();
   const { mutate: deleteDoctor } = useDeleteDoctor();
-
+  const gridColumns = useBreakpointValue({ base: 1, sm: 2, md: 3 });
   const [search, setSearch] = useState("");
   const [selectedDoctor, setSelectedDoctor] = useState<IUser | null>(null);
   const [doctorToDelete, setDoctorToDelete] = useState<IUser | null>(null);
@@ -97,8 +99,16 @@ const AdminDoctorPage = () => {
 
   return (
     <Layout>
-      <Box p={8}>
-        <Heading mb={6}>Administrér Læger</Heading>
+      <Box
+        w="full"
+        maxW={{ base: "100%" }}
+        textAlign="center"
+        mt={{ base: 3 }}
+        p={{ lg: 5 }}
+      >
+        <Heading size="lg" mb={4} textAlign={"center"}>
+          Administrér Læger
+        </Heading>
 
         <Flex
           justify="space-between"
@@ -111,7 +121,7 @@ const AdminDoctorPage = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <Button colorScheme="green" onClick={onCreateOpen}>
+          <Button variant={"outlineWhite"} onClick={onCreateOpen}>
             + Opret læge
           </Button>
         </Flex>
@@ -119,38 +129,49 @@ const AdminDoctorPage = () => {
         {isLoading ? (
           <Spinner />
         ) : (
-          <Stack spacing={4}>
+          <SimpleGrid columns={gridColumns} spacing={4}>
+            {" "}
             {filteredDoctors.map((doctor) => (
               <Box
                 key={doctor._id}
                 borderWidth="1px"
                 borderRadius="lg"
-                p={4}
+                p={6}
+                bg="white"
                 boxShadow="sm"
+                _hover={{ boxShadow: "md", transform: "translateY(-2px)" }}
+                transition="all 0.2s"
               >
-                <Text fontWeight="bold">{doctor.name}</Text>
-                <Text>Email: {doctor.email}</Text>
-                <Text>Telefon: {doctor.phone || "Ikke angivet"}</Text>
+                <Heading size="md">{doctor.name}</Heading>
 
-                <Flex mt={3} gap={2}>
+                <Stack spacing={1} fontSize="sm" color="gray.700" mt={3}>
+                  <Text>
+                    <b>Email:</b> {doctor.email}
+                  </Text>
+                  <Text>
+                    <b>Telefon:</b> {doctor.phone || "Ikke angivet"}
+                  </Text>
+                </Stack>
+
+                <Flex gap={3} flexDirection={"column"} mt={{ base: 6 }}>
                   <Button
-                    size="sm"
-                    colorScheme="blue"
+                    variant="solidBlack"
                     onClick={() => handleEditClick(doctor)}
+                    width={{ base: "100%", md: "auto" }}
                   >
-                    Rediger
+                    Redigér
                   </Button>
                   <Button
-                    size="sm"
-                    colorScheme="red"
+                    variant="solidRed"
                     onClick={() => handleDeleteClick(doctor)}
+                    width={{ base: "100%", md: "auto" }}
                   >
                     Slet
                   </Button>
                 </Flex>
               </Box>
             ))}
-          </Stack>
+          </SimpleGrid>
         )}
 
         <EditDoctorModal
