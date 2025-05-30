@@ -11,6 +11,8 @@ import {
   FormLabel,
   VStack,
   useToast,
+  FormControl,
+  Stack,
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { IUser } from "@/types/user.types";
@@ -63,25 +65,48 @@ const EditSecretaryModal = ({ isOpen, onClose, secretary }: Props) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
+    <Modal isOpen={isOpen} onClose={onClose} isCentered size="lg">
       <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Redigér sekretær</ModalHeader>
+      <ModalContent borderRadius="lg" p={2}>
+        <ModalHeader fontSize="xl" fontWeight="bold">
+          Redigér Sekretær
+        </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <VStack spacing={4} align="stretch">
-            <FormLabel>Email</FormLabel>
-            <Input value={email} onChange={(e) => setEmail(e.target.value)} />
+          <Stack spacing={4}>
+            <FormControl>
+              <FormLabel>Email</FormLabel>
+              <Input
+                placeholder="Indtast ny email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </FormControl>
 
-            <FormLabel>Telefon</FormLabel>
-            <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
-          </VStack>
+            <FormControl>
+              <FormLabel>Telefonnummer</FormLabel>
+              <Input
+                placeholder="Indtast nyt nummer"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+            </FormControl>
+          </Stack>
         </ModalBody>
-        <ModalFooter>
-          <Button onClick={onClose} mr={3} variant="ghost">
+        <ModalFooter mt={4}>
+          <Button
+            backgroundColor="black"
+            color={"white"}
+            onClick={onClose}
+            mr={3}
+          >
             Annuller
           </Button>
-          <Button colorScheme="blue" onClick={handleSave} isLoading={isPending}>
+          <Button
+            backgroundColor="#1c5e3a"
+            color={"white"}
+            onClick={handleSave}
+          >
             Gem
           </Button>
         </ModalFooter>
