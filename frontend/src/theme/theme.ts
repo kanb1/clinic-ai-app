@@ -139,7 +139,6 @@ const theme = extendTheme({
           color: "white",
           fontWeight: "600",
           minWidth: "10rem",
-          w: "13rem",
           maxWidth: "20rem",
           borderRadius: "2rem",
           fontSize: "1rem",
