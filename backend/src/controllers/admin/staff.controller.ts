@@ -142,8 +142,8 @@ export const getSecretaries = async (req: Request, res: Response) => {
 
 export const addSecretary = async (req: Request, res: Response) => {
   try {
-    const { name, email, password, clinic_id } = req.body;
-    if (!name || !email || !password || !clinic_id) {
+    const { name, email, password } = req.body;
+    if (!name || !email || !password) {
       res.status(400).json({ message: "Please enter all the required fields" });
       return;
     }
