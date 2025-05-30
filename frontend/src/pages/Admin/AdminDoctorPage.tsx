@@ -1,15 +1,13 @@
 import {
   Box,
   Heading,
-  SimpleGrid,
-  Spinner,
   Text,
+  Stack,
   Button,
-  useBreakpointValue,
-  Badge,
-  Input,
   useDisclosure,
   useToast,
+  Spinner,
+  Input,
   Flex,
   AlertDialog,
   AlertDialogBody,
@@ -18,41 +16,56 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
 } from "@chakra-ui/react";
-import { useState, useRef } from "react";
-import { useAdminDoctors } from "../../hooks/admin/admin-doctorHooks/useAdminDoctors";
-import { useDeleteDoctor } from "../../hooks/admin/admin-doctorHooks/useDeleteDoctor";
+import { useRef, useState } from "react";
+import { useAdminDoctors } from "@/hooks/admin/admin-doctorHooks/useAdminDoctors";
+import { useDeleteDoctor } from "@/hooks/admin/admin-doctorHooks/useDeleteDoctor";
 import { IUser } from "@/types/user.types";
+import EditDoctorModal from "@/components/admin/Doctors/EditDoctorModal";
+import CreateDoctorModal from "@/components/admin/Doctors/CreateDoctorModal";
 import Layout from "@/components/layout/Layout";
-import EditDoctorModal from "../../components/admin/Doctors/EditDoctorModal";
 
 const AdminDoctorPage = () => {
+  const { data: doctors = [], isLoading } = useAdminDoctors();
   const toast = useToast();
-  const { data: doctors = [], isLoading, error } = useAdminDoctors();
-  const gridColumns = useBreakpointValue({ base: 1, sm: 2, md: 3 });
+  const { mutate: deleteDoctor } = useDeleteDoctor();
+
   const [search, setSearch] = useState("");
   const [selectedDoctor, setSelectedDoctor] = useState<IUser | null>(null);
   const [doctorToDelete, setDoctorToDelete] = useState<IUser | null>(null);
+
   const {
     isOpen: isEditOpen,
     onOpen: onEditOpen,
     onClose: onEditClose,
   } = useDisclosure();
+
+  const {
+    isOpen: isCreateOpen,
+    onOpen: onCreateOpen,
+    onClose: onCreateClose,
+  } = useDisclosure();
+
   const {
     isOpen: isDeleteOpen,
     onOpen: onDeleteOpen,
     onClose: onDeleteClose,
   } = useDisclosure();
+
   const cancelRef = useRef(null);
-  const { mutate: deleteDoctor } = useDeleteDoctor();
 
-  const filteredDoctors = doctors.filter((doctor) =>
-    `${doctor.name} ${doctor.email}`
-      .toLowerCase()
-      .includes(search.toLowerCase())
-  );
+  const handleEditClick = (doctor: IUser) => {
+    setSelectedDoctor(doctor);
+    onEditOpen();
+  };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteClick = (doctor: IUser) => {
+    setDoctorToDelete(doctor);
+    onDeleteOpen();
+  };
+
+  const confirmDelete = () => {
     if (!doctorToDelete) return;
+
     deleteDoctor(doctorToDelete._id, {
       onSuccess: () => {
         toast({
@@ -61,8 +74,8 @@ const AdminDoctorPage = () => {
           duration: 3000,
           isClosable: true,
         });
-        setDoctorToDelete(null);
         onDeleteClose();
+        setDoctorToDelete(null);
       },
       onError: () => {
         toast({
@@ -76,103 +89,107 @@ const AdminDoctorPage = () => {
     });
   };
 
+  const filteredDoctors = doctors.filter((doctor) =>
+    `${doctor.name} ${doctor.email}`
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  );
+
   return (
     <Layout>
-      <Box p={6}>
-        <Heading size="lg" mb={4}>
-          Administrér Læger
-        </Heading>
+      <Box p={8}>
+        <Heading mb={6}>Administrér Læger</Heading>
 
-        <Input
-          placeholder="Søg efter navn eller email"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          mb={6}
-        />
+        <Flex
+          justify="space-between"
+          mb={4}
+          gap={4}
+          flexDir={{ base: "column", sm: "row" }}
+        >
+          <Input
+            placeholder="Søg efter navn eller email"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <Button colorScheme="green" onClick={onCreateOpen}>
+            + Opret læge
+          </Button>
+        </Flex>
 
         {isLoading ? (
           <Spinner />
-        ) : error ? (
-          <Text color="red.500">Kunne ikke hente lægedata.</Text>
         ) : (
-          <SimpleGrid columns={gridColumns} spacing={4}>
+          <Stack spacing={4}>
             {filteredDoctors.map((doctor) => (
               <Box
                 key={doctor._id}
                 borderWidth="1px"
-                borderRadius="md"
+                borderRadius="lg"
                 p={4}
-                bg="gray.50"
-                boxShadow="md"
+                boxShadow="sm"
               >
-                <Heading size="sm" mb={2}>
-                  {doctor.name}
-                </Heading>
-                <Badge colorScheme="purple" mb={2}>
-                  {doctor.role}
-                </Badge>
+                <Text fontWeight="bold">{doctor.name}</Text>
                 <Text>Email: {doctor.email}</Text>
-                <Text>Telefon: {doctor.phone || "Ikke oplyst"}</Text>
-                <Flex gap={2} mt={3}>
+                <Text>Telefon: {doctor.phone || "Ikke angivet"}</Text>
+
+                <Flex mt={3} gap={2}>
                   <Button
-                    colorScheme="blue"
                     size="sm"
-                    onClick={() => {
-                      setSelectedDoctor(doctor);
-                      onEditOpen();
-                    }}
+                    colorScheme="blue"
+                    onClick={() => handleEditClick(doctor)}
                   >
-                    Redigér
+                    Rediger
                   </Button>
                   <Button
-                    colorScheme="red"
                     size="sm"
-                    onClick={() => {
-                      setDoctorToDelete(doctor);
-                      onDeleteOpen();
-                    }}
+                    colorScheme="red"
+                    onClick={() => handleDeleteClick(doctor)}
                   >
                     Slet
                   </Button>
                 </Flex>
               </Box>
             ))}
-          </SimpleGrid>
+          </Stack>
         )}
+
+        <EditDoctorModal
+          isOpen={isEditOpen}
+          onClose={onEditClose}
+          doctor={selectedDoctor}
+        />
+
+        <CreateDoctorModal isOpen={isCreateOpen} onClose={onCreateClose} />
+
+        <AlertDialog
+          isOpen={isDeleteOpen}
+          leastDestructiveRef={cancelRef}
+          onClose={onDeleteClose}
+        >
+          <AlertDialogOverlay>
+            <AlertDialogContent>
+              <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                Slet læge
+              </AlertDialogHeader>
+
+              <AlertDialogBody>
+                Er du sikker på, at du vil slette{" "}
+                <strong>{doctorToDelete?.name}</strong>? Denne handling kan ikke
+                fortrydes.
+              </AlertDialogBody>
+
+              <AlertDialogFooter>
+                <Button ref={cancelRef} onClick={onDeleteClose}>
+                  Annuller
+                </Button>
+                <Button colorScheme="red" onClick={confirmDelete} ml={3}>
+                  Slet
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialogOverlay>
+        </AlertDialog>
       </Box>
-
-      <EditDoctorModal
-        isOpen={isEditOpen}
-        onClose={onEditClose}
-        doctor={selectedDoctor}
-      />
-
-      <AlertDialog
-        isOpen={isDeleteOpen}
-        leastDestructiveRef={cancelRef}
-        onClose={onDeleteClose}
-      >
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Bekræft sletning
-            </AlertDialogHeader>
-
-            <AlertDialogBody>
-              Er du sikker på, at du vil slette denne læge?
-            </AlertDialogBody>
-
-            <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onDeleteClose}>
-                Annuller
-              </Button>
-              <Button colorScheme="red" onClick={handleDeleteConfirm} ml={3}>
-                Slet
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
     </Layout>
   );
 };
