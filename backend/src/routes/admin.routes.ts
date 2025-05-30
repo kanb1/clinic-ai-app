@@ -7,6 +7,7 @@ import {
   deleteSecretary,
   getDoctors,
   getPatients,
+  getSecretaries,
   getStaff,
   lookupPatientByCpr,
   updateDoctor,
@@ -32,6 +33,12 @@ router.get(
   "/staff/doctors-list",
   authorizeRoles(["admin", "secretary"]),
   getDoctors
+);
+// Get secretaries list
+router.get(
+  "/staff/secretaries-list",
+  authorizeRoles(["admin", "secretary"]),
+  getSecretaries
 );
 
 router.use(authorizeRoles(["admin"]));

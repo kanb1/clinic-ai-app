@@ -126,6 +126,20 @@ export const deleteDoctor = async (req: Request, res: Response) => {
 };
 
 //************************* MANAGE SECRETARY
+export const getSecretaries = async (req: Request, res: Response) => {
+  try {
+    const clinicId = req.user!.clinicId;
+    const secretaries = await UserModel.find({
+      role: "secretary",
+      clinic_id: clinicId,
+    }).select("-password_hash");
+
+    res.status(200).json(secretaries);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch secretaries", error });
+  }
+};
+
 export const addSecretary = async (req: Request, res: Response) => {
   try {
     const { name, email, password, clinic_id } = req.body;
