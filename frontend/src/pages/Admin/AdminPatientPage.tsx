@@ -16,6 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogContent,
   AlertDialogOverlay,
+  Stack,
 } from "@chakra-ui/react";
 import { useRef, useState } from "react";
 import { useAdminPatients } from "../../hooks/admin/admin-patientHooks/useAdminPatients";
@@ -81,8 +82,14 @@ const AdminPatientPage = () => {
 
   return (
     <Layout>
-      <Box p={6}>
-        <Heading size="lg" mb={4}>
+      <Box
+        w="full"
+        maxW={{ base: "100%" }}
+        textAlign="center"
+        mt={{ base: 3 }}
+        p={{ lg: 5 }}
+      >
+        <Heading size="lg" mb={4} textAlign={"center"}>
           Administrér Patienter
         </Heading>
 
@@ -103,39 +110,45 @@ const AdminPatientPage = () => {
               <Box
                 key={patient._id}
                 borderWidth="1px"
-                borderRadius="md"
-                p={4}
-                bg="gray.50"
-                boxShadow="md"
+                borderRadius="lg"
+                p={6}
+                bg="white"
+                boxShadow="sm"
+                _hover={{ boxShadow: "md", transform: "translateY(-2px)" }}
+                transition="all 0.2s"
               >
-                <Heading size="sm" mb={2}>
-                  {patient.name}
-                </Heading>
-                <Badge colorScheme="green" mb={2}>
-                  {patient.role}
-                </Badge>
-                <Text>
-                  CPR:{" "}
-                  {patient.cpr_number
-                    ? `${patient.cpr_number.slice(
-                        0,
-                        6
-                      )}-${patient.cpr_number.slice(6)}`
-                    : "Ikke oplyst"}
-                </Text>
-                <Text>Telefon: {patient.phone || "Ikke oplyst"}</Text>
-                <Text>Email: {patient.email}</Text>
-                <Text>Adresse: {patient.address || "Ikke oplyst"}</Text>
-                <Text>
-                  Fødselsdato:{" "}
-                  {patient.birth_date
-                    ? new Date(patient.birth_date).toLocaleDateString("da-DK")
-                    : "Ikke oplyst"}
-                </Text>
-                <Flex gap={2} mt={3}>
+                <Heading size="md">{patient.name}</Heading>
+
+                <Stack spacing={1} fontSize="sm" color="gray.700" mt={3}>
+                  <Text>
+                    <b>CPR:</b>{" "}
+                    {patient.cpr_number
+                      ? `${patient.cpr_number.slice(
+                          0,
+                          6
+                        )}-${patient.cpr_number.slice(6)}`
+                      : "Ikke oplyst"}
+                  </Text>
+                  <Text>
+                    <b>Telefon:</b> {patient.phone || "Ikke oplyst"}
+                  </Text>
+                  <Text>
+                    <b>Email:</b> {patient.email}
+                  </Text>
+                  <Text>
+                    <b>Adresse:</b> {patient.address || "Ikke oplyst"}
+                  </Text>
+                  <Text>
+                    <b>Fødselsdato:</b>{" "}
+                    {patient.birth_date
+                      ? new Date(patient.birth_date).toLocaleDateString("da-DK")
+                      : "Ikke oplyst"}
+                  </Text>
+                </Stack>
+
+                <Flex gap={3} mt={8} flexDirection={"column"}>
                   <Button
-                    colorScheme="blue"
-                    size="sm"
+                    variant="solidBlack"
                     onClick={() => {
                       setSelectedPatient(patient);
                       onOpen();
@@ -144,8 +157,7 @@ const AdminPatientPage = () => {
                     Redigér
                   </Button>
                   <Button
-                    colorScheme="red"
-                    size="sm"
+                    variant="solidRed"
                     onClick={() => handleDeleteClick(patient)}
                   >
                     Slet
