@@ -19,12 +19,21 @@ const AdminFrontpage = () => {
         </Button>
         <Button
           as={Link}
-          onClick={() => navigate("/admin/staff")}
+          onClick={() => navigate("/admin/doctors")}
           colorScheme="blue"
           w="full"
           mt={4}
         >
-          Administrer personale
+          Administrer læger
+        </Button>
+        <Button
+          as={Link}
+          onClick={() => navigate("/admin/secretaries")}
+          colorScheme="blue"
+          w="full"
+          mt={4}
+        >
+          Administrer sekretærer
         </Button>
       </Box>
     </Layout>

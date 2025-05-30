@@ -3,7 +3,9 @@ import RequireRole from "./RequireRole";
 import Navbar from "@/components/layout/NavBar";
 import AdminFrontpage from "@/pages/Admin/AdminFrontpage";
 import AdminPatientPage from "@/pages/Admin/AdminPatientPage";
-import AdminStaffPage from "@/pages/Admin/AdminStaffPage";
+import AdminStaffPage from "@/pages/Admin/AdminDoctorPage";
+import AdminDoctorPage from "@/pages/Admin/AdminDoctorPage";
+import AdminSecretaryPage from "@/pages/Admin/AdminSecretaryPage";
 
 export const adminRoutes: RouteObject[] = [
   {
@@ -25,8 +27,12 @@ export const adminRoutes: RouteObject[] = [
         element: <AdminPatientPage />,
       },
       {
-        path: "staff",
-        element: <AdminStaffPage />,
+        path: "doctors",
+        element: <AdminDoctorPage />,
+      },
+      {
+        path: "secretaries",
+        element: <AdminSecretaryPage />,
       },
     ],
   },
