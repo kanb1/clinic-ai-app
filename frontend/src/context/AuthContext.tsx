@@ -78,10 +78,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // FALLBACK
+  // FALLBACK - Så selv hvis localStorage fejler, kan vi genskabe user fra JWT
   // når siden refresher, kan React miste den aktuelle bruger i memory - eller være langsom
   // men jeg har stadig JWT-token i localStorage, så jeg kan bruge det til at hente brugeren
   // ekstra useEffect--> auto loader user og token fra backend (via token) efter et refresh
+  // altså hvis user mangler, men token findes, henter vi brugerinfo fra serveren, så appen stadig virker efter refresh
   // vi kalder /api/auth/me for at få brugerinfo fra token og genskabe state
   //specielt brugt til hooks hvor den kræver user._id og hvor det kan være forsinket
   useEffect(() => {
