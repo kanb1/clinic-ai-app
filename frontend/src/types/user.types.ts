@@ -1,7 +1,7 @@
 export interface IUser {
   birth_date: Date;
-  _id: string;
-  id: string; // svarer til _id i backend
+  _id: string; // Brugt i hele frontend
+  id?: string; // Evt. fallback fra backend
   name: string;
   email: string;
   role: "admin" | "doctor" | "secretary" | "patient";

@@ -22,6 +22,7 @@ interface AuthContextType {
   setUser: (user: IUser | null) => void;
   setToken: (token: string | null) => void;
   logout: () => void;
+  isAuthReady: boolean;
 }
 
 // Opretter selve konteksten
@@ -32,34 +33,29 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUserState] = useState<IUser | null>(null);
   const [token, setTokenState] = useState<string | null>(null);
+  const [isAuthReady, setIsAuthReady] = useState(false); //til fallback
   const navigate = useNavigate();
-
-  // nulstiller user og token og fjerner dem fra localstroage
-  const logout = () => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    navigate("/");
-  };
-
-  // når jeg refresher, henter useEffect "user" og "token" tilbage
-  // Så snart en komponent loader -> Henter user og token fra localstorage hvis de findes
-  useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    const savedToken = localStorage.getItem("token");
-    if (savedUser && savedToken) {
-      setUserState(JSON.parse(savedUser));
-      setTokenState(savedToken);
-    }
-  }, []);
 
   // når jeg logger ind og kalder setUser gemmes det både is tate og i localstorage, når logger ud fjernes det fra localstorage
   const setUser = (user: IUser | null) => {
-    setUserState(user);
     if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
+      if (!user._id && !user.id) {
+        throw new Error("Bruger mangler både _id og id");
+      }
+
+      // mongo bruger som standard feltet _id som den unikke identifikator for dokumenter
+      // men! i min logincontroller måtte jeg returnere brugeren ved at angive id:user._id (backend sender id og ik _id) - ellers ville det give serialization- eller typefejl i frontend (skal bruge toString() hver gang) - da mongodb er det et objectId og ik bare en streng
+      // frontend modtager altså user.id (ikke user._id)
+      // når jeg gemmer brugeren i localStorage, så er det id, jeg gemmer –> men resten af appen forventer _id.
+      // -> derfor normaliserer jeg det
+      const normalizedUser: IUser = {
+        ...user,
+        _id: (user._id || user.id) as string,
+      };
+      setUserState(normalizedUser);
+      localStorage.setItem("user", JSON.stringify(normalizedUser));
     } else {
+      setUserState(null);
       localStorage.removeItem("user");
     }
   };
@@ -78,41 +74,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // FALLBACK - Så selv hvis localStorage fejler, kan vi genskabe user fra JWT
-  // når siden refresher, kan React miste den aktuelle bruger i memory - eller være langsom
-  // men jeg har stadig JWT-token i localStorage, så jeg kan bruge det til at hente brugeren
-  // ekstra useEffect--> auto loader user og token fra backend (via token) efter et refresh
-  // altså hvis user mangler, men token findes, henter vi brugerinfo fra serveren, så appen stadig virker efter refresh
-  // vi kalder /api/auth/me for at få brugerinfo fra token og genskabe state
-  //specielt brugt til hooks hvor den kræver user._id og hvor det kan være forsinket
-  useEffect(() => {
-    const savedToken = localStorage.getItem("token");
+  // nulstiller user og token og fjerner dem fra localstroage
+  const logout = () => {
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    navigate("/");
+  };
 
-    // Hvis vi har token, men ingen brugerinfo, så hent den
-    if (savedToken && !user) {
-      fetch("http://localhost:3001/api/auth/me", {
-        headers: {
-          Authorization: `Bearer ${savedToken}`,
-        },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data?.user) {
-            setUser(data.user);
-            setToken(savedToken); // for at sætte det i memory også
-          }
-        })
-        .catch((err) => {
-          console.error("Kunne ikke hente brugerinfo:", err);
-          logout(); // hvis token er ugyldig
-        });
+  // når jeg refresher, henter useEffect "user" og "token" tilbage
+  // Så snart en komponent loader -> Henter user og token fra localstorage hvis de findes
+  // Init: Genskab bruger og token fra localStorage eller fra backend via token
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    const storedToken = localStorage.getItem("token");
+
+    if (storedUser && storedToken) {
+      const parsed = JSON.parse(storedUser);
+
+      // Normaliser: hvis _id mangler, brug id i stedet
+      const normalizedUser = {
+        ...parsed,
+        _id: parsed._id || parsed.id,
+      };
+
+      setUserState(normalizedUser);
+      setTokenState(storedToken);
     }
-  }, [user]);
+
+    setIsAuthReady(true);
+  }, []);
 
   // returner hele konteksten til childrene
   // alt pakkes ind og gives videre som value
   return (
-    <AuthContext.Provider value={{ user, token, setUser, setToken, logout }}>
+    <AuthContext.Provider
+      value={{ user, token, setUser, setToken, logout, isAuthReady }}
+    >
       {children}
     </AuthContext.Provider>
   );
