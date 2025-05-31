@@ -13,6 +13,8 @@ import { useState } from "react";
 import { useStartChatSession } from "@/hooks/patient/chatHooks/useStartChatSession";
 import ChatBox from "@/components/patient/ChatBox";
 import Layout from "@/components/layout/Layout";
+import { useDisclosure } from "@chakra-ui/react";
+import SaveChatModal from "@/components/patient/SaveChatModal";
 
 const AIChatPage = () => {
   const toast = useToast();
@@ -21,6 +23,7 @@ const AIChatPage = () => {
     { user: string; ai: string }[]
   >([]);
   const { mutate: sendChatMessage, isPending } = useStartChatSession();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const handleSubmit = () => {
     if (!message.trim()) return;
@@ -108,6 +111,8 @@ const AIChatPage = () => {
           </VStack>
         </Box>
       </Box>
+      <Button onClick={onOpen}>Gem samtale</Button>
+      <SaveChatModal isOpen={isOpen} onClose={onClose} messages={chatHistory} />
     </Layout>
   );
 };

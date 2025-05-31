@@ -10,7 +10,10 @@ import {
   markMessageAsRead,
   updateMyProfile,
 } from "../controllers/patient/patient.controller";
-import { startChatSession } from "../controllers/patient/ai.controller";
+import {
+  saveChatHistory,
+  startChatSession,
+} from "../controllers/patient/ai.controller";
 
 const router = express.Router();
 
@@ -35,5 +38,6 @@ router.put("/profile", updateMyProfile);
 
 // AI/Chatbot
 router.post("/ai/start", startChatSession);
+router.post("/ai/save-chat", saveChatHistory);
 
 export default router;

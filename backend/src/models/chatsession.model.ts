@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IChatSession extends Document {
   patient_id: mongoose.Types.ObjectId;
-  messages: string[]; // Simplificeret: bare tekst-strenge
+  messages: { user: string; ai: string }[];
   saved_to_appointment_id?: mongoose.Types.ObjectId; // Hvis brugeren gemmer chat på en aftale
 }
 
