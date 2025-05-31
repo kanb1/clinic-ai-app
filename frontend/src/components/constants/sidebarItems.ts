@@ -26,7 +26,7 @@ export const sidebarItems = {
   patient: [
     { label: "Startside", path: "/patient/frontpage" },
     { label: "AI-assistent", path: "/patient/ai" },
-    { label: "Min side", path: "/patient/profile" },
+    { label: "Min side", path: "/patient/appointments" },
     { label: "Indstillinger", path: "/patient/settings" },
   ],
 };

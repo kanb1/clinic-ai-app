@@ -4,6 +4,7 @@ import RequireRole from "./RequireRole";
 import PatientFrontpage from "@/pages/Patient/PatientFrontpage";
 import PatientMyAppointments from "@/pages/Patient/PatientMyAppointments";
 import AIChatPage from "@/pages/Patient/AIChatPage";
+import PatientSettings from "@/pages/Patient/PatientSettings";
 
 export const patientRoutes: RouteObject[] = [
   {
@@ -18,12 +19,16 @@ export const patientRoutes: RouteObject[] = [
         element: <PatientFrontpage />,
       },
       {
-        path: "profile",
+        path: "appointments",
         element: <PatientMyAppointments />,
       },
       {
         path: "ai",
         element: <AIChatPage />,
+      },
+      {
+        path: "settings",
+        element: <PatientSettings />,
       },
     ],
   },
