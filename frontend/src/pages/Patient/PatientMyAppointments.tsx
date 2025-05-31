@@ -169,11 +169,11 @@ const PatientMyAppointments = () => {
           <Stack spacing={3}>
             {prescriptions.map((rx: any) => (
               <Box key={rx._id} borderWidth="1px" p={4} borderRadius="md">
-                <Text fontWeight="bold">{rx.title}</Text>
-                <Text>Beskrivelse: {rx.description}</Text>
+                <Text fontWeight="bold">{rx.medication_name}</Text>
+                <Text>Dosis: {rx.dosage}</Text>
+                <Text>Instruktion: {rx.instructions}</Text>
                 <Text>
-                  Udløber: {moment(rx.expires).format("DD/MM/YYYY")} –{" "}
-                  <strong>{rx.status}</strong>
+                  Udstedt: {moment(rx.issued_date).format("DD/MM/YYYY")}
                 </Text>
               </Box>
             ))}
