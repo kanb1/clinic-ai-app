@@ -5,7 +5,7 @@ export const sidebarItems = {
   admin: [
     // label: den tekst der vises i sidebar-knappen
     // url: hvad der bliver navigeret til
-    { label: "Dashboard", path: "/admin/frontpage" },
+    { label: "Startside", path: "/admin/frontpage" },
     { label: "Administrér Patient", path: "/admin/patients" },
     { label: "Administrér Læge", path: "/admin/doctors" },
     { label: "Administrér Sekretær", path: "/admin/secretaries" },
@@ -24,7 +24,7 @@ export const sidebarItems = {
     { label: "Ny aftale", path: "/secretary/appointments/new" },
   ],
   patient: [
-    { label: "Dashboard", path: "/patient/dashboard" },
+    { label: "Startside", path: "/patient/frontpage" },
     { label: "AI-assistent", path: "/patient/ai" },
     { label: "Min side", path: "/patient/profile" },
     { label: "Indstillinger", path: "/patient/settings" },

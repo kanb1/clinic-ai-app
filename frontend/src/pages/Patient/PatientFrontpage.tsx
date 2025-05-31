@@ -1,7 +1,7 @@
 import Layout from "@/components/layout/Layout";
 import { Box, Heading } from "@chakra-ui/react";
 
-const PatientDashboard = () => {
+const PatientFrontpage = () => {
   return (
     <Layout>
       <Box p={10}>
@@ -11,4 +11,4 @@ const PatientDashboard = () => {
   );
 };
 
-export default PatientDashboard;
+export default PatientFrontpage;

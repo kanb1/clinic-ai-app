@@ -64,7 +64,7 @@ export const useLogin = (
           navigate("/secretary/dashboard");
           break;
         case "patient":
-          navigate("/patient/dashboard");
+          navigate("/patient/frontpage");
           break;
         default:
           navigate("/");
