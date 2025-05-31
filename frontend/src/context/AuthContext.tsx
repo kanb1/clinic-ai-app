@@ -78,6 +78,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // FALLBACK
+  // når siden refresher, kan React miste den aktuelle bruger i memory - eller være langsom
+  // men jeg har stadig JWT-token i localStorage, så jeg kan bruge det til at hente brugeren
+  // ekstra useEffect--> auto loader user og token fra backend (via token) efter et refresh
+  // vi kalder /api/auth/me for at få brugerinfo fra token og genskabe state
+  //specielt brugt til hooks hvor den kræver user._id og hvor det kan være forsinket
+  useEffect(() => {
+    const savedToken = localStorage.getItem("token");
+
+    // Hvis vi har token, men ingen brugerinfo, så hent den
+    if (savedToken && !user) {
+      fetch("http://localhost:3001/api/auth/me", {
+        headers: {
+          Authorization: `Bearer ${savedToken}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.user) {
+            setUser(data.user);
+            setToken(savedToken); // for at sætte det i memory også
+          }
+        })
+        .catch((err) => {
+          console.error("Kunne ikke hente brugerinfo:", err);
+          logout(); // hvis token er ugyldig
+        });
+    }
+  }, [user]);
+
   // returner hele konteksten til childrene
   // alt pakkes ind og gives videre som value
   return (
