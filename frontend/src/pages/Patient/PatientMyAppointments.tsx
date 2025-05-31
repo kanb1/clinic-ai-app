@@ -16,19 +16,27 @@ import {
 } from "@chakra-ui/react";
 
 import Layout from "@/components/layout/Layout";
-import AppointmentCard from "@/components/patient//MyPage/AppointmentCard";
+import AppointmentCard from "@/components/patient/MyPage/AppointmentCard";
 import PrescriptionCard from "@/components/patient/MyPage/PrescriptionCard";
-import MessageCard from "@/components/patient//MyPage/MessageCard";
+import MessageCard from "@/components/patient/MyPage/MessageCard";
+
 import { useUpcomingAppointments } from "@/hooks/patient/mypageHooks/useUpcomingAppointments";
 import { usePrescriptions } from "@/hooks/patient/mypageHooks/usePrescriptions";
 import { useUnreadMessages } from "@/hooks/patient/mypageHooks/useUnreadMessages";
 import { useConfirmAppointment } from "@/hooks/patient/mypageHooks/useConfirmAppointment";
 import { useCancelAppointment } from "@/hooks/patient/mypageHooks/useCancelAppointment";
 import { useMarkMessageAsRead } from "@/hooks/patient/mypageHooks/useMarkMessageAsRead";
+
 import { useState } from "react";
+import { IMessage } from "@/types/message.types";
+import { IAppointment } from "@/types/appointment.types";
+import { useAuth } from "@/context/AuthContext";
 
 const PatientMyAppointments = () => {
   const toast = useToast();
+  const { isAuthReady, user } = useAuth(); // ✅ Kun ét kald
+
+  const patientId = isAuthReady && user ? user._id : undefined;
 
   // Appointments
   const { data: appointments = [], isLoading: loadingAppointments } =
@@ -38,9 +46,9 @@ const PatientMyAppointments = () => {
   const { mutate: cancelAppointment, isPending: isCancelling } =
     useCancelAppointment();
 
-  // Prescriptions
+  // Prescriptions – kun når patientId er klar
   const { data: prescriptions = [], isLoading: loadingPrescriptions } =
-    usePrescriptions();
+    usePrescriptions(patientId, !!patientId);
 
   // Messages
   const {
@@ -50,18 +58,29 @@ const PatientMyAppointments = () => {
   } = useUnreadMessages();
   const { mutate: markAsRead } = useMarkMessageAsRead();
 
-  // Modal state
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [selectedMessage, setSelectedMessage] = useState<any>(null);
+  const [selectedMessage, setSelectedMessage] = useState<IMessage | null>(null);
 
   const handleOpenMessage = (msg: any) => {
     setSelectedMessage(msg);
     onOpen();
 
     markAsRead(msg._id, {
-      onSuccess: () => refetch(),
+      onSuccess: () => {
+        refetch();
+      },
     });
   };
+
+  if (!isAuthReady) {
+    return (
+      <Layout>
+        <Box p={10}>
+          <Spinner />
+        </Box>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -122,7 +141,7 @@ const PatientMyAppointments = () => {
           <Text>Ingen aktive recepter.</Text>
         ) : (
           <Stack spacing={3}>
-            {prescriptions?.map((rx: any) => (
+            {prescriptions.map((rx: any) => (
               <PrescriptionCard key={rx._id} prescription={rx} />
             ))}
           </Stack>
@@ -132,14 +151,13 @@ const PatientMyAppointments = () => {
         <Heading size="md" mt={10} mb={2}>
           Nye beskeder
         </Heading>
-
         {loadingMessages ? (
           <Spinner />
         ) : messages.length === 0 ? (
           <Text>Ingen nye beskeder.</Text>
         ) : (
           <Stack spacing={3}>
-            {messages?.map((msg: any) => (
+            {messages.map((msg: any) => (
               <MessageCard
                 key={msg._id}
                 msg={msg}
