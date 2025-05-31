@@ -7,8 +7,6 @@ export const usePrescriptions = () => {
 
   const patientId = user?._id;
 
-  console.log("patientId fra useAuth:", patientId); // debug
-
   return useQuery({
     queryKey: ["prescriptions", patientId],
     queryFn: async () => {
