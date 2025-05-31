@@ -39,8 +39,27 @@ const SaveChatModal = ({ isOpen, onClose, messages }: SaveChatModalProps) => {
           toast({ status: "success", description: "Samtale gemt!" });
           onClose();
         },
-        onError: () => {
-          toast({ status: "error", description: "Kunne ikke gemme samtalen" });
+        onError: (error: any) => {
+          const msg = error?.response?.data?.message;
+
+          if (msg === "Der findes allerede en gemt chat for denne aftale.") {
+            toast({
+              status: "warning",
+              title: "Allerede gemt",
+              description:
+                "Du har allerede gemt en AI-samtale til denne aftale. Det er kun muligt at gemme én samtale pr. aftale.",
+              isClosable: true,
+              duration: 5000,
+            });
+          } else {
+            toast({
+              status: "error",
+              title: "Fejl",
+              description: "Kunne ikke gemme samtalen. Prøv igen senere.",
+              isClosable: true,
+              duration: 4000,
+            });
+          }
         },
       }
     );
