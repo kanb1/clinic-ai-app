@@ -8,8 +8,14 @@ import {
   Text,
   Spinner,
   HStack,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useStartChatSession } from "@/hooks/patient/chatHooks/useStartChatSession";
 import ChatBox from "@/components/patient/ChatBox";
 import Layout from "@/components/layout/Layout";
@@ -24,6 +30,14 @@ const AIChatPage = () => {
   >([]);
   const { mutate: sendChatMessage, isPending } = useStartChatSession();
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const {
+    isOpen: isDialogOpen,
+    onOpen: openDialog,
+    onClose: closeDialog,
+  } = useDisclosure();
+
+  const cancelRef = useRef(null);
 
   const handleSubmit = () => {
     if (!message.trim()) return;
@@ -63,6 +77,14 @@ const AIChatPage = () => {
     }
   }, []);
 
+  const handleConfirmStartNewChat = () => {
+    const introMessage =
+      "Hej! Hvordan har du det i dag? Del gerne dine symptomer eller bekymringer – så hjælper jeg dig med at forberede dig til din aftale.";
+    setChatHistory([{ user: "", ai: introMessage }]);
+    setMessage("");
+    closeDialog();
+  };
+
   return (
     <Layout>
       <Box
@@ -77,6 +99,16 @@ const AIChatPage = () => {
         <Heading size="md" mb={4}>
           Chat med AI
         </Heading>
+
+        <Button
+          size="sm"
+          variant="outline"
+          colorScheme="blue"
+          mb={4}
+          onClick={openDialog}
+        >
+          Start ny chat
+        </Button>
 
         {/* Chat-indhold */}
         <Box flex="1" overflowY="auto">
@@ -123,6 +155,34 @@ const AIChatPage = () => {
       </Box>
       <Button onClick={onOpen}>Gem samtale</Button>
       <SaveChatModal isOpen={isOpen} onClose={onClose} messages={chatHistory} />
+
+      <AlertDialog
+        isOpen={isDialogOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={closeDialog}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader>Start ny chat?</AlertDialogHeader>
+            <AlertDialogBody>
+              Hvis du starter en ny chat, slettes den nuværende samtale
+              (medmindre du har gemt den).
+            </AlertDialogBody>
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={closeDialog}>
+                Annullér
+              </Button>
+              <Button
+                colorScheme="blue"
+                onClick={handleConfirmStartNewChat}
+                ml={3}
+              >
+                Start ny chat
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Layout>
   );
 };
