@@ -1,4 +1,3 @@
-// hooks/patient/mypageHooks/useMarkMessageAsRead.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../../services/httpClient";
 

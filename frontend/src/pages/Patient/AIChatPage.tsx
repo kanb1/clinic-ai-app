@@ -17,10 +17,10 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import { useStartChatSession } from "@/hooks/patient/chatHooks/useStartChatSession";
-import ChatBox from "@/components/patient/ChatBox";
+import ChatBox from "@/components/patient/Chatbot/ChatBox";
 import Layout from "@/components/layout/Layout";
 import { useDisclosure } from "@chakra-ui/react";
-import SaveChatModal from "@/components/patient/SaveChatModal";
+import SaveChatModal from "@/components/patient/Chatbot/SaveChatModal";
 
 const AIChatPage = () => {
   const toast = useToast();

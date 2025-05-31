@@ -5,7 +5,6 @@ import {
   SimpleGrid,
   Spinner,
   Stack,
-  Button,
   useToast,
   useDisclosure,
   Modal,
@@ -17,13 +16,15 @@ import {
 } from "@chakra-ui/react";
 
 import Layout from "@/components/layout/Layout";
+import AppointmentCard from "@/components/patient//MyPage/AppointmentCard";
+import PrescriptionCard from "@/components/patient/MyPage/PrescriptionCard";
+import MessageCard from "@/components/patient//MyPage/MessageCard";
 import { useUpcomingAppointments } from "@/hooks/patient/mypageHooks/useUpcomingAppointments";
 import { usePrescriptions } from "@/hooks/patient/mypageHooks/usePrescriptions";
 import { useUnreadMessages } from "@/hooks/patient/mypageHooks/useUnreadMessages";
 import { useConfirmAppointment } from "@/hooks/patient/mypageHooks/useConfirmAppointment";
 import { useCancelAppointment } from "@/hooks/patient/mypageHooks/useCancelAppointment";
 import { useMarkMessageAsRead } from "@/hooks/patient/mypageHooks/useMarkMessageAsRead";
-import moment from "moment";
 import { useState } from "react";
 
 const PatientMyAppointments = () => {
@@ -57,11 +58,8 @@ const PatientMyAppointments = () => {
     setSelectedMessage(msg);
     onOpen();
 
-    // Markér som læst direkte
     markAsRead(msg._id, {
-      onSuccess: () => {
-        refetch(); // refetch beskeder
-      },
+      onSuccess: () => refetch(),
     });
   };
 
@@ -82,77 +80,34 @@ const PatientMyAppointments = () => {
           <Text>Du har ingen kommende aftaler.</Text>
         ) : (
           <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-            {appointments.map((appt: any) => (
-              <Box key={appt._id} borderWidth="1px" p={4} borderRadius="md">
-                <Text fontWeight="bold">
-                  {moment(appt.date).format("DD/MM/YYYY")} – {appt.time}
-                </Text>
-                <Text>Behandler: {appt.doctor_id.name}</Text>
-                <Text>Status: {appt.status}</Text>
-
-                {appt.status === "venter" && (
-                  <Stack direction="row" mt={3}>
-                    <Button
-                      colorScheme="green"
-                      size="sm"
-                      onClick={() =>
-                        confirmAppointment(appt._id, {
-                          onSuccess: () =>
-                            toast({
-                              title: "Aftale bekræftet.",
-                              status: "success",
-                              duration: 3000,
-                              isClosable: true,
-                            }),
-                        })
-                      }
-                      isLoading={isConfirming}
-                    >
-                      Bekræft
-                    </Button>
-                    <Button
-                      colorScheme="red"
-                      size="sm"
-                      onClick={() =>
-                        cancelAppointment(appt._id, {
-                          onSuccess: () =>
-                            toast({
-                              title: "Aftale aflyst.",
-                              status: "info",
-                              duration: 3000,
-                              isClosable: true,
-                            }),
-                        })
-                      }
-                      isLoading={isCancelling}
-                    >
-                      Aflys
-                    </Button>
-                  </Stack>
-                )}
-
-                {appt.status === "bekræftet" && (
-                  <Button
-                    colorScheme="red"
-                    size="sm"
-                    mt={3}
-                    onClick={() =>
-                      cancelAppointment(appt._id, {
-                        onSuccess: () =>
-                          toast({
-                            title: "Aftale aflyst.",
-                            status: "info",
-                            duration: 3000,
-                            isClosable: true,
-                          }),
-                      })
-                    }
-                    isLoading={isCancelling}
-                  >
-                    Aflys
-                  </Button>
-                )}
-              </Box>
+            {appointments.map((appt: IAppointment) => (
+              <AppointmentCard
+                key={appt._id}
+                appt={appt}
+                onConfirm={(id) =>
+                  confirmAppointment(id, {
+                    onSuccess: () =>
+                      toast({
+                        title: "Aftale bekræftet.",
+                        status: "success",
+                        duration: 3000,
+                        isClosable: true,
+                      }),
+                  })
+                }
+                onCancel={(id) =>
+                  cancelAppointment(id, {
+                    onSuccess: () =>
+                      toast({
+                        title: "Aftale aflyst.",
+                        status: "info",
+                        duration: 3000,
+                        isClosable: true,
+                      }),
+                  })
+                }
+                isLoading={isConfirming || isCancelling}
+              />
             ))}
           </SimpleGrid>
         )}
@@ -167,18 +122,12 @@ const PatientMyAppointments = () => {
           <Text>Ingen aktive recepter.</Text>
         ) : (
           <Stack spacing={3}>
-            {prescriptions.map((rx: any) => (
-              <Box key={rx._id} borderWidth="1px" p={4} borderRadius="md">
-                <Text fontWeight="bold">{rx.medication_name}</Text>
-                <Text>Dosis: {rx.dosage}</Text>
-                <Text>Instruktion: {rx.instructions}</Text>
-                <Text>
-                  Udstedt: {moment(rx.issued_date).format("DD/MM/YYYY")}
-                </Text>
-              </Box>
+            {prescriptions?.map((rx: any) => (
+              <PrescriptionCard key={rx._id} prescription={rx} />
             ))}
           </Stack>
         )}
+
         {/* Beskeder */}
         <Heading size="md" mt={10} mb={2}>
           Nye beskeder
@@ -190,25 +139,17 @@ const PatientMyAppointments = () => {
           <Text>Ingen nye beskeder.</Text>
         ) : (
           <Stack spacing={3}>
-            {messages.map((msg: any) => (
-              <Box key={msg._id} borderWidth="1px" p={4} borderRadius="md">
-                <Text fontWeight="semibold" isTruncated>
-                  {msg.content}
-                </Text>
-                <Button
-                  colorScheme="blue"
-                  size="sm"
-                  mt={2}
-                  onClick={() => handleOpenMessage(msg)}
-                >
-                  Åben
-                </Button>
-              </Box>
+            {messages?.map((msg: any) => (
+              <MessageCard
+                key={msg._id}
+                msg={msg}
+                onOpenMessage={handleOpenMessage}
+              />
             ))}
           </Stack>
         )}
 
-        {/* Modal som mark as read*/}
+        {/* Modal */}
         <Modal isOpen={isOpen} onClose={onClose} size="md" isCentered>
           <ModalOverlay />
           <ModalContent>
