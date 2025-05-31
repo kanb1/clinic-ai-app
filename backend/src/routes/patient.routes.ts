@@ -10,6 +10,7 @@ import {
   markMessageAsRead,
   updateMyProfile,
 } from "../controllers/patient/patient.controller";
+import { startChatSession } from "../controllers/patient/ai.controller";
 
 const router = express.Router();
 
@@ -31,6 +32,8 @@ router.get("/prescriptions/:patientId", getPrescriptionsForPatient);
 // Brugerprofil
 // (Hente brugerprofils oplysninger ligger inde i user controlleren, "getMyProfile")
 router.put("/profile", updateMyProfile);
+
 // AI/Chatbot
+router.post("/ai/start", startChatSession);
 
 export default router;
