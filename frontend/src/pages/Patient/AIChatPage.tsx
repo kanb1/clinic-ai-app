@@ -9,7 +9,7 @@ import {
   Spinner,
   HStack,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useStartChatSession } from "@/hooks/patient/chatHooks/useStartChatSession";
 import ChatBox from "@/components/patient/ChatBox";
 import Layout from "@/components/layout/Layout";
@@ -52,6 +52,16 @@ const AIChatPage = () => {
       }
     );
   };
+
+  useEffect(() => {
+    // Hvis der ingen beskeder er, vis åbningsbeskeden fra AI - betaler ik for openAI-token
+    if (chatHistory.length === 0) {
+      const introMessage =
+        "Hej! Hvordan har du det i dag? Del gerne dine symptomer eller bekymringer – så hjælper jeg dig med at forberede dig til din aftale.";
+
+      setChatHistory([{ user: "", ai: introMessage }]);
+    }
+  }, []);
 
   return (
     <Layout>
