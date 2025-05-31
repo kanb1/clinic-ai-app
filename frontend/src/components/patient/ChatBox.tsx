@@ -38,7 +38,7 @@ const ChatBox = ({ chatHistory }: ChatBoxProps) => {
             maxW="70%"
           >
             <Text fontSize="sm" color="gray.600">
-              Du
+              Dig
             </Text>
             <Text>{msg.user}</Text>
           </Box>
@@ -52,7 +52,7 @@ const ChatBox = ({ chatHistory }: ChatBoxProps) => {
             maxW="70%"
           >
             <Text fontSize="sm" color="gray.600">
-              AI
+              Læge-assistent
             </Text>
             <Text whiteSpace="pre-line">{msg.ai}</Text>
           </Box>
