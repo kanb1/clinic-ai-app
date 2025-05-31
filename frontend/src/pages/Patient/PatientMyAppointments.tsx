@@ -34,7 +34,7 @@ import { useAuth } from "@/context/AuthContext";
 
 const PatientMyAppointments = () => {
   const toast = useToast();
-  const { isAuthReady, user } = useAuth(); // ✅ Kun ét kald
+  const { isAuthReady, user } = useAuth();
 
   const patientId = isAuthReady && user ? user._id : undefined;
 
