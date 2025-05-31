@@ -8,6 +8,7 @@ import { JournalModel } from "../../models/journal.model";
 import { IPopulatedJournal } from "../../interfaces/IPopulatedJournal";
 import { JournalEntryModel } from "../../models/journalentry.model";
 import { TestResultModel } from "../../models/testresult.model";
+import { ChatSessionModel } from "../../models/chatsession.model";
 
 // Dashboard (overblik og status på ansatte)
 export const getTodaysAppointments = async (req: Request, res: Response) => {
@@ -403,3 +404,30 @@ export const getTestResultsByPatient = async (req: Request, res: Response) => {
 };
 
 // AI-noter og journal
+// Hent gemt AI-chat for en specifik aftale
+export const getChatSessionByAppointment = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const appointmentId = req.params.appointmentId;
+
+    const chat = await ChatSessionModel.findOne({
+      saved_to_appointment_id: appointmentId,
+    })
+      .select("messages patient_id createdAt")
+      .populate("patient_id", "name");
+
+    if (!chat) {
+      res
+        .status(404)
+        .json({ message: "Ingen AI-chat fundet for denne aftale" });
+      return;
+    }
+
+    res.status(200).json(chat);
+  } catch (error) {
+    console.error("Fejl ved hentning af gemt AI-chat:", error);
+    res.status(500).json({ message: "Noget gik galt", error });
+  }
+};

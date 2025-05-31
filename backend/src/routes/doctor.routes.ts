@@ -7,6 +7,7 @@ import {
   createTestJournalEntry,
   createTestResult,
   getAppointmentsForDoctor,
+  getChatSessionByAppointment,
   getJournalById,
   getJournalOverview,
   getPatientDetails,
@@ -51,5 +52,6 @@ router.post("/test/create-testresults", createTestResult); //SEED TEST RESULTS
 router.get("/testresults/:patientId", getTestResultsByPatient);
 
 // AI-noter og journal
+router.get("/ai-notes/:appointmentId", getChatSessionByAppointment);
 
 export default router;
