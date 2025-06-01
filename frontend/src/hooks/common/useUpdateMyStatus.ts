@@ -10,7 +10,7 @@ export const useUpdateMyStatus = () => {
       return res.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["staffStatus"] });
+      queryClient.invalidateQueries({ queryKey: ["staff"] });
     },
   });
 };
