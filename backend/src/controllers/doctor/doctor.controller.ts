@@ -85,8 +85,8 @@ export const getTodayAppointmentDetails = async (
           patientName: appt.patient_id.name,
           birthDate: appt.patient_id.birth_date,
           time: appt.time,
-          symptoms: appt.secretary_note || "–",
-          journalAvailable: true, //ik færdig endnu
+          symptoms: appt.secretary_note || "Ingen sekretær-note angivet",
+          journalAvailable: true,
           status: appt.status,
         };
       }
