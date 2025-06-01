@@ -21,6 +21,7 @@ import AddPrescriptionModal from "@/components/doctor/Journals/Prescriptions/Add
 import PrescriptionModal from "@/components/doctor/Journals/Prescriptions/PrescriptionModal";
 import { useDoctorTestResults } from "@/hooks/doctor/journalHooks/useDoctorTestResults";
 import TestResultBox from "@/components/doctor/Journals/Testresults/TestResultBox";
+import Layout from "@/components/layout/Layout";
 
 const PatientJournalPage = () => {
   const [searchParams] = useSearchParams();
@@ -67,80 +68,82 @@ const PatientJournalPage = () => {
   if (isLoading) return <Spinner size="xl" />;
 
   return (
-    <Box maxW="6xl" mx="auto" p={6}>
-      <Heading mb={6}>Journal for patient</Heading>
+    <Layout>
+      <Box maxW="6xl" mx="auto" p={6}>
+        <Heading mb={6}>Journal for patient</Heading>
 
-      {!isLoadingTests && <TestResultBox results={testResults} />}
+        {!isLoadingTests && <TestResultBox results={testResults} />}
 
-      {!isLoadingRx && (
-        <Box mb={10}>
-          <Heading size="md" mb={4}>
-            Recept
-          </Heading>
-          <VStack align="stretch" spacing={4}>
-            {prescriptions.map((r: any) => (
-              <PrescriptionBox
-                key={r._id}
-                prescription={r}
-                onView={() => setSelectedPrescription(r)}
-              />
-            ))}
-            <Button
-              onClick={() => setShowAddPrescription(true)}
-              colorScheme="blue"
-              alignSelf="start"
-            >
-              + Tilføj recept
-            </Button>
-          </VStack>
-        </Box>
-      )}
+        {!isLoadingRx && (
+          <Box mb={10}>
+            <Heading size="md" mb={4}>
+              Recept
+            </Heading>
+            <VStack align="stretch" spacing={4}>
+              {prescriptions.map((r: any) => (
+                <PrescriptionBox
+                  key={r._id}
+                  prescription={r}
+                  onView={() => setSelectedPrescription(r)}
+                />
+              ))}
+              <Button
+                onClick={() => setShowAddPrescription(true)}
+                colorScheme="blue"
+                alignSelf="start"
+              >
+                + Tilføj recept
+              </Button>
+            </VStack>
+          </Box>
+        )}
 
-      <VStack spacing={4} align="stretch">
-        {data.map((appt) => (
-          <AppointmentBox
-            key={appt._id}
-            appt={appt}
-            journalId={journalId}
-            refetch={refetch}
+        <VStack spacing={4} align="stretch">
+          {data.map((appt) => (
+            <AppointmentBox
+              key={appt._id}
+              appt={appt}
+              journalId={journalId}
+              refetch={refetch}
+            />
+          ))}
+        </VStack>
+
+        {selectedEntry && (
+          <JournalModal
+            entry={selectedEntry}
+            onClose={() => setSelectedEntry(null)}
           />
-        ))}
-      </VStack>
+        )}
 
-      {selectedEntry && (
-        <JournalModal
-          entry={selectedEntry}
-          onClose={() => setSelectedEntry(null)}
-        />
-      )}
+        {selectedAppointmentId && (
+          <AddJournalEntryModal
+            appointmentId={selectedAppointmentId}
+            journalId={journalId}
+            onClose={() => setSelectedAppointmentId("")}
+            onSuccess={() => {
+              refetch(); // opdater journaldata efter nyt notat
+              setSelectedAppointmentId("");
+            }}
+          />
+        )}
 
-      {selectedAppointmentId && (
-        <AddJournalEntryModal
-          appointmentId={selectedAppointmentId}
-          journalId={journalId}
-          onClose={() => setSelectedAppointmentId("")}
-          onSuccess={() => {
-            refetch(); // opdater journaldata efter nyt notat
-            setSelectedAppointmentId("");
-          }}
-        />
-      )}
+        {showAddPrescription && (
+          <AddPrescriptionModal
+            patientId={patientId}
+            onClose={() => setShowAddPrescription(false)}
+            onSuccess={refetchPrescriptions}
+          />
+        )}
 
-      {showAddPrescription && (
-        <AddPrescriptionModal
-          patientId={patientId}
-          onClose={() => setShowAddPrescription(false)}
-          onSuccess={refetchPrescriptions}
-        />
-      )}
-
-      {selectedPrescription && (
-        <PrescriptionModal
-          prescription={selectedPrescription}
-          onClose={() => setSelectedPrescription(null)}
-        />
-      )}
-    </Box>
+        {selectedPrescription && (
+          <PrescriptionModal
+            prescription={selectedPrescription}
+            onClose={() => setSelectedPrescription(null)}
+          />
+        )}
+      </Box>
+    </Layout>
   );
 };
 
