@@ -4,6 +4,7 @@ export interface IChatSession extends Document {
   patient_id: mongoose.Types.ObjectId;
   messages: { user: string; ai: string }[];
   saved_to_appointment_id?: mongoose.Types.ObjectId; // Hvis brugeren gemmer chat på en aftale
+  summary_for_doctor?: string;
 }
 
 const ChatSessionSchema: Schema = new Schema(
@@ -24,6 +25,7 @@ const ChatSessionSchema: Schema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Appointment",
     },
+    summary_for_doctor: { type: String },
   },
   { timestamps: true }
 );

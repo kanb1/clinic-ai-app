@@ -429,7 +429,7 @@ export const getChatSessionByAppointment = async (
     const chat = await ChatSessionModel.findOne({
       saved_to_appointment_id: appointmentId,
     })
-      .select("messages patient_id createdAt")
+      .select("summary_for_doctor messages patient_id createdAt")
       .populate("patient_id", "name");
 
     if (!chat) {

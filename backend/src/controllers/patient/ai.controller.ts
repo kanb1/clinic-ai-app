@@ -74,10 +74,37 @@ export const saveChatHistory = async (req: Request, res: Response) => {
       return;
     }
 
+    // Vi laver et resume af samtalen:
+    //  Laver prompt
+    const formattedMessages = messages
+      .map((m: { user: string; ai: string }) => `${m.user}\n${m.ai}`)
+      .join("\n\n");
+
+    const summaryPrompt = `
+      Du er en klinikassistent, der skal lave et kort overblik til en læge baseret på følgende samtale med en patient:
+
+      ${formattedMessages}
+
+      Lav en opsummering til lægen: hvad beskriver patienten, hvilke symptomer nævnes, og hvor længe har det stået på? Brug 3-5 sætninger. 
+      Undlad at skrive "Patienten siger..." bare gå direkte til sagen.
+      `;
+
+    // Kalder OpenAI
+    const summaryResponse = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: "Du er en medicinsk klinikassistent." },
+        { role: "user", content: summaryPrompt },
+      ],
+    });
+
+    const summary = summaryResponse.choices[0].message.content;
+
     const newChat = await ChatSessionModel.create({
       patient_id: patientId,
       messages,
       saved_to_appointment_id: appointmentId,
+      summary_for_doctor: summary,
     });
 
     res.status(201).json({ message: "Samtale gemt", chat: newChat });
