@@ -12,11 +12,23 @@ export interface ITodaysAppointment {
   status: "bekræftet" | "aflyst" | "udført" | "venter";
 }
 
-export const useTodaysDetailedAppointments = () => {
-  return useQuery<ITodaysAppointment[]>({
-    queryKey: ["todays-appointments-detailed"],
+interface ApiResponse {
+  data: ITodaysAppointment[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
+export const useTodaysDetailedAppointments = (
+  page: number,
+  limit: number = 6
+) => {
+  return useQuery<ApiResponse>({
+    queryKey: ["todays-appointments-detailed", page],
     queryFn: async () => {
-      const res = await api.get("/doctors/appointments/today-details");
+      const res = await api.get(
+        `/doctors/appointments/today-details?page=${page}&limit=${limit}`
+      );
       return res.data;
     },
   });
