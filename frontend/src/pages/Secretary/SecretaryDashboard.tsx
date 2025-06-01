@@ -1,9 +1,9 @@
 import Layout from "@/components/layout/Layout";
 import { useUnreadMessages } from "../../hooks/secretary/dashboardHooks/useUnreadMessages";
 import { useMarkMessageAsRead } from "../../hooks/secretary/dashboardHooks/useMarkMessageAsRead";
-import { useStaffStatus } from "../../hooks/secretary/dashboardHooks/useStaffStatus";
+import { useStaffStatus } from "../../hooks/common/useStaffStatus";
 import { useUpdateMyStatus } from "../../hooks/secretary/dashboardHooks/useUpdateMyStatus";
-import ToggleStatusButton from "../../components/ui/ToggleStatusButton";
+import ToggleStatusButton from "../../components/shared/ToggleStatusButton";
 import { usePastAppointmentsToday } from "../../hooks/secretary/dashboardHooks/useTodaysPastAppointments";
 import { useRef, useEffect, useState } from "react";
 
@@ -21,6 +21,7 @@ import {
 } from "@chakra-ui/react";
 import { useAuth } from "@/context/AuthContext";
 import RecentAppointmentsCarousel from "@/components/secretary/Dashboard/RecentAppointmentsCarousel";
+import StaffStatusOverview from "@/components/shared/StaffStatusOverview";
 
 const SecretaryDashboard = () => {
   const { data, isLoading, error } = useUnreadMessages();
@@ -150,85 +151,10 @@ const SecretaryDashboard = () => {
           </Box>
 
           {/* Personale */}
-          <Box
-            w="100%"
-            maxW={{
-              base: "100%",
-              sm: "100%",
-              md: "100%",
-              lg: "100%",
-              xl: "65%",
-            }}
-            overflowX="hidden"
-          >
-            <Heading
-              textStyle="heading2"
-              fontWeight="medium"
-              mb={{ base: "10px", sm: "12px", md: "14px" }}
-            >
-              {" "}
-              Personale
-            </Heading>
-            <VStack align="start" spacing={3} w="full">
-              {staff?.map((person) => {
-                const isSelf = user && person._id === user.id;
-                const canToggle =
-                  isSelf && ["ledig", "optaget"].includes(person.status);
-
-                return (
-                  <Box
-                    key={person._id}
-                    p={3}
-                    bg="gray.50"
-                    borderRadius="md"
-                    w="full"
-                    display="flex"
-                    justifyContent="space-between"
-                    alignItems={{ base: "flex-start", sm: "center" }}
-                    flexDirection={{ base: "column", sm: "row" }}
-                    gap={3}
-                    boxShadow="sm"
-                  >
-                    {/* Left: Navn + rolle */}
-                    <Box>
-                      <Text fontWeight="bold">{person.name}</Text>
-                      <Text fontSize="sm">{person.role}</Text>
-                    </Box>
-
-                    {/* Right: Status + knap */}
-                    <Flex
-                      direction={{ base: "column", sm: "row" }}
-                      align={{ base: "flex-start", md: "center" }}
-                      gap={2}
-                    >
-                      <Badge
-                        colorScheme={
-                          person.status === "ledig"
-                            ? "green"
-                            : person.status === "optaget"
-                            ? "red"
-                            : "yellow"
-                        }
-                        p={{ base: 2 }}
-                        borderRadius={{ base: 10 }}
-                      >
-                        {person.status}
-                      </Badge>
-
-                      {canToggle && (
-                        <ToggleStatusButton
-                          currentStatus={person.status as "ledig" | "optaget"}
-                          onToggle={() =>
-                            handleToggle(person.status as "ledig" | "optaget")
-                          }
-                        />
-                      )}
-                    </Flex>
-                  </Box>
-                );
-              })}
-            </VStack>
-          </Box>
+          <StaffStatusOverview
+            showToggleForCurrentUser
+            onToggleStatus={handleToggle}
+          />
         </Stack>
       </Stack>
     </Layout>

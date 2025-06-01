@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { api } from "../../../services/httpClient";
-import { IUser } from "../../../types/user.types";
+import { api } from "../../services/httpClient";
+import { IUser } from "../../types/user.types";
 
 export const useStaffStatus = () => {
   return useQuery<IUser[]>({
