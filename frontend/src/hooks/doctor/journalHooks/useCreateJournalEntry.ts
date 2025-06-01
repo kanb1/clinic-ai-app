@@ -1,18 +1,16 @@
 import { useMutation } from "@tanstack/react-query";
 import { api } from "@/services/httpClient";
 
+interface CreateJournalEntryPayload {
+  journalId: string;
+  appointmentId: string;
+  notes: string;
+}
+
 export const useCreateJournalEntry = () => {
-  return useMutation({
-    mutationFn: async ({
-      journalId,
-      appointmentId,
-      notes,
-    }: {
-      journalId: string;
-      appointmentId: string;
-      notes: string;
-    }) => {
-      return api.post("/doctors/journalentry", {
+  return useMutation<void, Error, CreateJournalEntryPayload>({
+    mutationFn: async ({ journalId, appointmentId, notes }) => {
+      await api.post("/doctors/journalentry", {
         journalId,
         appointmentId,
         notes,
