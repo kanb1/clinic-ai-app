@@ -1,4 +1,3 @@
-// src/pages/Doctor/PatientJournalPage.tsx
 import { useSearchParams } from "react-router-dom";
 import {
   Box,
