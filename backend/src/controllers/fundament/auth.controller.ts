@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { UserModel } from "../../models/user.model";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { JournalModel } from "../../models/journal.model";
 
 // Allerede eksisterende login...
 
@@ -30,6 +31,11 @@ export const register = async (req: Request, res: Response) => {
     });
 
     await user.save();
+
+    // Hvis det er en patient, opret også journal
+    if (role === "patient") {
+      await JournalModel.create({ patient_id: user._id });
+    }
 
     res.status(201).json({ message: "User got created successfully", user });
   } catch (error) {
