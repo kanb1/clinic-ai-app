@@ -15,6 +15,7 @@ import { useState } from "react";
 import JournalModal from "@/components/doctor/Journals/JournalModal";
 import AddJournalEntryModal from "@/components/doctor/Journals/AddJournalEntryModal";
 import { useOrCreateJournal } from "@/hooks/doctor/journalHooks/useOrCreateJournal";
+import AppointmentBox from "@/components/doctor/Journals/AppointmentBox";
 
 const PatientJournalPage = () => {
   const [searchParams] = useSearchParams();
@@ -52,58 +53,12 @@ const PatientJournalPage = () => {
       <Heading mb={6}>Journal for patient</Heading>
       <VStack spacing={4} align="stretch">
         {data.map((appt) => (
-          <Box
+          <AppointmentBox
             key={appt._id}
-            p={4}
-            borderWidth="1px"
-            borderRadius="md"
-            bg="gray.50"
-            _hover={{ bg: "gray.100" }}
-          >
-            <Flex justify="space-between" align="center" mb={2}>
-              <Text fontWeight="bold">
-                {new Date(appt.date).toLocaleDateString()} kl. {appt.time}
-              </Text>
-              <Badge colorScheme={getStatusColor(appt.status)}>
-                {appt.status}
-              </Badge>
-            </Flex>
-            <Text mb={1}>
-              <strong>Behandler:</strong> {appt.doctorName}
-            </Text>
-            <Text mb={3}>
-              <strong>Notat:</strong>{" "}
-              {appt.secretaryNote ? appt.secretaryNote : "Ingen sekretærnotat"}
-            </Text>
-            <Flex gap={3}>
-              {appt.journalEntry?.created_by_ai ? (
-                <Button
-                  size="sm"
-                  onClick={() => setSelectedAppointmentId(appt._id)}
-                  colorScheme="purple"
-                  variant="outline"
-                >
-                  Gennemse AI-noter
-                </Button>
-              ) : appt.journalEntry ? (
-                <Button
-                  size="sm"
-                  onClick={() => setSelectedEntry(appt.journalEntry)}
-                  colorScheme="blue"
-                >
-                  Vis journal
-                </Button>
-              ) : (
-                <Button
-                  size="sm"
-                  onClick={() => setSelectedAppointmentId(appt._id)}
-                  colorScheme="blue"
-                >
-                  Opret notat
-                </Button>
-              )}
-            </Flex>
-          </Box>
+            appt={appt}
+            journalId={journalId}
+            refetch={refetch}
+          />
         ))}
       </VStack>
 
