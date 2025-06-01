@@ -12,10 +12,8 @@ export const sidebarItems = {
   ],
   doctor: [
     { label: "Dashboard", path: "/doctor/dashboard" },
-    { label: "Kalender", path: "/doctor/calendar" },
     { label: "Aftaleoversigt", path: "/doctor/appointments" },
-    { label: "Patienter", path: "/doctor/patients" },
-    { label: "Indstillinger", path: "/doctor/settings" },
+    { label: "Patienter & Journaler", path: "/doctor/patients" },
   ],
   secretary: [
     { label: "Dashboard", path: "/secretary/dashboard" },
