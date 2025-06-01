@@ -11,12 +11,14 @@ export const useAiNotes = (appointmentId: string | null) => {
         return res.data;
       } catch (error: any) {
         if (error?.response?.status === 404) {
-          return null; // Returnér tomt i stedet for fejl
+          // Undgå fejl state hvis der ikke findes AI-noter
+          return { messages: [] };
         }
-        throw error; // Rigtige fejl skal stadig vises
+        throw error; // Alle andre fejl skal stadig trigger en fejl
       }
     },
-    enabled: !!appointmentId, // undgå at køre hvis appointmentId ikke er sat
-    retry: 1, // kun prøv igen én gang
+    enabled: Boolean(appointmentId),
+    retry: false, // Ingen retry ved 404
+    staleTime: 1000 * 60 * 5, // cache i 5 min (valgfrit)
   });
 };

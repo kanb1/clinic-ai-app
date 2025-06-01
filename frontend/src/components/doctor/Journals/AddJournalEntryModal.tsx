@@ -21,12 +21,14 @@ interface AddJournalEntryModalProps {
   appointmentId: string;
   journalId: string;
   onClose: () => void;
+  onSuccess?: () => void; // valgfri callback
 }
 
 const AddJournalEntryModal = ({
   appointmentId,
   journalId,
   onClose,
+  onSuccess,
 }: AddJournalEntryModalProps) => {
   const toast = useToast();
   const { data, isLoading } = useAiNotes(appointmentId);
@@ -46,7 +48,8 @@ const AddJournalEntryModal = ({
             duration: 2000,
             isClosable: true,
           });
-          onClose();
+          if (onSuccess) onSuccess(); //kald parentens refetch
+          else onClose(); // fallback
         },
         onError: () => {
           toast({ title: "Kunne ikke gemme notat", status: "error" });

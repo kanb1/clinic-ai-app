@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/services/httpClient";
 
 interface CreateJournalEntryPayload {
@@ -8,6 +8,8 @@ interface CreateJournalEntryPayload {
 }
 
 export const useCreateJournalEntry = () => {
+  const queryClient = useQueryClient();
+
   return useMutation<void, Error, CreateJournalEntryPayload>({
     mutationFn: async ({ journalId, appointmentId, notes }) => {
       await api.post("/doctors/journalentry", {
@@ -15,6 +17,13 @@ export const useCreateJournalEntry = () => {
         appointmentId,
         notes,
         created_by_ai: false,
+      });
+    },
+    onSuccess: (_data, variables) => {
+      // Invaliderer hooken for patientens appointments
+      queryClient.invalidateQueries({
+        queryKey: ["appointments-with-journal", variables.appointmentId],
+        exact: false,
       });
     },
   });

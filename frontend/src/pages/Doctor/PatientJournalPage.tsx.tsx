@@ -1,77 +1,112 @@
-import { useJournalDetails } from "@/hooks/doctor/journalHooks/useJournalDetails";
-import { useOrCreateJournal } from "@/hooks/doctor/journalHooks/useOrCreateJournal";
+// src/pages/Doctor/PatientJournalPage.tsx
 import { useSearchParams } from "react-router-dom";
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Spinner,
+  Text,
+  VStack,
+  Badge,
+} from "@chakra-ui/react";
+import { usePatientJournalAppointments } from "@/hooks/doctor/journalHooks/usePatientJournalAppointments";
 import { useState } from "react";
-import { Box, Button, Flex, Heading, Spinner, Text } from "@chakra-ui/react";
-import AddJournalEntryModal from "@/components/doctor/Journals/AddJournalEntryModal";
 import JournalModal from "@/components/doctor/Journals/JournalModal";
-import { IJournalEntry } from "@/types/journal.types";
+import AddJournalEntryModal from "@/components/doctor/Journals/AddJournalEntryModal";
+import { useOrCreateJournal } from "@/hooks/doctor/journalHooks/useOrCreateJournal";
 
 const PatientJournalPage = () => {
   const [searchParams] = useSearchParams();
   const patientId = searchParams.get("id") || "";
 
-  const { data: journalData, isLoading: isJournalLoading } =
-    useOrCreateJournal(patientId);
-  const journalId = journalData?.journalId;
+  const { data: journalMeta } = useOrCreateJournal(patientId);
+  const journalId = journalMeta?.journalId || "";
 
-  const { data: journalEntries = [], isLoading } = useJournalDetails(
-    journalId || ""
-  );
-
-  const [selectedEntry, setSelectedEntry] = useState<IJournalEntry | null>(
-    null
-  );
+  const {
+    data = [],
+    isLoading,
+    refetch,
+  } = usePatientJournalAppointments(patientId);
+  const [selectedEntry, setSelectedEntry] = useState<any>(null);
   const [selectedAppointmentId, setSelectedAppointmentId] =
     useState<string>("");
 
-  if (isLoading || isJournalLoading) {
-    return (
-      <Flex justify="center" mt={10}>
-        <Spinner size="xl" />
-      </Flex>
-    );
-  }
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "udført":
+        return "green";
+      case "aflyst":
+        return "red";
+      case "bekræftet":
+        return "orange";
+      default:
+        return "gray";
+    }
+  };
+
+  if (isLoading) return <Spinner size="xl" />;
 
   return (
-    <Box maxW="800px" mx="auto" mt={6} px={4}>
-      <Heading size="lg" mb={6}>
-        Journal for patient
-      </Heading>
-
-      {journalEntries.length === 0 ? (
-        <Text>Der er endnu ingen journalnotater for denne patient.</Text>
-      ) : (
-        journalEntries.map((entry) => (
-          <Box key={entry.id} borderWidth="1px" borderRadius="md" p={4} mb={4}>
-            <Text fontWeight="semibold" mb={1}>
-              {entry.appointmentDate} – {entry.doctorName}
+    <Box maxW="6xl" mx="auto" p={6}>
+      <Heading mb={6}>Journal for patient</Heading>
+      <VStack spacing={4} align="stretch">
+        {data.map((appt) => (
+          <Box
+            key={appt._id}
+            p={4}
+            borderWidth="1px"
+            borderRadius="md"
+            bg="gray.50"
+            _hover={{ bg: "gray.100" }}
+          >
+            <Flex justify="space-between" align="center" mb={2}>
+              <Text fontWeight="bold">
+                {new Date(appt.date).toLocaleDateString()} kl. {appt.time}
+              </Text>
+              <Badge colorScheme={getStatusColor(appt.status)}>
+                {appt.status}
+              </Badge>
+            </Flex>
+            <Text mb={1}>
+              <strong>Behandler:</strong> {appt.doctorName}
             </Text>
-            <Text fontWeight="bold" color="gray.600" mb={2}>
-              {entry.createdByAI ? "AI-notat" : "Læge-notat"}
+            <Text mb={3}>
+              <strong>Notat:</strong>{" "}
+              {appt.secretaryNote ? appt.secretaryNote : "Ingen sekretærnotat"}
             </Text>
             <Flex gap={3}>
-              {entry.createdByAI ? (
+              {appt.journalEntry?.created_by_ai ? (
                 <Button
                   size="sm"
+                  onClick={() => setSelectedAppointmentId(appt._id)}
+                  colorScheme="purple"
                   variant="outline"
-                  onClick={() =>
-                    setSelectedAppointmentId(entry.appointmentId || "")
-                  }
                 >
                   Gennemse AI-noter
                 </Button>
-              ) : (
-                <Button size="sm" onClick={() => setSelectedEntry(entry)}>
+              ) : appt.journalEntry ? (
+                <Button
+                  size="sm"
+                  onClick={() => setSelectedEntry(appt.journalEntry)}
+                  colorScheme="blue"
+                >
                   Vis journal
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  onClick={() => setSelectedAppointmentId(appt._id)}
+                  colorScheme="blue"
+                >
+                  Opret notat
                 </Button>
               )}
             </Flex>
           </Box>
-        ))
-      )}
+        ))}
+      </VStack>
 
-      {/* Modal til visning af lægens notat */}
       {selectedEntry && (
         <JournalModal
           entry={selectedEntry}
@@ -79,12 +114,15 @@ const PatientJournalPage = () => {
         />
       )}
 
-      {/* Modal til tilføjelse af AI-notat til journal */}
-      {selectedAppointmentId && journalId && (
+      {selectedAppointmentId && (
         <AddJournalEntryModal
           appointmentId={selectedAppointmentId}
           journalId={journalId}
           onClose={() => setSelectedAppointmentId("")}
+          onSuccess={() => {
+            refetch(); // opdater journaldata efter nyt notat
+            setSelectedAppointmentId("");
+          }}
         />
       )}
     </Box>
