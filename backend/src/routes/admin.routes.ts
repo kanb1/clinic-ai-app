@@ -61,4 +61,7 @@ router.delete("/:id", deletePatient);
 // Genbrug fra sekretær:
 router.post("/messages", sendMessage);
 
+// MIDLERTIDIG - SKAL SLETTES - Migration for at oprette journaler
+// router.post("/migrate-journals", migrateMissingJournals);
+
 export default router;

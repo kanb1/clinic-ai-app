@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 import crypto from "crypto";
 import { MessageModel } from "../../models/message.model";
+import { JournalModel } from "../../models/journal.model";
 
 // FÅ FAT PÅ ALLE MEDARBEJDERE
 export const getStaff = async (req: Request, res: Response) => {
@@ -365,6 +366,28 @@ export const deletePatient = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error deleting patient", error });
   }
 };
+
+// ************************************************* */ MIDLERTIDIG MIGRATION - SKAL SLETTES
+// export const migrateMissingJournals = async (req: Request, res: Response) => {
+//   try {
+//     const patients = await UserModel.find({ role: "patient" }).select("_id");
+
+//     let createdCount = 0;
+
+//     for (const patient of patients) {
+//       const exists = await JournalModel.findOne({ patient_id: patient._id });
+//       if (!exists) {
+//         await JournalModel.create({ patient_id: patient._id });
+//         createdCount++;
+//       }
+//     }
+
+//     res.status(200).json({ message: `Oprettede ${createdCount} journaler.` });
+//   } catch (error) {
+//     console.error("Fejl under migrering:", error);
+//     res.status(500).json({ message: "Migrering fejlede", error });
+//   }
+// };
 
 // ************************************************* */ SEND MESSAGES AS ADMIN
 
