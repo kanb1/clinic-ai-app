@@ -1,6 +1,6 @@
 import Navbar from "@/components/layout/NavBar";
 import { RouteObject } from "react-router-dom";
-// import DoctorDashboard from "@/pages/Doctor/DoctorDashboard";
+import DoctorDashboard from "@/pages/Doctor/DoctorDashboard";
 import RequireRole from "./RequireRole";
 import TodaysAppointmentsPage from "@/pages/Doctor/TodaysAppointmentsPage";
 import JournalOverviewPage from "@/pages/Doctor/PatientOverviewPage";
@@ -18,7 +18,7 @@ export const doctorRoutes: RouteObject[] = [
     children: [
       {
         path: "dashboard",
-        // element: <DoctorDashboard />,
+        element: <DoctorDashboard />,
       },
       {
         path: "appointments",

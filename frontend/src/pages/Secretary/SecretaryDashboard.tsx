@@ -2,7 +2,7 @@ import Layout from "@/components/layout/Layout";
 import { useUnreadMessages } from "../../hooks/secretary/dashboardHooks/useUnreadMessages";
 import { useMarkMessageAsRead } from "../../hooks/secretary/dashboardHooks/useMarkMessageAsRead";
 import { useStaffStatus } from "../../hooks/common/useStaffStatus";
-import { useUpdateMyStatus } from "../../hooks/secretary/dashboardHooks/useUpdateMyStatus";
+import { useUpdateMyStatus } from "../../hooks/common/useUpdateMyStatus";
 import ToggleStatusButton from "../../components/shared/ToggleStatusButton";
 import { usePastAppointmentsToday } from "../../hooks/secretary/dashboardHooks/useTodaysPastAppointments";
 import { useRef, useEffect, useState } from "react";
