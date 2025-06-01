@@ -8,6 +8,7 @@ import {
   useBreakpointValue,
   ResponsiveValue,
   VStack,
+  Flex,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { IUser } from "@/types/user.types";
@@ -85,7 +86,12 @@ const PatientGrid = ({
                     ? new Date(p.birth_date).toLocaleDateString("da-DK")
                     : "Ukendt"}
                 </Text>
-                <VStack align="start" spacing={2} mt={3}>
+                <Flex
+                  alignItems={"center"}
+                  flexDirection={"column"}
+                  gap={2}
+                  mt={3}
+                >
                   <Button
                     colorScheme="blue"
                     size="sm"
@@ -104,7 +110,7 @@ const PatientGrid = ({
                       {secondaryLabel || "Vis detaljer"}
                     </Button>
                   )}
-                </VStack>
+                </Flex>
               </Box>
             ))}
           </Grid>
