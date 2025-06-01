@@ -6,6 +6,8 @@ import {
   Text,
   Input,
   useBreakpointValue,
+  ResponsiveValue,
+  VStack,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { IUser } from "@/types/user.types";
@@ -14,8 +16,11 @@ interface Props {
   patients: IUser[];
   isLoading: boolean;
   searchPlaceholder?: string;
-  onPrimaryAction: (patientId: string) => void;
   primaryLabel: string;
+  onPrimaryAction: (patientId: string) => void;
+  maxHeight?: string | ResponsiveValue<string>;
+  onSecondaryAction?: (id: string) => void;
+  secondaryLabel?: string;
 }
 
 const PatientGrid = ({
@@ -24,6 +29,8 @@ const PatientGrid = ({
   searchPlaceholder = "Søg efter patient",
   onPrimaryAction,
   primaryLabel,
+  onSecondaryAction,
+  secondaryLabel,
 }: Props) => {
   const [searchTerm, setSearchTerm] = useState("");
   const gridColumns = useBreakpointValue({ base: 1, sm: 2, md: 3 });
@@ -78,14 +85,26 @@ const PatientGrid = ({
                     ? new Date(p.birth_date).toLocaleDateString("da-DK")
                     : "Ukendt"}
                 </Text>
-                <Button
-                  colorScheme="blue"
-                  size="sm"
-                  mt={2}
-                  onClick={() => onPrimaryAction(p._id)}
-                >
-                  {primaryLabel}
-                </Button>
+                <VStack align="start" spacing={2} mt={3}>
+                  <Button
+                    colorScheme="blue"
+                    size="sm"
+                    onClick={() => onPrimaryAction(p._id)}
+                  >
+                    {primaryLabel}
+                  </Button>
+
+                  {onSecondaryAction && (
+                    <Button
+                      colorScheme="gray"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onSecondaryAction(p._id)}
+                    >
+                      {secondaryLabel || "Vis detaljer"}
+                    </Button>
+                  )}
+                </VStack>
               </Box>
             ))}
           </Grid>
