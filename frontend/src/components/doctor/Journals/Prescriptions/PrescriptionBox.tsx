@@ -1,4 +1,3 @@
-// src/components/doctor/Journals/Prescriptions/PrescriptionBox.tsx
 import { Box, Button, Text, Heading } from "@chakra-ui/react";
 
 interface Props {
