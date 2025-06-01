@@ -17,8 +17,15 @@ import {
   ModalBody,
   useDisclosure,
   Flex,
+  useToast,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTodaysDetailedAppointments } from "@/hooks/doctor/appointmentsHooks/useTodaysDetailedAppointments";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -42,6 +49,34 @@ const TodaysAppointmentsTable = () => {
       });
     },
   });
+
+  const cancelRef = useRef(null);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<
+    string | null
+  >(null);
+  const {
+    isOpen: isAlertOpen,
+    onOpen: openAlert,
+    onClose: closeAlert,
+  } = useDisclosure();
+
+  const toast = useToast();
+
+  const handleCancel = () => {
+    if (selectedAppointmentId) {
+      cancelAppointment(selectedAppointmentId, {
+        onSuccess: () => {
+          toast({
+            title: "Aftale aflyst.",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          });
+          closeAlert();
+        },
+      });
+    }
+  };
 
   if (isLoading || !data) return <Spinner />;
   if (error) return <Text color="red.500">Kunne ikke hente aftaler.</Text>;
@@ -94,7 +129,10 @@ const TodaysAppointmentsTable = () => {
                   size="sm"
                   colorScheme="red"
                   variant="outline"
-                  onClick={() => cancelAppointment(appt.id)}
+                  onClick={() => {
+                    setSelectedAppointmentId(appt.id);
+                    openAlert();
+                  }}
                   isDisabled={appt.status === "aflyst"}
                 >
                   Aflys
@@ -136,6 +174,40 @@ const TodaysAppointmentsTable = () => {
           </ModalBody>
         </ModalContent>
       </Modal>
+
+      <AlertDialog
+        isOpen={isAlertOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={closeAlert}
+        isCentered
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Bekræft aflysning
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Er du sikker på, at du vil aflyse denne aftale?
+            </AlertDialogBody>
+
+            {/* Alert dialog for bekræftelse på aflysning */}
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={closeAlert}>
+                Annullér
+              </Button>
+              <Button
+                colorScheme="red"
+                onClick={handleCancel}
+                ml={3}
+                isDisabled={!selectedAppointmentId}
+              >
+                Aflys
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Box>
   );
 };
