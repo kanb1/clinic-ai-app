@@ -3,6 +3,7 @@ import { api } from "@/services/httpClient";
 
 export interface ITodaysAppointment {
   id: string;
+  patientId: string;
   patientName: string;
   birthDate: string;
   time: string;

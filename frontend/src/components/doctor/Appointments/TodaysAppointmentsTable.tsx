@@ -83,7 +83,7 @@ const TodaysAppointmentsTable = () => {
                     size="sm"
                     colorScheme="blue"
                     onClick={() =>
-                      navigate(`/doctor/patient-journal?id=${appt.id}`)
+                      navigate(`/doctor/patient-journal?id=${appt.patientId}`)
                     }
                   >
                     Vis
