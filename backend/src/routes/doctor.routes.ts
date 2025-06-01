@@ -19,6 +19,10 @@ import {
 } from "../controllers/doctor/doctor.controller";
 import { JournalModel } from "../models/journal.model";
 import { UserModel } from "../models/user.model";
+import {
+  createJournalEntry,
+  getOrCreateJournalByPatientId,
+} from "../controllers/doctor/journal.controller";
 
 const router = express.Router();
 
@@ -43,6 +47,8 @@ router.get("/patients/:id", getPatientDetails);
 // Journaler
 router.get("/journals", getJournalOverview);
 router.get("/journals/:id", getJournalById);
+router.post("/journalentry", createJournalEntry);
+router.get("/journals/patient/:patientId", getOrCreateJournalByPatientId);
 router.post("/test/create-journal-entry", createTestJournalEntry); //SEED JOURNAL ENTRIES
 
 // Recept og Testresultater
