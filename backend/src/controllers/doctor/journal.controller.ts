@@ -1,6 +1,11 @@
 import { Request, Response } from "express";
 import { JournalModel } from "../../models/journal.model";
-import { JournalEntryModel } from "../../models/journalentry.model";
+import {
+  IJournalEntry,
+  JournalEntryModel,
+} from "../../models/journalentry.model";
+import { AppointmentModel } from "../../models/appointment.model";
+import { IUser } from "../../models/user.model";
 
 // ***************** Gets or creates a journal by patientId
 // Har allerede patienter i min løsning - borgerservice-systemet der laver patienterne
@@ -59,5 +64,61 @@ export const createJournalEntry = async (req: Request, res: Response) => {
     console.error("Fejl ved oprettelse af journalnotat:", error);
     res.status(500).json({ message: "Serverfejl", error });
     return;
+  }
+};
+
+// ***************** Creates journalentry (note til en appointment i journalen)
+// Henter alle appointments for den patient
+// Tjekker om der findes en journalentry til den appointment
+// Returnerer et samlet array med appointment + journalinfo
+export const getAppointmentsWithJournalForPatient = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const patientId = req.params.patientId;
+
+    const appointments = await AppointmentModel.find({ patient_id: patientId })
+      .populate("doctor_id", "name")
+      .sort({ date: -1 });
+
+    const populatedJournal = await JournalModel.findOne({
+      patient_id: patientId,
+    }).populate("entries");
+
+    // Map journalEntries til deres appointment_id
+    const entriesByAppointment: Record<string, IJournalEntry> = {};
+    if (populatedJournal) {
+      for (const entry of populatedJournal.entries as unknown as IJournalEntry[]) {
+        const key = entry.appointment_id.toString();
+        entriesByAppointment[key] = entry;
+      }
+    }
+
+    const formatted = appointments.map((appt) => {
+      const appointmentId = String(appt._id);
+      const doctor = appt.doctor_id as unknown as IUser;
+
+      return {
+        _id: appointmentId,
+        date: appt.date.toISOString(),
+        time: appt.time,
+        doctorName:
+          typeof doctor === "object" && "name" in doctor
+            ? doctor.name
+            : "Ukendt",
+        status: appt.status,
+        secretaryNote: appt.secretary_note || null,
+        journalEntry: entriesByAppointment[appointmentId] || null,
+      };
+    });
+
+    res.status(200).json(formatted);
+  } catch (error) {
+    console.error("Fejl ved hentning af aftaler + journal:", error);
+    res.status(500).json({
+      message: "Serverfejl under hentning af aftaler og journaldata",
+      error,
+    });
   }
 };

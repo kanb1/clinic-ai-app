@@ -21,6 +21,7 @@ import { JournalModel } from "../models/journal.model";
 import { UserModel } from "../models/user.model";
 import {
   createJournalEntry,
+  getAppointmentsWithJournalForPatient,
   getOrCreateJournalByPatientId,
 } from "../controllers/doctor/journal.controller";
 
@@ -47,8 +48,6 @@ router.get("/patients/:id", getPatientDetails);
 // Journaler
 router.get("/journals", getJournalOverview);
 router.get("/journals/:id", getJournalById);
-router.post("/journalentry", createJournalEntry);
-router.get("/journals/patient/:patientId", getOrCreateJournalByPatientId);
 router.post("/test/create-journal-entry", createTestJournalEntry); //SEED JOURNAL ENTRIES
 
 // Recept og Testresultater
@@ -59,5 +58,11 @@ router.get("/testresults/:patientId", getTestResultsByPatient);
 
 // AI-noter og journal
 router.get("/ai-notes/:appointmentId", getChatSessionByAppointment);
+router.get(
+  "/appointments-with-journal/:patientId",
+  getAppointmentsWithJournalForPatient
+);
+router.get("/journals/patient/:patientId", getOrCreateJournalByPatientId);
+router.post("/journalentry", createJournalEntry);
 
 export default router;
