@@ -14,7 +14,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { useAiNotes } from "@/hooks/doctor/journalHooks/useAiNotes";
+import { useAiNoteByAppointment } from "@/hooks/doctor/aiHooks/useAiNoteByAppointment";
 import { useCreateJournalEntry } from "@/hooks/doctor/journalHooks/useCreateJournalEntry";
 
 interface AddJournalEntryModalProps {
@@ -31,10 +31,12 @@ const AddJournalEntryModal = ({
   onSuccess,
 }: AddJournalEntryModalProps) => {
   const toast = useToast();
-  const { data, isLoading } = useAiNotes(appointmentId);
+  const { data, isLoading } = useAiNoteByAppointment(appointmentId);
   const { mutate, isPending: isSaving } = useCreateJournalEntry();
 
-  const aiNote = data?.messages?.[0]?.content || "";
+  // Udtræk kun AI-delen og sæt sammen som tekst
+  const aiNote = data?.summary_for_doctor || "Ingen AI-noter fundet";
+
   const [notes, setNotes] = useState("");
 
   const handleSave = () => {
