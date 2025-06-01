@@ -16,19 +16,40 @@ import {
   ModalCloseButton,
   ModalBody,
   useDisclosure,
+  AlertDialog,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogBody,
+  AlertDialogFooter,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useToast } from "@chakra-ui/react";
+
 import { useTodaysDetailedAppointments } from "@/hooks/doctor/appointmentsHooks/useTodaysDetailedAppointments";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/services/httpClient";
 
 const TodaysAppointmentsTable = () => {
+  const toast = useToast();
+
   const { data = [], isLoading, error } = useTodaysDetailedAppointments();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [selectedSymptoms, setSelectedSymptoms] = useState<string | null>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [appointmentToCancel, setAppointmentToCancel] = useState<{
+    id: string;
+    patientName: string;
+    time: string;
+  } | null>(null);
+  const cancelDialogRef = useRef(null);
+  const {
+    isOpen: isCancelOpen,
+    onOpen: onCancelOpen,
+    onClose: onCancelClose,
+  } = useDisclosure();
 
   const { mutate: cancelAppointment } = useMutation({
     mutationFn: async (id: string) => {
@@ -94,7 +115,14 @@ const TodaysAppointmentsTable = () => {
                     size="sm"
                     colorScheme="red"
                     variant="outline"
-                    onClick={() => cancelAppointment(appt.id)}
+                    onClick={() => {
+                      setAppointmentToCancel({
+                        id: appt.id,
+                        patientName: appt.patientName,
+                        time: appt.time,
+                      });
+                      onCancelOpen();
+                    }}
                     isDisabled={appt.status === "aflyst"}
                   >
                     Aflys
@@ -104,6 +132,7 @@ const TodaysAppointmentsTable = () => {
             ))}
         </Tbody>
       </Table>
+      {/* Sekretær note vises */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent>
@@ -114,6 +143,51 @@ const TodaysAppointmentsTable = () => {
           </ModalBody>
         </ModalContent>
       </Modal>
+      {/* aflys aftale bekrfætelsesmodal */}
+      <AlertDialog
+        isOpen={isCancelOpen}
+        leastDestructiveRef={cancelDialogRef}
+        onClose={onCancelClose}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader>Bekræft aflysning</AlertDialogHeader>
+            <AlertDialogBody>
+              Er du sikker på, at du vil aflyse aftalen med{" "}
+              <strong>{appointmentToCancel?.patientName}</strong> kl.{" "}
+              {appointmentToCancel?.time}?
+            </AlertDialogBody>
+            <AlertDialogFooter>
+              <Button ref={cancelDialogRef} onClick={onCancelClose}>
+                Annuller
+              </Button>
+              <Button
+                colorScheme="red"
+                ml={3}
+                onClick={() => {
+                  if (appointmentToCancel) {
+                    cancelAppointment(appointmentToCancel.id, {
+                      onSuccess: () => {
+                        toast({
+                          title: "Aftale aflyst",
+                          description: `Aftalen med ${appointmentToCancel.patientName} er aflyst.`,
+                          status: "success",
+                          duration: 4000,
+                          isClosable: true,
+                        });
+                        onCancelClose();
+                        setAppointmentToCancel(null);
+                      },
+                    });
+                  }
+                }}
+              >
+                Aflys aftale
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Box>
   );
 };
