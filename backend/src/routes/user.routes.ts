@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getMyProfile,
+  getPatients,
   getStaffStatuses,
   updateMyOwnStatus,
 } from "../controllers/fundament/user.controller";
@@ -21,6 +22,12 @@ router.patch(
   authenticateJWT,
   authorizeRoles(["secretary", "doctor"]),
   updateMyOwnStatus
+);
+router.get(
+  "/patients",
+  authenticateJWT,
+  authorizeRoles(["secretary", "doctor"]),
+  getPatients
 );
 
 export default router;

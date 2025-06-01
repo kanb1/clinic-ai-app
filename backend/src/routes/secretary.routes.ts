@@ -10,7 +10,6 @@ import {
   getAvailabilitySlots,
   getDoctors,
   getPastAppointmentsToday,
-  getPatients,
   getTodaysAppointments,
   getUnreadMessages,
   markMessageAsReadBySecretary,
@@ -30,7 +29,6 @@ router.post("/messages", sendMessage);
 router.patch("/messages/:id/read", markMessageAsReadBySecretary);
 
 // Patients and Doctors (Choose)
-router.get("/patients", getPatients);
 router.get("/patients", searchPatients); // samme som før, men nu med ?search=
 router.get("/doctors", getDoctors);
 

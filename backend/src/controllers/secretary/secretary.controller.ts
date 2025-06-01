@@ -142,21 +142,6 @@ export const markMessageAsReadBySecretary = async (
 };
 
 // **************************************************** PATIENT OG LÆGEOPSÆTNING
-export const getPatients = async (req: Request, res: Response) => {
-  try {
-    const clinicId = req.user!.clinicId;
-
-    const patients = await UserModel.find({
-      role: "patient",
-      clinic_id: clinicId,
-    });
-
-    res.status(200).json(patients);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch patients", error });
-  }
-};
-
 export const searchPatients = async (req: Request, res: Response) => {
   try {
     const clinicId = req.user!.clinicId;

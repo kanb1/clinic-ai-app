@@ -13,7 +13,7 @@ export const usePatients = () => {
     queryKey: ["patients"],
     // queryFn, min fetchfunction
     queryFn: async () => {
-      const res = await api.get("/secretary/patients");
+      const res = await api.get("/users/patients");
       return res.data;
     },
   });
