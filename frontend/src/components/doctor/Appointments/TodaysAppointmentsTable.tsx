@@ -58,48 +58,50 @@ const TodaysAppointmentsTable = () => {
           </Tr>
         </Thead>
         <Tbody>
-          {data.map((appt) => (
-            <Tr key={appt.id}>
-              <Td>{appt.patientName}</Td>
-              <Td>{new Date(appt.birthDate).toLocaleDateString("da-DK")}</Td>
-              <Td>{appt.time}</Td>
-              <Td>
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    setSelectedSymptoms(appt.symptoms);
-                    onOpen();
-                  }}
-                  variant="outline"
-                  colorScheme="blue"
-                >
-                  Åben
-                </Button>
-              </Td>
-              <Td>
-                <Button
-                  size="sm"
-                  colorScheme="blue"
-                  onClick={() =>
-                    navigate(`/doctor/patient-journal?id=${appt.id}`)
-                  }
-                >
-                  Vis
-                </Button>
-              </Td>
-              <Td>
-                <Button
-                  size="sm"
-                  colorScheme="red"
-                  variant="outline"
-                  onClick={() => cancelAppointment(appt.id)}
-                  isDisabled={appt.status === "aflyst"}
-                >
-                  Aflys
-                </Button>
-              </Td>
-            </Tr>
-          ))}
+          {data
+            .filter((appt) => appt.status === "bekræftet")
+            .map((appt) => (
+              <Tr key={appt.id}>
+                <Td>{appt.patientName}</Td>
+                <Td>{new Date(appt.birthDate).toLocaleDateString("da-DK")}</Td>
+                <Td>{appt.time}</Td>
+                <Td>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      setSelectedSymptoms(appt.symptoms);
+                      onOpen();
+                    }}
+                    variant="outline"
+                    colorScheme="blue"
+                  >
+                    Åben
+                  </Button>
+                </Td>
+                <Td>
+                  <Button
+                    size="sm"
+                    colorScheme="blue"
+                    onClick={() =>
+                      navigate(`/doctor/patient-journal?id=${appt.id}`)
+                    }
+                  >
+                    Vis
+                  </Button>
+                </Td>
+                <Td>
+                  <Button
+                    size="sm"
+                    colorScheme="red"
+                    variant="outline"
+                    onClick={() => cancelAppointment(appt.id)}
+                    isDisabled={appt.status === "aflyst"}
+                  >
+                    Aflys
+                  </Button>
+                </Td>
+              </Tr>
+            ))}
         </Tbody>
       </Table>
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
