@@ -82,6 +82,7 @@ export const getTodayAppointmentDetails = async (
       (appt) => {
         return {
           id: appt._id,
+          patientId: appt.patient_id._id,
           patientName: appt.patient_id.name,
           birthDate: appt.patient_id.birth_date,
           time: appt.time,
