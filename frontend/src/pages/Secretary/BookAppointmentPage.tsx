@@ -15,6 +15,7 @@ import { usePatients } from "@/hooks/common/usePatients";
 import BookAppointmentModal from "@/components/secretary/Bookings/BookAppointmentModal";
 import { formatISO } from "date-fns";
 import { api } from "@/services/httpClient";
+import PatientGrid from "@/components/shared/PatientGrid";
 
 const BookingPage = () => {
   const { data: patients, isLoading } = usePatients();
@@ -65,78 +66,15 @@ const BookingPage = () => {
           <Heading size="lg" mb={{ base: 4, md: 7, lg: 10 }}>
             Sekretær Bookingpage
           </Heading>
-          <Box mb={6}>
-            <input
-              type="text"
-              placeholder="Søg efter patient"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "10px",
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-              }}
-            />
-          </Box>
           {isLoading ? (
             <Spinner />
           ) : (
-            <Box
-              maxH={{ base: "70vh", sm: "50vh", md: "80%", lg: "100%" }}
-              overflowY="auto"
-              pr={2}
-              sx={{
-                "&::-webkit-scrollbar": {
-                  width: "6px",
-                },
-                "&::-webkit-scrollbar-track": {
-                  background: "gray.100",
-                  borderRadius: "full",
-                },
-                "&::-webkit-scrollbar-thumb": {
-                  background: "gray.400",
-                  borderRadius: "full",
-                },
-              }}
-            >
-              <Grid
-                templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }}
-                gap={4}
-              >
-                {patients
-                  ?.filter((p) =>
-                    p.name.toLowerCase().includes(searchTerm.toLowerCase())
-                  )
-                  .map((p) => (
-                    <Box
-                      key={p._id}
-                      p={4}
-                      bg="gray.100"
-                      borderRadius="md"
-                      boxShadow="sm"
-                    >
-                      <Text fontWeight="bold">{p.name}</Text>
-                      <Text>
-                        Fødselsdato:{" "}
-                        {p.birth_date
-                          ? new Date(p.birth_date).toLocaleDateString("da-DK")
-                          : "Ukendt"}
-                      </Text>
-                      <Button
-                        colorScheme="blue"
-                        size={{ base: "sm", sm: "md", lg: "lg" }}
-                        px={{ base: 3 }}
-                        py={{ base: 5 }}
-                        mt={2}
-                        onClick={() => handleOpenModal(p._id)}
-                      >
-                        Book tid
-                      </Button>
-                    </Box>
-                  ))}
-              </Grid>
-            </Box>
+            <PatientGrid
+              patients={patients || []}
+              isLoading={isLoading}
+              primaryLabel="Book tid"
+              onPrimaryAction={handleOpenModal}
+            />
           )}
           {selectedPatientId && (
             <BookAppointmentModal
