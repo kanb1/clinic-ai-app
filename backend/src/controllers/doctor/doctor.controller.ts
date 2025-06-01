@@ -53,31 +53,38 @@ export const getAppointmentsForDoctor = async (req: Request, res: Response) => {
 };
 
 // Dagens aftaler (patientdetaljer og muligheder)
-
 export const getTodayAppointmentDetails = async (
   req: Request,
   res: Response
 ) => {
   try {
     const clinicId = req.user!.clinicId;
+    const { page = 1, limit = 6 } = req.query;
 
-    // en slags filter for "dagens" aftaler
+    // En slags filter for "dagens" aftaler
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // start-slut dato for i dag (00 fra i dag til i morgen 00)
+    today.setHours(0, 0, 0, 0); // startdato = i dag kl. 00:00
     const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
+    tomorrow.setDate(today.getDate() + 1); // slutdato = i morgen kl. 00:00
 
-    // finder alle dagens aftale for klinikken
-    const appointments = await AppointmentModel.find({
+    // opbyg query (kun dagens aftaler for klinikken)
+    const query = {
       clinic_id: clinicId,
       date: { $gte: today, $lt: tomorrow },
-    })
-      .populate("patient_id", "name birth_date")
-      .sort({ time: 1 }); //sorter fra morgen-eftermiddag (stigende)
+      status: "bekræftet", // kun bekræftede aftaler vises i tabel
+    };
 
-    // resultatet er allerede formatteret så det er kalr til visning i frotnend-tabel
-    // map -> for hver aftale -> returner objekt med præcis de felter frontend har brug for
-    // IPopulatedAppointment -> tvinger ts til at acceptere at patient_id indeholder name og birth_date -> ts tror det bare er et objectID
+    // tæller hvor mange matcher i alt (bruges til frontend-pagination)
+    const total = await AppointmentModel.countDocuments(query);
+
+    // henter og paginerer data
+    const appointments = await AppointmentModel.find(query)
+      .populate("patient_id", "name birth_date") // henter patientens navn og fødselsdato
+      .sort({ time: 1 }) // sorter fra morgen-eftermiddag (stigende)
+      .skip((+page - 1) * +limit) // skip = hvor mange skal vi springe over (side 2 = spring 6 over, hvis limit=6)
+      .limit(+limit); // hvor mange skal vi hente pr. side
+
+    // resultatet er allerede formatteret så det er klar til visning i frontend-tabel
     const formatted = (appointments as unknown as IPopulatedAppointment[]).map(
       (appt) => {
         return {
@@ -93,7 +100,13 @@ export const getTodayAppointmentDetails = async (
       }
     );
 
-    res.status(200).json(formatted);
+    // sender både data + metadata om pagination
+    res.status(200).json({
+      data: formatted, // selve dataen
+      total, // antal elementer i alt
+      page: +page, // nuværende side
+      totalPages: Math.ceil(total / +limit), // beregn antal sider
+    });
   } catch (error) {
     console.error(error);
     res
