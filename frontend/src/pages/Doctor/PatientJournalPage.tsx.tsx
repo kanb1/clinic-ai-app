@@ -12,12 +12,14 @@ import {
 } from "@chakra-ui/react";
 import { usePatientJournalAppointments } from "@/hooks/doctor/journalHooks/usePatientJournalAppointments";
 import { useState } from "react";
-import JournalModal from "@/components/doctor/Journals/JournalModal";
-import AddJournalEntryModal from "@/components/doctor/Journals/AddJournalEntryModal";
+import JournalModal from "@/components/doctor/Journals/History/JournalModal";
+import AddJournalEntryModal from "@/components/doctor/Journals/History/AddJournalEntryModal";
 import { useOrCreateJournal } from "@/hooks/doctor/journalHooks/useOrCreateJournal";
-import AppointmentBox from "@/components/doctor/Journals/AppointmentBox";
+import AppointmentBox from "@/components/doctor/Journals/History/AppointmentBox";
 import { usePrescriptions } from "@/hooks/doctor/journalHooks/usePrescriptions";
-import PrescriptionBox from "@/components/doctor/Journals/PrescriptionBox";
+import PrescriptionBox from "@/components/doctor/Journals/Prescriptions/PrescriptionBox";
+import AddPrescriptionModal from "@/components/doctor/Journals/Prescriptions/AddPrescriptionModal";
+import PrescriptionModal from "@/components/doctor/Journals/Prescriptions/PrescriptionModal";
 
 const PatientJournalPage = () => {
   const [searchParams] = useSearchParams();
@@ -25,17 +27,25 @@ const PatientJournalPage = () => {
 
   const { data: journalMeta } = useOrCreateJournal(patientId);
   const journalId = journalMeta?.journalId || "";
-  const { data: prescriptions = [], isLoading: isLoadingRx } =
-    usePrescriptions(patientId);
 
   const {
     data = [],
     isLoading,
     refetch,
   } = usePatientJournalAppointments(patientId);
+
+  const {
+    data: prescriptions = [],
+    isLoading: isLoadingRx,
+    refetch: refetchPrescriptions,
+  } = usePrescriptions(patientId);
+
   const [selectedEntry, setSelectedEntry] = useState<any>(null);
   const [selectedAppointmentId, setSelectedAppointmentId] =
     useState<string>("");
+
+  const [selectedPrescription, setSelectedPrescription] = useState<any>(null);
+  const [showAddPrescription, setShowAddPrescription] = useState(false);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -55,7 +65,30 @@ const PatientJournalPage = () => {
   return (
     <Box maxW="6xl" mx="auto" p={6}>
       <Heading mb={6}>Journal for patient</Heading>
-      {!isLoadingRx && <PrescriptionBox prescriptions={prescriptions} />}
+
+      {!isLoadingRx && (
+        <Box mb={10}>
+          <Heading size="md" mb={4}>
+            Recept
+          </Heading>
+          <VStack align="stretch" spacing={4}>
+            {prescriptions.map((r: any) => (
+              <PrescriptionBox
+                key={r._id}
+                prescription={r}
+                onView={() => setSelectedPrescription(r)}
+              />
+            ))}
+            <Button
+              onClick={() => setShowAddPrescription(true)}
+              colorScheme="blue"
+              alignSelf="start"
+            >
+              + Tilføj recept
+            </Button>
+          </VStack>
+        </Box>
+      )}
 
       <VStack spacing={4} align="stretch">
         {data.map((appt) => (
@@ -84,6 +117,21 @@ const PatientJournalPage = () => {
             refetch(); // opdater journaldata efter nyt notat
             setSelectedAppointmentId("");
           }}
+        />
+      )}
+
+      {showAddPrescription && (
+        <AddPrescriptionModal
+          patientId={patientId}
+          onClose={() => setShowAddPrescription(false)}
+          onSuccess={refetchPrescriptions}
+        />
+      )}
+
+      {selectedPrescription && (
+        <PrescriptionModal
+          prescription={selectedPrescription}
+          onClose={() => setSelectedPrescription(null)}
         />
       )}
     </Box>
