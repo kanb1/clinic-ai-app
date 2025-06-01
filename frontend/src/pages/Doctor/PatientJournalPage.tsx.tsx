@@ -19,6 +19,8 @@ import { usePrescriptions } from "@/hooks/doctor/journalHooks/usePrescriptions";
 import PrescriptionBox from "@/components/doctor/Journals/Prescriptions/PrescriptionBox";
 import AddPrescriptionModal from "@/components/doctor/Journals/Prescriptions/AddPrescriptionModal";
 import PrescriptionModal from "@/components/doctor/Journals/Prescriptions/PrescriptionModal";
+import { useDoctorTestResults } from "@/hooks/doctor/journalHooks/useDoctorTestResults";
+import TestResultBox from "@/components/doctor/Journals/Testresults/TestResultBox";
 
 const PatientJournalPage = () => {
   const [searchParams] = useSearchParams();
@@ -46,6 +48,9 @@ const PatientJournalPage = () => {
   const [selectedPrescription, setSelectedPrescription] = useState<any>(null);
   const [showAddPrescription, setShowAddPrescription] = useState(false);
 
+  const { data: testResults = [], isLoading: isLoadingTests } =
+    useDoctorTestResults(patientId);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "udført":
@@ -64,6 +69,8 @@ const PatientJournalPage = () => {
   return (
     <Box maxW="6xl" mx="auto" p={6}>
       <Heading mb={6}>Journal for patient</Heading>
+
+      {!isLoadingTests && <TestResultBox results={testResults} />}
 
       {!isLoadingRx && (
         <Box mb={10}>
