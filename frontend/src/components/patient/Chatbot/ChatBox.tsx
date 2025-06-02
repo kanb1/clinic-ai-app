@@ -20,41 +20,53 @@ const ChatBox = ({ chatHistory }: ChatBoxProps) => {
 
   return (
     <Box
-      maxH="60vh"
+      maxH={{ base: "60vh", md: "70vh" }}
       overflowY="auto"
-      p={4}
+      p={{ base: 3, md: 4 }}
       borderWidth="1px"
-      borderRadius="md"
+      borderRadius="lg"
       bg="white"
+      boxShadow="sm"
     >
       {chatHistory.map((msg, i) => (
         <VStack key={i} spacing={3} align="stretch" mb={2}>
           {/* Brugerens spg */}
           <Box
             alignSelf="flex-end"
-            bg="blue.100"
+            bg="blue.50"
             p={3}
             borderRadius="lg"
-            maxW="70%"
+            maxW="80%"
+            boxShadow="xs"
           >
-            <Text fontSize="sm" color="gray.600">
+            <Text fontSize="xs" color="blue.700" fontWeight="semibold" mb={1}>
               Dig
             </Text>
-            <Text>{msg.user}</Text>
+            <Text fontSize="sm" lineHeight="1.5" color="gray.800">
+              {msg.user}
+            </Text>
           </Box>
 
           {/* AI's svar */}
           <Box
             alignSelf="flex-start"
-            bg="gray.100"
+            bg="gray.50"
             p={3}
             borderRadius="lg"
-            maxW="70%"
+            maxW="80%"
+            boxShadow="xs"
           >
-            <Text fontSize="sm" color="gray.600">
-              Læge-assistent
+            <Text fontSize="xs" color="gray.600" fontWeight="semibold" mb={1}>
+              Klinika Assistent
             </Text>
-            <Text whiteSpace="pre-line">{msg.ai}</Text>
+            <Text
+              fontSize="sm"
+              lineHeight="1.6"
+              color="gray.700"
+              whiteSpace="pre-line"
+            >
+              {msg.ai}
+            </Text>
           </Box>
         </VStack>
       ))}
