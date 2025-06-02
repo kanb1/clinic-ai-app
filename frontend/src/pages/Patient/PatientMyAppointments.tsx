@@ -2,7 +2,6 @@ import {
   Box,
   Heading,
   Text,
-  SimpleGrid,
   Spinner,
   Stack,
   useToast,
@@ -16,41 +15,30 @@ import {
 } from "@chakra-ui/react";
 
 import Layout from "@/components/layout/Layout";
-import AppointmentCard from "@/components/patient/MyPage/AppointmentCard";
 import PrescriptionCard from "@/components/patient/MyPage/PrescriptionCard";
 import MessageCard from "@/components/patient/MyPage/MessageCard";
 
 import { useUpcomingAppointments } from "@/hooks/patient/mypageHooks/useUpcomingAppointments";
 import { usePrescriptions } from "@/hooks/patient/mypageHooks/usePrescriptions";
 import { useUnreadMessages } from "@/hooks/patient/mypageHooks/useUnreadMessages";
-import { useConfirmAppointment } from "@/hooks/patient/mypageHooks/useConfirmAppointment";
-import { useCancelAppointment } from "@/hooks/patient/mypageHooks/useCancelAppointment";
+
 import { useMarkMessageAsRead } from "@/hooks/patient/mypageHooks/useMarkMessageAsRead";
 
 import { useState } from "react";
 import { IMessage } from "@/types/message.types";
-import { IAppointment } from "@/types/appointment.types";
 import { useAuth } from "@/context/AuthContext";
+import PatientUpcomingAppointmentsCarousel from "@/components/patient/MyPage/PatientUpcomingAppointmentsCarousel";
 
 const PatientMyAppointments = () => {
   const toast = useToast();
   const { isAuthReady, user } = useAuth();
-
   const patientId = isAuthReady && user ? user._id : undefined;
 
-  // Appointments
   const { data: appointments = [], isLoading: loadingAppointments } =
     useUpcomingAppointments();
-  const { mutate: confirmAppointment, isPending: isConfirming } =
-    useConfirmAppointment();
-  const { mutate: cancelAppointment, isPending: isCancelling } =
-    useCancelAppointment();
 
-  // Prescriptions – kun når patientId er klar
   const { data: prescriptions = [], isLoading: loadingPrescriptions } =
     usePrescriptions(patientId, !!patientId);
-
-  // Messages
   const {
     data: messages = [],
     isLoading: loadingMessages,
@@ -64,12 +52,7 @@ const PatientMyAppointments = () => {
   const handleOpenMessage = (msg: any) => {
     setSelectedMessage(msg);
     onOpen();
-
-    markAsRead(msg._id, {
-      onSuccess: () => {
-        refetch();
-      },
-    });
+    markAsRead(msg._id, { onSuccess: () => refetch() });
   };
 
   if (!isAuthReady) {
@@ -84,89 +67,76 @@ const PatientMyAppointments = () => {
 
   return (
     <Layout>
-      <Box p={10}>
-        <Heading size="lg" mb={6}>
-          Mine aftaler
+      <Stack spacing={6} w="full" p={{ base: 2, md: 4 }}>
+        <Heading size="heading1" textAlign={{ base: "center" }}>
+          Min side
         </Heading>
+        <Box w="full" minW={0}>
+          <Heading size="heading2" mb={3}>
+            Kommende aftaler
+          </Heading>
+          {loadingAppointments ? (
+            <Spinner />
+          ) : appointments.length === 0 ? (
+            <Text>Du har ingen kommende aftaler.</Text>
+          ) : (
+            <PatientUpcomingAppointmentsCarousel
+              appointments={appointments}
+              isLoading={loadingAppointments}
+              refetch={refetch}
+            />
+          )}
+        </Box>
+        {/* Beskeder + Recepter */}
+        <Stack
+          direction={{ base: "column", xl: "row" }}
+          spacing={{ base: 12, sm: 14, xl: 6 }}
+          align="start"
+          wrap="wrap"
+          w="full"
+          pt={{ base: 10, sm: 8, xl: 4 }}
+        >
+          {/* Nye beskeder */}
+          <Box flex={1} minW={0} maxW="100%" w="full">
+            <Heading size="heading2" mb={3}>
+              Nye beskeder
+            </Heading>
 
-        {/* Aftaler */}
-        <Heading size="md" mb={2}>
-          Kommende aftaler
-        </Heading>
-        {loadingAppointments ? (
-          <Spinner />
-        ) : appointments.length === 0 ? (
-          <Text>Du har ingen kommende aftaler.</Text>
-        ) : (
-          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-            {appointments.map((appt: IAppointment) => (
-              <AppointmentCard
-                key={appt._id}
-                appt={appt}
-                onConfirm={(id) =>
-                  confirmAppointment(id, {
-                    onSuccess: () =>
-                      toast({
-                        title: "Aftale bekræftet.",
-                        status: "success",
-                        duration: 3000,
-                        isClosable: true,
-                      }),
-                  })
-                }
-                onCancel={(id) =>
-                  cancelAppointment(id, {
-                    onSuccess: () =>
-                      toast({
-                        title: "Aftale aflyst.",
-                        status: "info",
-                        duration: 3000,
-                        isClosable: true,
-                      }),
-                  })
-                }
-                isLoading={isConfirming || isCancelling}
-              />
-            ))}
-          </SimpleGrid>
-        )}
+            {loadingMessages ? (
+              <Spinner />
+            ) : messages.length === 0 ? (
+              <Text>Ingen nye beskeder.</Text>
+            ) : (
+              <Stack spacing={4}>
+                {messages.map((msg: any) => (
+                  <MessageCard
+                    key={msg._id}
+                    msg={msg}
+                    onOpenMessage={handleOpenMessage}
+                  />
+                ))}
+              </Stack>
+            )}
+          </Box>
 
-        {/* Recepter */}
-        <Heading size="md" mt={10} mb={2}>
-          Mine recepter
-        </Heading>
-        {loadingPrescriptions ? (
-          <Spinner />
-        ) : prescriptions.length === 0 ? (
-          <Text>Ingen aktive recepter.</Text>
-        ) : (
-          <Stack spacing={3}>
-            {prescriptions.map((rx: any) => (
-              <PrescriptionCard key={rx._id} prescription={rx} />
-            ))}
-          </Stack>
-        )}
-
-        {/* Beskeder */}
-        <Heading size="md" mt={10} mb={2}>
-          Nye beskeder
-        </Heading>
-        {loadingMessages ? (
-          <Spinner />
-        ) : messages.length === 0 ? (
-          <Text>Ingen nye beskeder.</Text>
-        ) : (
-          <Stack spacing={3}>
-            {messages.map((msg: any) => (
-              <MessageCard
-                key={msg._id}
-                msg={msg}
-                onOpenMessage={handleOpenMessage}
-              />
-            ))}
-          </Stack>
-        )}
-
+          {/* Recepter */}
+          <Box flex={1} minW={0} maxW="100%" w="full">
+            <Heading size="heading2" mb={3}>
+              Mine recepter
+            </Heading>
+            {loadingPrescriptions ? (
+              <Spinner />
+            ) : prescriptions.length === 0 ? (
+              <Text>Ingen aktive recepter.</Text>
+            ) : (
+              <Stack spacing={3}>
+                {prescriptions.map((rx: any) => (
+                  <PrescriptionCard key={rx._id} prescription={rx} />
+                ))}
+              </Stack>
+            )}
+          </Box>
+        </Stack>
         {/* Modal */}
         <Modal isOpen={isOpen} onClose={onClose} size="md" isCentered>
           <ModalOverlay />
@@ -180,7 +150,7 @@ const PatientMyAppointments = () => {
             </ModalBody>
           </ModalContent>
         </Modal>
-      </Box>
+      </Stack>
     </Layout>
   );
 };
