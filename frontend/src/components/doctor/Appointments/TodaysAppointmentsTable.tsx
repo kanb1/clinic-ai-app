@@ -150,7 +150,7 @@ const TodaysAppointmentsTable = () => {
                   <Button
                     borderColor="primary.red"
                     color="primary.red"
-                    _hover={{ bg: "red.600" }}
+                    _hover={{ bg: "red.200" }}
                     fontSize="sm"
                     fontWeight="medium"
                     rounded="2xl"
@@ -196,21 +196,36 @@ const TodaysAppointmentsTable = () => {
                   <Td>{appt.time}</Td>
                   <Td>
                     <Button
-                      size="sm"
+                      backgroundColor="primary.red"
+                      color="white"
+                      _hover={{ bg: "red.600" }}
+                      fontSize="sm"
+                      fontWeight="medium"
+                      rounded="2xl"
+                      px={4}
+                      py={2}
+                      w="full"
+                      maxW="10rem"
                       onClick={() => {
                         setSelectedSymptoms(appt.symptoms);
                         onOpen();
                       }}
-                      variant="outline"
-                      colorScheme="blue"
                     >
                       Åben
                     </Button>
                   </Td>
                   <Td>
                     <Button
-                      size="sm"
-                      colorScheme="blue"
+                      backgroundColor="primary.red"
+                      color="white"
+                      _hover={{ bg: "red.600" }}
+                      fontSize="sm"
+                      fontWeight="medium"
+                      rounded="2xl"
+                      px={4}
+                      py={2}
+                      w="full"
+                      maxW="10rem"
                       onClick={() =>
                         navigate(`/doctor/patient-journal?id=${appt.patientId}`)
                       }
@@ -220,9 +235,17 @@ const TodaysAppointmentsTable = () => {
                   </Td>
                   <Td>
                     <Button
-                      size="sm"
-                      colorScheme="red"
-                      variant="outline"
+                      borderColor="primary.red"
+                      color="primary.red"
+                      _hover={{ bg: "red.200" }}
+                      fontSize="sm"
+                      fontWeight="medium"
+                      rounded="2xl"
+                      variant={"outline"}
+                      px={4}
+                      py={2}
+                      w="full"
+                      maxW={{ md: "3rem", lg: "3.5rem" }}
                       onClick={() => {
                         setSelectedAppointmentId(appt.id);
                         openAlert();
@@ -269,13 +292,27 @@ const TodaysAppointmentsTable = () => {
       </Flex>
 
       {/* Symptomer Modal */}
-      <Modal isOpen={isOpen} onClose={onClose} isCentered>
+      <Modal isOpen={isOpen} onClose={onClose} isCentered size="sm">
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Symptomer</ModalHeader>
+        <ModalContent borderRadius="xl" px={4} py={2}>
+          <ModalHeader fontSize="xl" fontWeight="bold" color="gray.700">
+            Symptomer
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Text whiteSpace="pre-wrap">{selectedSymptoms}</Text>
+            <Box
+              bg="gray.50"
+              borderRadius="md"
+              p={4}
+              border="1px solid"
+              borderColor="gray.200"
+            >
+              <Text fontSize="md" color="gray.700" whiteSpace="pre-wrap">
+                {selectedSymptoms && selectedSymptoms.trim() !== ""
+                  ? selectedSymptoms
+                  : "Ingen sekretær-note angivet"}
+              </Text>
+            </Box>
           </ModalBody>
         </ModalContent>
       </Modal>
