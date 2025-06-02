@@ -1,4 +1,4 @@
-import { Box, Button, Text, Badge, Flex } from "@chakra-ui/react";
+import { Box, Button, Text, Badge, Flex, Stack } from "@chakra-ui/react";
 import { useAiNoteByAppointment } from "@/hooks/doctor/aiHooks/useAiNoteByAppointment";
 import { useState } from "react";
 import AddJournalEntryModal from "./AddJournalEntryModal";
@@ -12,47 +12,83 @@ const AppointmentBox = ({ appt, journalId, refetch }: any) => {
   const hasAINote = !!aiNote;
 
   return (
-    <Box p={4} borderWidth="1px" borderRadius="md" bg="gray.50">
-      <Flex justify="space-between" align="center" mb={2}>
-        <Text fontWeight="bold">
-          {new Date(appt.date).toLocaleDateString()} kl. {appt.time}
+    <Box
+      borderWidth="1px"
+      borderRadius="lg"
+      p={5}
+      bg="white"
+      shadow="sm"
+      _hover={{ bg: "gray.50" }}
+      w="full"
+    >
+      <Stack spacing={2}>
+        <Flex justify="space-between" align="center">
+          <Text fontWeight="medium">
+            {new Date(appt.date).toLocaleDateString("da-DK")} kl. {appt.time}
+          </Text>
+          <Badge colorScheme="gray" textTransform="capitalize">
+            {appt.status}
+          </Badge>
+        </Flex>
+
+        <Text>
+          <strong>Behandler:</strong> {appt.doctorName}
         </Text>
-        <Badge>{appt.status}</Badge>
-      </Flex>
+        <Text>
+          <strong>Sekretærnotat:</strong> {appt.secretaryNote || "Ikke angivet"}
+        </Text>
 
-      <Text>
-        <strong>Behandler:</strong> {appt.doctorName}
-      </Text>
-      <Text>
-        <strong>Notat:</strong> {appt.secretaryNote || "Ingen sekretærnotat"}
-      </Text>
-
-      {hasAINote && (
-        <Badge mt={2} colorScheme="purple">
-          Klinika Assistent har forberedt noter
-        </Badge>
-      )}
-
-      <Flex gap={2} mt={3}>
-        {appt.journalEntry?.created_by_ai ? (
-          <Button
-            size="sm"
-            onClick={() => setShowModal(true)}
-            colorScheme="purple"
-            variant="outline"
-          >
-            Gennemse AI-noter
-          </Button>
-        ) : appt.journalEntry ? (
-          <Button size="sm" onClick={() => setSelectedEntry(appt.journalEntry)}>
-            Vis journal
-          </Button>
-        ) : (
-          <Button size="sm" onClick={() => setShowModal(true)}>
-            Opret notat
-          </Button>
+        {hasAINote && (
+          <Badge mt={1} colorScheme="purple" w="fit-content">
+            KLINIKA ASSISTENT INVOLVERET
+          </Badge>
         )}
-      </Flex>
+
+        <Flex mt={2} gap={2} flexWrap="wrap">
+          {appt.journalEntry?.created_by_ai ? (
+            <Button
+              size="sm"
+              onClick={() => setShowModal(true)}
+              colorScheme="purple"
+              variant="outline"
+            >
+              Gennemse AI-noter
+            </Button>
+          ) : appt.journalEntry ? (
+            <Button
+              backgroundColor="primary.red"
+              color="white"
+              _hover={{ bg: "red.600" }}
+              fontSize="sm"
+              fontWeight="medium"
+              rounded="2xl"
+              px={4}
+              py={2}
+              w="full"
+              maxW="16rem"
+              onClick={() => setSelectedEntry(appt.journalEntry)}
+            >
+              Vis journal
+            </Button>
+          ) : (
+            <Button
+              backgroundColor="primary.red"
+              color="white"
+              _hover={{ bg: "red.600" }}
+              fontSize="sm"
+              fontWeight="medium"
+              rounded="2xl"
+              px={4}
+              py={2}
+              w="full"
+              maxW="16rem"
+              onClick={() => setShowModal(true)}
+            >
+              Opret notat
+            </Button>
+          )}
+        </Flex>
+      </Stack>
 
       {selectedEntry && (
         <JournalModal

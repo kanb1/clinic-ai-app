@@ -5,8 +5,10 @@ import {
   ModalHeader,
   ModalCloseButton,
   ModalBody,
-  Text,
   ModalFooter,
+  Text,
+  Box,
+  VStack,
   Button,
 } from "@chakra-ui/react";
 
@@ -22,23 +24,49 @@ interface Props {
 
 const PrescriptionModal = ({ prescription, onClose }: Props) => {
   return (
-    <Modal isOpen onClose={onClose}>
+    <Modal isOpen onClose={onClose} isCentered size="md">
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Receptdetaljer</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <Text fontWeight="bold">Medicin:</Text>
-          <Text mb={2}>{prescription.medication_name}</Text>
-          <Text fontWeight="bold">Dosering:</Text>
-          <Text mb={2}>{prescription.dosage}</Text>
-          <Text fontWeight="bold">Instruktioner:</Text>
-          <Text mb={2}>{prescription.instructions}</Text>
-          <Text fontWeight="bold">Udstedelsesdato:</Text>
-          <Text>{new Date(prescription.issued_date).toLocaleDateString()}</Text>
+          <VStack spacing={4} align="stretch">
+            <Box>
+              <Text fontSize="sm" color="gray.500">
+                Medicin
+              </Text>
+              <Text fontWeight="medium">{prescription.medication_name}</Text>
+            </Box>
+
+            <Box>
+              <Text fontSize="sm" color="gray.500">
+                Dosering
+              </Text>
+              <Text fontWeight="medium">{prescription.dosage}</Text>
+            </Box>
+
+            <Box>
+              <Text fontSize="sm" color="gray.500">
+                Instruktioner
+              </Text>
+              <Text fontWeight="medium">{prescription.instructions}</Text>
+            </Box>
+
+            <Box>
+              <Text fontSize="sm" color="gray.500">
+                Udstedelsesdato
+              </Text>
+              <Text fontWeight="medium">
+                {new Date(prescription.issued_date).toLocaleDateString("da-DK")}
+              </Text>
+            </Box>
+          </VStack>
         </ModalBody>
+
         <ModalFooter>
-          <Button onClick={onClose}>Luk</Button>
+          <Button onClick={onClose} colorScheme="blue">
+            Luk
+          </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>

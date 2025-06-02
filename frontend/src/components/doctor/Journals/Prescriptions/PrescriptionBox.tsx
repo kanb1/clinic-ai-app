@@ -1,4 +1,4 @@
-import { Box, Button, Text, Heading } from "@chakra-ui/react";
+import { Box, Button, Text, Heading, Stack } from "@chakra-ui/react";
 
 interface Props {
   prescription: {
@@ -16,27 +16,42 @@ const PrescriptionBox = ({ prescription, onView }: Props) => {
 
   const formattedDate = new Date(issued_date).toLocaleDateString("da-DK", {
     day: "numeric",
-    month: "numeric",
+    month: "long",
     year: "numeric",
   });
 
   return (
     <Box
-      p={4}
       borderWidth="1px"
-      borderRadius="md"
-      bg="gray.50"
-      _hover={{ bg: "gray.100" }}
+      borderRadius="lg"
+      p={5}
+      bg="white"
+      shadow="sm"
+      _hover={{ bg: "gray.50" }}
+      w="full"
     >
-      <Heading size="md" mb={1}>
-        {medication_name}
-      </Heading>
-      <Text>
-        {formattedDate} – {dosage}
-      </Text>
-      <Text mb={3}>{instructions}</Text>
-      <Button onClick={onView} variant="outline" size="md">
-        Vis
+      <Stack spacing={1} mb={3}>
+        <Heading size="sm">{medication_name}</Heading>
+        <Text color="gray.600">{formattedDate}</Text>
+        <Text fontWeight="medium">{dosage}</Text>
+        <Text fontSize="sm" color="gray.700">
+          {instructions}
+        </Text>
+      </Stack>
+      <Button
+        onClick={onView}
+        backgroundColor="primary.red"
+        color="white"
+        _hover={{ bg: "red.600" }}
+        fontSize="sm"
+        fontWeight="medium"
+        rounded="2xl"
+        px={4}
+        py={2}
+        w="full"
+        maxW="16rem"
+      >
+        Vis detaljer
       </Button>
     </Box>
   );

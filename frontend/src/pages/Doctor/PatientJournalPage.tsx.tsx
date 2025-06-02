@@ -2,12 +2,19 @@ import { useSearchParams } from "react-router-dom";
 import {
   Box,
   Button,
-  Flex,
   Heading,
   Spinner,
   Text,
   VStack,
-  Badge,
+  Stack,
+  Flex,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
 } from "@chakra-ui/react";
 import { usePatientJournalAppointments } from "@/hooks/doctor/journalHooks/usePatientJournalAppointments";
 import { useState } from "react";
@@ -45,70 +52,94 @@ const PatientJournalPage = () => {
   const [selectedEntry, setSelectedEntry] = useState<any>(null);
   const [selectedAppointmentId, setSelectedAppointmentId] =
     useState<string>("");
-
   const [selectedPrescription, setSelectedPrescription] = useState<any>(null);
   const [showAddPrescription, setShowAddPrescription] = useState(false);
 
   const { data: testResults = [], isLoading: isLoadingTests } =
     useDoctorTestResults(patientId);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "udført":
-        return "green";
-      case "aflyst":
-        return "red";
-      case "bekræftet":
-        return "orange";
-      default:
-        return "gray";
-    }
-  };
-
   if (isLoading) return <Spinner size="xl" />;
 
   return (
     <Layout>
-      <Box maxW="6xl" mx="auto" p={6}>
-        <Heading mb={6}>Journal for patient</Heading>
+      <Stack spacing={6} w="full" p={{ base: 2, md: 4 }} overflowX="hidden">
+        <Heading size="heading1" textAlign={{ base: "center" }}>
+          Journal for patient
+        </Heading>
 
         {!isLoadingTests && <TestResultBox results={testResults} />}
 
-        {!isLoadingRx && (
-          <Box mb={10}>
-            <Heading size="md" mb={4}>
-              Recept
+        {/* Recepter + Tidligere aftaler side om side */}
+        <Flex
+          direction={{ base: "column", xl: "row" }}
+          gap={{ base: 12, sm: 14, xl: 6 }}
+          align="start"
+          wrap="wrap"
+          w="full"
+        >
+          {/* Recepter */}
+          {!isLoadingRx && (
+            <Box flex={1} minW={0} maxW="100%" w="full">
+              <Heading size="heading2" mb={3}>
+                Recepter
+              </Heading>
+              <VStack align="stretch" spacing={4}>
+                {prescriptions.map((r: any) => (
+                  <PrescriptionBox
+                    key={r._id}
+                    prescription={r}
+                    onView={() => setSelectedPrescription(r)}
+                  />
+                ))}
+                <Button
+                  onClick={() => setShowAddPrescription(true)}
+                  variant={"solidBlack"}
+                  alignSelf="end"
+                >
+                  + Tilføj recept
+                </Button>
+              </VStack>
+            </Box>
+          )}
+
+          {/* Tidligere aftaler med scrollbar */}
+          <Box flex={1} minW={0} maxW="100%" w="full">
+            <Heading size="heading2" mb={3}>
+              Tidligere aftaler
             </Heading>
-            <VStack align="stretch" spacing={4}>
-              {prescriptions.map((r: any) => (
-                <PrescriptionBox
-                  key={r._id}
-                  prescription={r}
-                  onView={() => setSelectedPrescription(r)}
-                />
-              ))}
-              <Button
-                onClick={() => setShowAddPrescription(true)}
-                colorScheme="blue"
-                alignSelf="start"
-              >
-                + Tilføj recept
-              </Button>
-            </VStack>
+            <Box
+              maxH={{ base: "60vh", md: "70vh", xl: "55vh" }}
+              overflowY="auto"
+              pr={2}
+              sx={{
+                "&::-webkit-scrollbar": {
+                  width: "6px",
+                },
+                "&::-webkit-scrollbar-track": {
+                  background: "gray.100",
+                  borderRadius: "full",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  background: "gray.400",
+                  borderRadius: "full",
+                },
+              }}
+            >
+              <VStack spacing={4} align="stretch">
+                {data.map((appt) => (
+                  <AppointmentBox
+                    key={appt._id}
+                    appt={appt}
+                    journalId={journalId}
+                    refetch={refetch}
+                  />
+                ))}
+              </VStack>
+            </Box>
           </Box>
-        )}
+        </Flex>
 
-        <VStack spacing={4} align="stretch">
-          {data.map((appt) => (
-            <AppointmentBox
-              key={appt._id}
-              appt={appt}
-              journalId={journalId}
-              refetch={refetch}
-            />
-          ))}
-        </VStack>
-
+        {/* Modals */}
         {selectedEntry && (
           <JournalModal
             entry={selectedEntry}
@@ -122,7 +153,7 @@ const PatientJournalPage = () => {
             journalId={journalId}
             onClose={() => setSelectedAppointmentId("")}
             onSuccess={() => {
-              refetch(); // opdater journaldata efter nyt notat
+              refetch();
               setSelectedAppointmentId("");
             }}
           />
@@ -142,7 +173,7 @@ const PatientJournalPage = () => {
             onClose={() => setSelectedPrescription(null)}
           />
         )}
-      </Box>
+      </Stack>
     </Layout>
   );
 };
