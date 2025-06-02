@@ -24,7 +24,7 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  const isMobile = useBreakpointValue({ base: true, lg: false });
   const paddingX = useBreakpointValue({ base: 4, md: 12 });
   const paddingY = useBreakpointValue({ base: 4, md: 6 });
 
