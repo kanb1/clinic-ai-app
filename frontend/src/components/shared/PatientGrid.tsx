@@ -34,7 +34,7 @@ const PatientGrid = ({
   secondaryLabel,
 }: Props) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const gridColumns = useBreakpointValue({ base: 1, sm: 2, md: 3 });
+  const gridColumns = useBreakpointValue({ base: 1, sm: 2, md: 3, xl: 5 });
 
   const filtered = patients.filter((p) =>
     p.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -93,8 +93,16 @@ const PatientGrid = ({
                   mt={3}
                 >
                   <Button
-                    colorScheme="blue"
-                    size="sm"
+                    backgroundColor="primary.red"
+                    color="white"
+                    _hover={{ bg: "red.600" }}
+                    fontSize="sm"
+                    fontWeight="medium"
+                    rounded="2xl"
+                    px={4}
+                    py={2}
+                    w="full"
+                    maxW="16rem"
                     onClick={() => onPrimaryAction(p._id)}
                   >
                     {primaryLabel}
@@ -102,9 +110,16 @@ const PatientGrid = ({
 
                   {onSecondaryAction && (
                     <Button
-                      colorScheme="gray"
-                      variant="outline"
-                      size="sm"
+                      backgroundColor="primary.red"
+                      color="white"
+                      _hover={{ bg: "red.600" }}
+                      fontSize="sm"
+                      fontWeight="medium"
+                      rounded="2xl"
+                      px={4}
+                      py={2}
+                      w="full"
+                      maxW="16rem"
                       onClick={() => onSecondaryAction(p._id)}
                     >
                       {secondaryLabel || "Vis detaljer"}

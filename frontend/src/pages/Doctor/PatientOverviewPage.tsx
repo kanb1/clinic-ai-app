@@ -1,5 +1,5 @@
 import Layout from "@/components/layout/Layout";
-import { Box, Heading, useDisclosure } from "@chakra-ui/react";
+import { Box, Heading, useDisclosure, Text } from "@chakra-ui/react";
 import { usePatients } from "@/hooks/common/usePatients";
 import { useNavigate } from "react-router-dom";
 import PatientGrid from "@/components/shared/PatientGrid";
@@ -23,10 +23,13 @@ const PatientOverviewPage = () => {
 
   return (
     <Layout>
-      <Box p={10} maxW="1200px" mx="auto">
-        <Heading size="lg" mb={6}>
+      <Box p={{ base: 3 }} mt={{ lg: 5, xl: 10 }} maxW="1200px" mx="auto">
+        <Heading size="heading1" textAlign="center">
           Patienter & Journaler
         </Heading>
+        <Text size="body" textAlign="center" mt={{ base: 2 }} mb={{ base: 6 }}>
+          Find patienters journaler og informationer
+        </Text>
 
         <PatientGrid
           patients={patients}
