@@ -16,7 +16,12 @@ const TodaysAppointmentStats = () => {
     (a: IAppointment) => a.status === "aflyst"
   ).length;
   return (
-    <Flex gap={6} flexWrap="wrap">
+    <Flex
+      gap={6}
+      flexWrap="wrap"
+      flexDirection={{ base: "column", md: "row" }}
+      justifyContent={{ md: "center" }}
+    >
       <Box bg="green.50" p={5} borderRadius="md" minW="200px">
         <Flex align="center" gap={2}>
           <FaCalendarCheck color="green" />
