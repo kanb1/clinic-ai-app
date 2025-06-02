@@ -24,6 +24,8 @@ import {
   AlertDialogHeader,
   AlertDialogContent,
   AlertDialogOverlay,
+  Stack,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { useRef, useState } from "react";
 import { useTodaysDetailedAppointments } from "@/hooks/doctor/appointmentsHooks/useTodaysDetailedAppointments";
@@ -62,6 +64,8 @@ const TodaysAppointmentsTable = () => {
 
   const toast = useToast();
 
+  const isMobile = useBreakpointValue({ base: true, md: false });
+
   const handleCancel = () => {
     if (selectedAppointmentId) {
       cancelAppointment(selectedAppointmentId, {
@@ -82,88 +86,189 @@ const TodaysAppointmentsTable = () => {
   if (error) return <Text color="red.500">Kunne ikke hente aftaler.</Text>;
 
   return (
-    <Box overflowX="auto">
-      <Table variant="simple" mb={4}>
-        <Thead>
-          <Tr>
-            <Th>Patient</Th>
-            <Th>Fødselsdato</Th>
-            <Th>Tidspunkt</Th>
-            <Th>Symptomer</Th>
-            <Th>Journal</Th>
-            <Th>Status</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
+    <Box>
+      {isMobile ? (
+        <Stack spacing={4}>
           {data.data.map((appt) => (
-            <Tr key={appt.id}>
-              <Td>{appt.patientName}</Td>
-              <Td>{new Date(appt.birthDate).toLocaleDateString("da-DK")}</Td>
-              <Td>{appt.time}</Td>
-              <Td>
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    setSelectedSymptoms(appt.symptoms);
-                    onOpen();
-                  }}
-                  variant="outline"
-                  colorScheme="blue"
-                >
-                  Åben
-                </Button>
-              </Td>
-              <Td>
-                <Button
-                  size="sm"
-                  colorScheme="blue"
-                  onClick={() =>
-                    navigate(`/doctor/patient-journal?id=${appt.patientId}`)
-                  }
-                >
-                  Vis
-                </Button>
-              </Td>
-              <Td>
-                <Button
-                  size="sm"
-                  colorScheme="red"
-                  variant="outline"
-                  onClick={() => {
-                    setSelectedAppointmentId(appt.id);
-                    openAlert();
-                  }}
-                  isDisabled={appt.status === "aflyst"}
-                >
-                  Aflys
-                </Button>
-              </Td>
-            </Tr>
-          ))}
-        </Tbody>
-      </Table>
+            <Box
+              key={appt.id}
+              borderWidth="1px"
+              borderRadius="md"
+              p={4}
+              bg="gray.50"
+            >
+              <Flex flexDirection={"column"} alignItems={{ base: "center" }}>
+                <Text fontWeight="bold">{appt.patientName}</Text>
+                <Text>
+                  Fødselsdato:{" "}
+                  {new Date(appt.birthDate).toLocaleDateString("da-DK")}
+                </Text>
+                <Text>Tidspunkt: {appt.time}</Text>
 
-      {/* Pagination UI */}
-      <Flex justify="space-between" align="center">
+                <Flex
+                  mt={3}
+                  gap={2}
+                  wrap={"wrap"}
+                  alignItems={{ base: "center" }}
+                  justifyContent={"center"}
+                >
+                  <Button
+                    backgroundColor="primary.red"
+                    color="white"
+                    _hover={{ bg: "red.600" }}
+                    fontSize="sm"
+                    fontWeight="medium"
+                    rounded="2xl"
+                    px={4}
+                    py={2}
+                    w="full"
+                    maxW="16rem"
+                    onClick={() => {
+                      setSelectedSymptoms(appt.symptoms);
+                      onOpen();
+                    }}
+                  >
+                    Symptomer
+                  </Button>
+                  <Button
+                    backgroundColor="primary.red"
+                    color="white"
+                    _hover={{ bg: "red.600" }}
+                    fontSize="sm"
+                    fontWeight="medium"
+                    rounded="2xl"
+                    px={4}
+                    py={2}
+                    w="full"
+                    maxW="16rem"
+                    onClick={() =>
+                      navigate(`/doctor/patient-journal?id=${appt.patientId}`)
+                    }
+                  >
+                    Vis journal
+                  </Button>
+                  <Button
+                    borderColor="primary.red"
+                    color="primary.red"
+                    _hover={{ bg: "red.600" }}
+                    fontSize="sm"
+                    fontWeight="medium"
+                    rounded="2xl"
+                    px={4}
+                    py={2}
+                    w="full"
+                    maxW="16rem"
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedAppointmentId(appt.id);
+                      openAlert();
+                    }}
+                    isDisabled={appt.status === "aflyst"}
+                  >
+                    Aflys
+                  </Button>
+                </Flex>
+                <Text mt={2}>Status: {appt.status}</Text>
+              </Flex>
+            </Box>
+          ))}
+        </Stack>
+      ) : (
+        <Box overflowX="auto">
+          <Table variant="simple" mb={4}>
+            <Thead>
+              <Tr>
+                <Th>Patient</Th>
+                <Th>Fødselsdato</Th>
+                <Th>Tidspunkt</Th>
+                <Th>Symptomer</Th>
+                <Th>Journal</Th>
+                <Th>Status</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {data.data.map((appt) => (
+                <Tr key={appt.id}>
+                  <Td>{appt.patientName}</Td>
+                  <Td>
+                    {new Date(appt.birthDate).toLocaleDateString("da-DK")}
+                  </Td>
+                  <Td>{appt.time}</Td>
+                  <Td>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setSelectedSymptoms(appt.symptoms);
+                        onOpen();
+                      }}
+                      variant="outline"
+                      colorScheme="blue"
+                    >
+                      Åben
+                    </Button>
+                  </Td>
+                  <Td>
+                    <Button
+                      size="sm"
+                      colorScheme="blue"
+                      onClick={() =>
+                        navigate(`/doctor/patient-journal?id=${appt.patientId}`)
+                      }
+                    >
+                      Vis
+                    </Button>
+                  </Td>
+                  <Td>
+                    <Button
+                      size="sm"
+                      colorScheme="red"
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedAppointmentId(appt.id);
+                        openAlert();
+                      }}
+                      isDisabled={appt.status === "aflyst"}
+                    >
+                      Aflys
+                    </Button>
+                  </Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </Box>
+      )}
+      <Flex
+        direction={{ base: "column", sm: "row" }}
+        justify={{ base: "center", sm: "space-between" }}
+        align="center"
+        mt={6}
+        gap={{ base: 4, sm: 0 }}
+        textAlign="center"
+      >
         <Button
           onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
           isDisabled={page === 1}
+          w={{ base: "full", sm: "auto" }}
         >
           Forrige
         </Button>
-        <Text>
+
+        <Text fontSize={{ base: "sm", md: "md" }}>
           Side {data.page} af {data.totalPages} — Viser {data.data.length} ud af{" "}
           {data.total} aftaler
         </Text>
+
         <Button
           onClick={() => setPage((prev) => Math.min(prev + 1, data.totalPages))}
           isDisabled={page === data.totalPages}
+          w={{ base: "full", sm: "auto" }}
         >
           Næste
         </Button>
       </Flex>
 
-      {/* Modal til symptomer */}
+      {/* Symptomer Modal */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent>
@@ -175,6 +280,7 @@ const TodaysAppointmentsTable = () => {
         </ModalContent>
       </Modal>
 
+      {/* Aflysning Alert */}
       <AlertDialog
         isOpen={isAlertOpen}
         leastDestructiveRef={cancelRef}
@@ -191,7 +297,6 @@ const TodaysAppointmentsTable = () => {
               Er du sikker på, at du vil aflyse denne aftale?
             </AlertDialogBody>
 
-            {/* Alert dialog for bekræftelse på aflysning */}
             <AlertDialogFooter>
               <Button ref={cancelRef} onClick={closeAlert}>
                 Annullér

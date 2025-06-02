@@ -5,8 +5,8 @@ import TodaysAppointmentsTable from "@/components/doctor/Appointments/TodaysAppo
 const TodaysAppointmentsPage = () => {
   return (
     <Layout>
-      <Box p={10}>
-        <Heading size="lg" mb={6}>
+      <Box p={{ base: 4 }}>
+        <Heading size="heading1" mb={6} textAlign={"center"}>
           Aftaler i dag
         </Heading>
         <TodaysAppointmentsTable />
