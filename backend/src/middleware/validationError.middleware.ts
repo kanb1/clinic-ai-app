@@ -1,7 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import { validationResult } from "express-validator";
 
-export const validate = (req: Request, res: Response, next: NextFunction) => {
+// Middleware for at undgå for detaljerede fejl
+// Sender generelle fejlbeskeder (OWASP)
+export const handleValidationErrors = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     res.status(400).json({

@@ -2,10 +2,18 @@ import express from "express";
 import { login, register } from "../controllers/fundament/auth.controller";
 import { authenticateJWT } from "../middleware/authenticateJWT.middleware";
 import { loginLimiter } from "../middleware/rateLimiters";
+import { handleValidationErrors } from "../middleware/validationError.middleware";
+import { loginValidator } from "../validators/authValidators";
 
 const router = express.Router();
 
-router.post("/login", loginLimiter, login);
+router.post(
+  "/login",
+  loginValidator,
+  handleValidationErrors,
+  loginLimiter,
+  login
+);
 router.post("/register", register);
 
 // hente brugerinfo efter page refresh
