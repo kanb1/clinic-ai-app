@@ -35,6 +35,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+        # Supplerer Dependabot
+        # Scanner efter kendte CVEs i hele dependency-træet (Common Vulnerabilities & Exposures)
+        # Både ved PR og Push eller nye commits/merged af PR
+      - name: Run npm audit for vulnerabilities
+        # Fejler ved fund af high/rødt flag
+        run: npm audit --audit-level=high
+
         # tjekker min ts kode for fejl og "dårlig stil"
       - name: Lint code
         run: npx eslint . --ext .ts
