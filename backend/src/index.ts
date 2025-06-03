@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
 import dotenv from "dotenv";
 import pingRoutes from "./routes/ping.routes";
 import { connectDB } from "./config/db";
@@ -38,6 +39,8 @@ app.use(
     origin: allowedOrigins,
   })
 );
+
+app.use(helmet());
 app.use(express.json());
 
 // Example route
