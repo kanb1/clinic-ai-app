@@ -42,11 +42,6 @@ export const addDoctor = async (req: Request, res: Response) => {
     // destrukterer til at hente de felter vi forventer fra frontend (req.body)
     const { name, email, password } = req.body;
 
-    if (!name || !email || !password) {
-      res.status(400).json({ message: "Please enter all the required fields" });
-      return;
-    }
-
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
       res.status(400).json({ message: "Email is already in use" });
@@ -144,10 +139,6 @@ export const getSecretaries = async (req: Request, res: Response) => {
 export const addSecretary = async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
-    if (!name || !email || !password) {
-      res.status(400).json({ message: "Please enter all the required fields" });
-      return;
-    }
 
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {

@@ -6,6 +6,7 @@ import { JournalModel } from "../../models/journal.model";
 
 // Allerede eksisterende login...
 
+// bruges ikke i frontend..
 export const register = async (req: Request, res: Response) => {
   try {
     const { name, email, password, role, clinic_id } = req.body;
