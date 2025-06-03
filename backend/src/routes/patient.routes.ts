@@ -14,6 +14,7 @@ import {
   saveChatHistory,
   startChatSession,
 } from "../controllers/patient/ai.controller";
+import { chatLimiter } from "../middleware/rateLimiters";
 
 const router = express.Router();
 
@@ -37,7 +38,7 @@ router.get("/prescriptions/:patientId", getPrescriptionsForPatient);
 router.put("/profile", updateMyProfile);
 
 // AI/Chatbot
-router.post("/ai/start", startChatSession);
+router.post("/ai/start", chatLimiter, startChatSession);
 router.post("/ai/save-chat", saveChatHistory);
 
 export default router;

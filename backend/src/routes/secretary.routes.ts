@@ -16,6 +16,7 @@ import {
   searchPatients,
   sendMessage,
 } from "../controllers/secretary/secretary.controller";
+import { messageLimiter } from "../middleware/rateLimiters";
 
 const router = express.Router();
 
@@ -25,7 +26,7 @@ router.use(authorizeRoles(["secretary"]));
 
 // Messages
 router.get("/messages/unread", getUnreadMessages);
-router.post("/messages", sendMessage);
+router.post("/messages", messageLimiter, sendMessage);
 router.patch("/messages/:id/read", markMessageAsReadBySecretary);
 
 // Patients and Doctors (Choose)

@@ -1,10 +1,11 @@
 import express from "express";
 import { login, register } from "../controllers/fundament/auth.controller";
 import { authenticateJWT } from "../middleware/authenticateJWT.middleware";
+import { loginLimiter } from "../middleware/rateLimiters";
 
 const router = express.Router();
 
-router.post("/login", login);
+router.post("/login", loginLimiter, login);
 router.post("/register", register);
 
 // hente brugerinfo efter page refresh
