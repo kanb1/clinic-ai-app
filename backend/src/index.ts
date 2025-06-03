@@ -26,7 +26,18 @@ if (process.env.NODE_ENV !== "test") {
   connectDB();
 }
 
-app.use(cors());
+const allowedOrigins = [
+  // for development
+  "http://localhost:5173",
+  // production
+  "",
+];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+  })
+);
 app.use(express.json());
 
 // Example route
