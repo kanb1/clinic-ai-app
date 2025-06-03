@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { api } from "../../services/httpClient";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@chakra-ui/react";
 
 export const useLogin = (
   onRoleError?: (role: string) => void,
@@ -15,6 +16,7 @@ export const useLogin = (
 
   const navigate = useNavigate();
   const { setUser, setToken } = useAuth(); // bruger AuthContext til at gemme login-data
+  const toast = useToast();
 
   return useMutation({
     // mutationFn: hovedfunktionen som kører når vi kalder mutate
@@ -70,8 +72,30 @@ export const useLogin = (
           navigate("/");
       }
     },
-    onError: (error) => {
-      console.error("Login failed:", error);
+    onError: (error: any) => {
+      // 429-rate limiter toaster
+      if (error.response?.status === 429) {
+        toast({
+          title: "For mange loginforsøg",
+          description: error.response.data.message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "bottom-right",
+        });
+        return;
+      }
+
+      // fallback ved 400 eller 500
+      toast({
+        title: "Login mislykkedes",
+        description:
+          error.response?.data?.message || "Uventet fejl. Prøv igen senere.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom-right",
+      });
     },
   });
 };

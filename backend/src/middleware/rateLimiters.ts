@@ -5,6 +5,7 @@ export const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutter
   max: 5,
   message: {
+    //sendes med i JSON svaret
     message:
       "Du har forsøgt at logge ind for mange gange. Prøv igen om 15 minutter.",
   },

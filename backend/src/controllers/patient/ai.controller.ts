@@ -46,6 +46,9 @@ export const startChatSession = async (req: Request, res: Response) => {
     res.json({ reply });
   } catch (error) {
     console.error("OpenAI-fejl:", error);
+    res.status(429).json({
+      message: "For mange beskeder på kort tid. Nulstiller om 10 min.",
+    });
     res.status(500).json({ error: "Noget gik galt med OpenAI." });
   }
 };

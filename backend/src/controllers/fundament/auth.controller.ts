@@ -98,6 +98,9 @@ export const login = async (req: Request, res: Response) => {
     return;
   } catch (error) {
     console.error(error);
+    res.status(429).json({
+      message: "For mange loginforsøg. Prøv igen om 15 minutter.",
+    });
     res.status(500).json({ message: "Server error" });
     return;
   }

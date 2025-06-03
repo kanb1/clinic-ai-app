@@ -108,6 +108,9 @@ export const sendMessage = async (req: Request, res: Response) => {
     res.status(201).json({ message: "Message sent", newMessage });
   } catch (error) {
     console.error(error);
+    res.status(429).json({
+      message: "For mange beskeder sendt på kort tid. Nulstiller om 20 min.",
+    });
     res.status(500).json({ message: "Error sending message", error });
   }
 };
