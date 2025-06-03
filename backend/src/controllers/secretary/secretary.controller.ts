@@ -73,11 +73,6 @@ export const sendMessage = async (req: Request, res: Response) => {
   try {
     const { content, type, receiver_scope, receiver_id } = req.body;
 
-    if (!content || !type || !receiver_scope) {
-      res.status(400).json({ message: "All fields are required" });
-      return;
-    }
-
     if (receiver_scope === "individual" && !receiver_id) {
       res
         .status(400)
@@ -527,11 +522,6 @@ export const createAppointment = async (req: Request, res: Response) => {
     const { patient_id, doctor_id, slot_id } = req.body;
     const clinicId = req.user!.clinicId;
 
-    if (!patient_id || !doctor_id || !slot_id) {
-      res.status(400).json({ message: "Missing required fields" });
-      return;
-    }
-
     // Vi finder den valgte slot med slot_id fra databasen
     const slot = await AvailabilitySlotModel.findById(slot_id);
 
@@ -572,11 +562,6 @@ export const addSymptomNote = async (req: Request, res: Response) => {
   try {
     const appointmentId = req.params.id;
     const { note } = req.body;
-
-    if (!note) {
-      res.status(400).json({ message: "Note is required" });
-      return;
-    }
 
     const appointment = await AppointmentModel.findById(appointmentId);
 
