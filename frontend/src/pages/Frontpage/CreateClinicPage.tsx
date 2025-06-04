@@ -36,6 +36,10 @@ const CreateClinicPage = () => {
   const [address, setAddress] = useState("");
   const [clinicCreated, setClinicCreated] = useState(false);
 
+  // Validation states:
+  const [nameError, setNameError] = useState("");
+  const [addressError, setAddressError] = useState("");
+
   // hent klinik for logget-in admin
   // (useMyClinic();) hook der henter klinikken som den loggede in admin har oprettet
   const {
@@ -97,6 +101,33 @@ const CreateClinicPage = () => {
   const handleCreateClinic = (e: React.FormEvent) => {
     // stopper browser standard opførsel som reload
     e.preventDefault();
+
+    // reset fejl
+    setNameError("");
+    setAddressError("");
+    let hasError = false;
+
+    if (name.trim().length < 2) {
+      setNameError("Navnet skal være mindst 2 tegn.");
+      hasError = true;
+    }
+
+    if (address.trim().length < 5) {
+      setAddressError("Adressen skal være mindst 5 tegn.");
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    createClinic(
+      { name, address },
+      {
+        onSuccess: () => {
+          setClinicCreated(true);
+          refetchMyClinic();
+        },
+      }
+    );
 
     // første argument af vores hook er request data
     // await api.post("/clinics", data);
@@ -256,8 +287,16 @@ const CreateClinicPage = () => {
                 <Input
                   type="text"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    setNameError(""); // fjern fejl når man skriver igen
+                  }}
                 />
+                {nameError && (
+                  <Text color="red.500" fontSize="sm">
+                    {nameError}
+                  </Text>
+                )}
               </FormControl>
 
               <FormControl isRequired>
@@ -265,8 +304,16 @@ const CreateClinicPage = () => {
                 <Input
                   type="text"
                   value={address}
-                  onChange={(e) => setAddress(e.target.value)}
+                  onChange={(e) => {
+                    setAddress(e.target.value);
+                    setAddressError("");
+                  }}
                 />
+                {addressError && (
+                  <Text color="red.500" fontSize="sm">
+                    {addressError}
+                  </Text>
+                )}
               </FormControl>
 
               {clinicError && (
@@ -290,3 +337,6 @@ const CreateClinicPage = () => {
 };
 
 export default CreateClinicPage;
+function setNameError(arg0: string) {
+  throw new Error("Function not implemented.");
+}
