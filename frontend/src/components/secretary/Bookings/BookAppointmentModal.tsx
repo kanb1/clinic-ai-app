@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { useAvailabilitySlots } from "../../../hooks/secretary/bookingHooks/useAvailableSlots";
 import { useCreateAppointment } from "../../../hooks/secretary/bookingHooks/useCreateAppointment";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SimpleGrid } from "@chakra-ui/react";
 import AvailabilityDisplay from "./AvailabilityDisplay";
 import AddSecretaryNote from "./AddSecretaryNote";
@@ -83,6 +83,20 @@ const BookAppointmentModal = ({
       }
     );
   };
+
+  const resetForm = () => {
+    setView("overview");
+    setSelectedDoctorId(undefined);
+    setSelectedDate(null);
+    setSelectedSlotId(null);
+    setSecretaryNote("");
+  };
+
+  useEffect(() => {
+    if (!isOpen) {
+      resetForm();
+    }
+  }, [isOpen]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl">
