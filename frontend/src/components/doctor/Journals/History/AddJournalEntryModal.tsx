@@ -40,6 +40,28 @@ const AddJournalEntryModal = ({
   const [notes, setNotes] = useState("");
 
   const handleSave = () => {
+    if (!notes.trim()) {
+      toast({ title: "Notat kan ikke være tomt.", status: "warning" });
+      return;
+    }
+
+    if (notes.trim().length < 5) {
+      toast({
+        title: "Notatet er for kort.",
+        description: "Skriv lidt mere detaljeret.",
+        status: "warning",
+      });
+      return;
+    }
+    if (notes.trim().length > 1000) {
+      toast({
+        title: "Notatet er for langt.",
+        description: "Skriv et kortere notat (maks 1000 tegn).",
+        status: "warning",
+      });
+
+      return;
+    }
     mutate(
       { journalId, appointmentId, notes },
       {
