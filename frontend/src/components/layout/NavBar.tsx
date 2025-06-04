@@ -18,10 +18,12 @@ import {
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { useNavigate, Outlet } from "react-router-dom";
 import { sidebarItems } from "../constants/sidebarItems";
+import { useLogout } from "@/hooks//fundament/useLogout";
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const logout = useLogout();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const isMobile = useBreakpointValue({ base: true, lg: false });
