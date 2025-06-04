@@ -36,6 +36,30 @@ const RecentAppointmentsCarousel = () => {
 
   if (!pastAppointments || isLoading) return null;
 
+  // Fallback hvis ingen besøg findes
+  if (pastAppointments.length === 0) {
+    return (
+      <Box w="full" position="relative" mt={{ lg: 5 }}>
+        <Heading
+          textStyle="heading2"
+          fontWeight="medium"
+          mb={4}
+          textAlign={{ base: "center", lg: "left" }}
+        >
+          Seneste besøg
+        </Heading>
+        <Text
+          fontSize="md"
+          color="gray.500"
+          textAlign={{ base: "center", lg: "left" }}
+        >
+          Der har ikke været nogle besøgende indtil videre.
+        </Text>
+      </Box>
+    );
+  }
+
+  // Mobile carousel
   return (
     <Box w="full" position="relative" mt={{ lg: 5 }}>
       <Heading
@@ -50,10 +74,8 @@ const RecentAppointmentsCarousel = () => {
       {isMobile ? (
         <Flex justify="center" align="center" direction="column" gap={4}>
           <Box position="relative" w="100%" minH="140px" overflow="hidden">
-            {/* AnimatePresence + motion(Box) laver smooth animation */}
             <AnimatePresence>
               <MotionBox
-                // sørger for, at Framer Motion registrerer ny slide
                 key={currentIndex}
                 position="absolute"
                 w="full"
@@ -67,31 +89,32 @@ const RecentAppointmentsCarousel = () => {
                 boxShadow="sm"
               >
                 <Text fontWeight="bold">
-                  {pastAppointments[currentIndex].time} –{" "}
-                  {pastAppointments[currentIndex].end_time || "?"}
+                  {pastAppointments[currentIndex]?.time || "?"} –{" "}
+                  {pastAppointments[currentIndex]?.end_time || "?"}
                 </Text>
                 <Text fontSize="sm">
-                  {pastAppointments[currentIndex].patient_id?.name ||
+                  {pastAppointments[currentIndex]?.patient_id?.name ||
                     "Ukendt patient"}
                 </Text>
                 <Text fontSize="sm" color="gray.500">
                   Hos:{" "}
-                  {pastAppointments[currentIndex].doctor_id?.name ||
+                  {pastAppointments[currentIndex]?.doctor_id?.name ||
                     "Ukendt læge"}
                 </Text>
                 <Badge
                   mt={2}
                   colorScheme={
-                    pastAppointments[currentIndex].status === "bekræftet"
+                    pastAppointments[currentIndex]?.status === "bekræftet"
                       ? "green"
-                      : pastAppointments[currentIndex].status === "aflyst"
+                      : pastAppointments[currentIndex]?.status === "aflyst"
                       ? "red"
-                      : pastAppointments[currentIndex].status === "udført"
+                      : pastAppointments[currentIndex]?.status === "udført"
                       ? "blue"
                       : "gray"
                   }
                 >
-                  {pastAppointments[currentIndex].status.toUpperCase()}
+                  {pastAppointments[currentIndex]?.status?.toUpperCase() ||
+                    "UKENDT"}
                 </Badge>
               </MotionBox>
             </AnimatePresence>
@@ -103,6 +126,7 @@ const RecentAppointmentsCarousel = () => {
           </Flex>
         </Flex>
       ) : (
+        // Desktop visning
         <Flex gap={4} overflowX="auto" px={1}>
           {pastAppointments.map((appt) => (
             <Box
@@ -115,13 +139,13 @@ const RecentAppointmentsCarousel = () => {
               boxShadow="sm"
             >
               <Text fontWeight="bold">
-                {appt.time} – {appt.end_time || "?"}
+                {appt?.time || "?"} – {appt.end_time || "?"}
               </Text>
               <Text fontSize="sm">
-                {appt.patient_id?.name || "Ukendt patient"}
+                {appt?.patient_id?.name || "Ukendt patient"}
               </Text>
               <Text fontSize="sm" color="gray.500">
-                Hos: {appt.doctor_id?.name || "Ukendt læge"}
+                Hos: {appt?.doctor_id?.name || "Ukendt læge"}
               </Text>
               <Badge
                 mt={2}
@@ -135,7 +159,7 @@ const RecentAppointmentsCarousel = () => {
                     : "gray"
                 }
               >
-                {appt.status.toUpperCase()}
+                {appt.status?.toUpperCase() || "UKENDT"}
               </Badge>
             </Box>
           ))}
