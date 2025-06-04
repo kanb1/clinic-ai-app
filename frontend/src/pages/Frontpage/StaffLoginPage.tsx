@@ -21,6 +21,10 @@ const StaffLoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const toast = useToast();
+  // Frontend validation
+  const isValidEmail = (email: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 254;
+  const isValidPassword = (password: string) => password.length >= 6;
 
   // Vi omdøber mutate (funktionen) til login herinde
   // Her har vi så en funktion, login(), der udfører login svarende til mutate(), altså selve login-funktionen i vores useLogin-hook
@@ -50,6 +54,19 @@ const StaffLoginPage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isValidEmail(email) || !isValidPassword(password)) {
+      toast({
+        title: "Ugyldige loginoplysninger",
+        description: "Tjek email og adgangskode",
+        status: "error",
+        duration: 4000,
+        isClosable: true,
+        position: "bottom-right",
+      });
+      return;
+    }
+
     login({ email, password });
   };
 
@@ -79,6 +96,11 @@ const StaffLoginPage = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
+            {!isValidEmail(email) && email.length > 0 && (
+              <Text color="red.500" fontSize="sm">
+                Ugyldig e-mailadresse
+              </Text>
+            )}
           </FormControl>
 
           <FormControl isRequired>
