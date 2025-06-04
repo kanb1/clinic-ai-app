@@ -334,13 +334,6 @@ export const createPrescription = async (req: Request, res: Response) => {
   try {
     const { patient_id, medication_name, dosage, instructions } = req.body;
 
-    if (!patient_id || !medication_name || !dosage || !instructions) {
-      res.status(400).json({
-        message: "Alle felter skal udfyldes for at oprette en recepten",
-      });
-      return;
-    }
-
     const newPrescription = new PrescriptionModel({
       patient_id,
       medication_name,
