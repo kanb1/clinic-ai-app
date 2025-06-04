@@ -35,17 +35,25 @@ const PatientGrid = ({
 }: Props) => {
   const [searchTerm, setSearchTerm] = useState("");
   const gridColumns = useBreakpointValue({ base: 1, sm: 2, md: 3, xl: 5 });
+  // selvom der ingne kald til backend ville det være vigtigt at have det her i fremtiden
+  const sanitize = (input: string) => input.replace(/[<>]/g, ""); // fjern potentielt hacker-tegn
 
   const filtered = patients.filter((p) =>
     p.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const cleanValue = sanitize(e.target.value.trimStart());
+    setSearchTerm(cleanValue.slice(0, 100)); // fallback hvis maxLength ikke virker
+  };
+
   return (
     <Box>
       <Input
+        maxLength={100}
         placeholder={searchPlaceholder}
         value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
+        onChange={handleInput}
         mb={6}
       />
 
