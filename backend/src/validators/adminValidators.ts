@@ -7,7 +7,11 @@ const strongPasswordRegex =
 
 export const validateAddDoctor = [
   body("name").trim().notEmpty().withMessage("Navn er påkrævet"),
-  body("email").isEmail().withMessage("Ugyldig e-mail"),
+  body("email")
+    .trim()
+    .isLength({ max: 254 })
+    .matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
+    .withMessage("Ugyldig e-mailadresse"),
   body("password")
     .matches(strongPasswordRegex)
     .withMessage(
@@ -17,7 +21,11 @@ export const validateAddDoctor = [
 
 export const validateUpdateDoctor = [
   body("name").optional().isString(),
-  body("email").optional().isEmail(),
+  body("email")
+    .trim()
+    .isLength({ max: 254 })
+    .matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
+    .withMessage("Ugyldig e-mailadresse"),
   body("phone").optional().isString(),
   body("address").optional().isString(),
   body("password")
@@ -31,7 +39,11 @@ export const validateUpdateDoctor = [
 
 export const validateAddSecretary = [
   body("name").trim().notEmpty().withMessage("Navn er påkrævet"),
-  body("email").isEmail().withMessage("Ugyldig e-mail"),
+  body("email")
+    .trim()
+    .isLength({ max: 254 })
+    .matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
+    .withMessage("Ugyldig e-mailadresse"),
   body("password")
     .matches(strongPasswordRegex)
     .withMessage(
@@ -41,7 +53,11 @@ export const validateAddSecretary = [
 
 export const validateUpdateSecretary = [
   body("name").optional().isString(),
-  body("email").optional().isEmail(),
+  body("email")
+    .trim()
+    .isLength({ max: 254 })
+    .matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
+    .withMessage("Ugyldig e-mailadresse"),
   body("phone").optional().isString(),
   body("address").optional().isString(),
   body("password")
@@ -54,7 +70,11 @@ export const validateUpdateSecretary = [
 
 export const validateUpdatePatient = [
   body("name").optional().isString(),
-  body("email").optional().isEmail(),
+  body("email")
+    .trim()
+    .isLength({ max: 254 })
+    .matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
+    .withMessage("Ugyldig e-mailadresse"),
   body("phone").optional().isString(),
   body("address").optional().isString(),
   body("password")

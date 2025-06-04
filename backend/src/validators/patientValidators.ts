@@ -13,7 +13,11 @@ export const validatePatientIdParam = [
 ];
 
 export const validateUpdateProfile = [
-  body("email").optional().isEmail().withMessage("Ugyldig e-mail"),
+  body("email")
+    .trim()
+    .isLength({ max: 254 })
+    .matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
+    .withMessage("Ugyldig e-mailadresse"),
   body("phone")
     .optional()
     .isMobilePhone("da-DK")
