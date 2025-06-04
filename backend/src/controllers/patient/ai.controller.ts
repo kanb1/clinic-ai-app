@@ -4,9 +4,12 @@ import dotenv from "dotenv";
 import { ChatSessionModel } from "../../models/chatsession.model";
 dotenv.config();
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// opretter kun en openaI-klient hvis denne her funktion kaldes, for at undgå den er global
+const getOpenAIClient = () => {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) throw new Error("Missing OpenAI API key");
+  return new OpenAI({ apiKey });
+};
 
 // Du er en venlig og empatisk klinik-assistent, der hjælper patienter med at sætte ord på deres symptomer før en konsultation. Din hensigt er at forbedre kvaliteten af konsultationen mellem læge og patienten og få patienten til at føle sig mere forberedt.
 //Du stiller uddybende spørgsmål og forsøger at berolige patienten, hvis de virker bekymrede.
@@ -15,6 +18,7 @@ const openai = new OpenAI({
 // Start chat session
 export const startChatSession = async (req: Request, res: Response) => {
   try {
+    const openai = getOpenAIClient();
     const { message } = req.body;
 
     // creating a system-prompt
@@ -53,6 +57,7 @@ export const saveChatHistory = async (req: Request, res: Response) => {
   try {
     const patientId = req.user!._id;
     const { messages, appointmentId } = req.body;
+    const openai = getOpenAIClient();
 
     // Tjekker om der allerede findes en chatsession for den appointment - må max have 1 pr appoint.
     const existing = await ChatSessionModel.findOne({
