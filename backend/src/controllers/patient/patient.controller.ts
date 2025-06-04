@@ -187,13 +187,6 @@ export const updateMyProfile = async (req: Request, res: Response) => {
     const userId = req.user!._id;
     const { email, phone } = req.body;
 
-    if (!email && !phone) {
-      res
-        .status(400)
-        .json({ message: "Du skal angive e-mail og/eller telefonnummer" });
-      return;
-    }
-
     const updatedUser = await UserModel.findByIdAndUpdate(
       userId,
       // $set = "Sæt disse felter til disse værdier", fx email sættes til dne nye værdi af email, men kun hvis den er ændret, ellers forbliver de det samme

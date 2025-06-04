@@ -15,6 +15,13 @@ import {
   startChatSession,
 } from "../controllers/patient/ai.controller";
 import { chatLimiter } from "../middleware/rateLimiters";
+import { handleValidationErrors } from "../middleware/validationError.middleware";
+import {
+  validateAppointmentIdParam,
+  validateMessageIdParam,
+  validatePatientIdParam,
+  validateUpdateProfile,
+} from "../validators/patientValidators";
 
 const router = express.Router();
 
@@ -23,19 +30,44 @@ router.use(authorizeRoles(["patient"]));
 
 // Messages
 router.get("/messages/unread", getUnreadMessagesForPatient);
-router.patch("/messages/:id/read", markMessageAsRead);
+router.patch(
+  "/messages/:id/read",
+  validateMessageIdParam,
+  handleValidationErrors,
+  markMessageAsRead
+);
 
 // Aftalehåndtering
 router.get("/appointments/upcoming", getUpcomingAppointments);
-router.patch("/appointments/:id/confirm", confirmAppointment);
-router.patch("/appointments/:id/cancel", cancelAppointment);
+router.patch(
+  "/appointments/:id/confirm",
+  validateAppointmentIdParam,
+  handleValidationErrors,
+  confirmAppointment
+);
+router.patch(
+  "/appointments/:id/cancel",
+  validateAppointmentIdParam,
+  handleValidationErrors,
+  cancelAppointment
+);
 
 // Sundhedsdata
-router.get("/prescriptions/:patientId", getPrescriptionsForPatient);
+router.get(
+  "/prescriptions/:patientId",
+  validatePatientIdParam,
+  handleValidationErrors,
+  getPrescriptionsForPatient
+);
 
 // Brugerprofil
 // (Hente brugerprofils oplysninger ligger inde i user controlleren, "getMyProfile")
-router.put("/profile", updateMyProfile);
+router.put(
+  "/profile",
+  validateUpdateProfile,
+  handleValidationErrors,
+  updateMyProfile
+);
 
 // AI/Chatbot
 router.post("/ai/start", chatLimiter, startChatSession);
