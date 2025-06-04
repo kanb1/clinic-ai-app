@@ -1,4 +1,3 @@
-// src/components/admin/Doctors/AddDoctorModal.tsx
 import {
   Modal,
   ModalOverlay,
@@ -13,6 +12,7 @@ import {
   VStack,
   useToast,
   FormControl,
+  Text,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useCreateDoctor } from "../../../hooks/admin/admin-doctorHooks/useCreateDoctor";
@@ -33,11 +33,48 @@ const AddDoctorModal = ({ isOpen, onClose }: Props) => {
     password: "",
   });
 
+  // errorestates:
+  const [errors, setErrors] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+  });
+
+  const validateForm = () => {
+    const newErrors = { name: "", email: "", phone: "", password: "" };
+    let isValid = true;
+
+    if (form.name.trim().length < 2) {
+      newErrors.name = "Navn er påkrævet og skal være mindst 2 tegn";
+      isValid = false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email)) {
+      newErrors.email = "Ugyldig email-adresse";
+      isValid = false;
+    }
+
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{12,}$/;
+    if (!passwordRegex.test(form.password)) {
+      newErrors.password =
+        "Adgangskoden skal være mindst 12 tegn og indeholde store og små bogstaver, tal og specialtegn";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSave = () => {
+    if (!validateForm()) return;
+
     addDoctor(form, {
       onSuccess: () => {
         toast({
@@ -48,6 +85,7 @@ const AddDoctorModal = ({ isOpen, onClose }: Props) => {
         });
         onClose();
         setForm({ name: "", email: "", phone: "", password: "" });
+        setErrors({ name: "", email: "", phone: "", password: "" });
       },
       onError: () => {
         toast({
@@ -76,7 +114,7 @@ const AddDoctorModal = ({ isOpen, onClose }: Props) => {
         <ModalCloseButton />
         <ModalBody>
           <VStack spacing={4} align="stretch">
-            <FormControl>
+            <FormControl isInvalid={!!errors.name}>
               <FormLabel fontWeight="bold">Navn</FormLabel>
               <Input
                 name="name"
@@ -84,9 +122,14 @@ const AddDoctorModal = ({ isOpen, onClose }: Props) => {
                 onChange={handleChange}
                 placeholder="Indtast navn"
               />
+              {errors.name && (
+                <Text fontSize="sm" color="red.500">
+                  {errors.name}
+                </Text>
+              )}
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.email}>
               <FormLabel fontWeight="bold">Email</FormLabel>
               <Input
                 name="email"
@@ -95,9 +138,14 @@ const AddDoctorModal = ({ isOpen, onClose }: Props) => {
                 type="email"
                 placeholder="Indtast email"
               />
+              {errors.email && (
+                <Text fontSize="sm" color="red.500">
+                  {errors.email}
+                </Text>
+              )}
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.phone}>
               <FormLabel fontWeight="bold">Telefon</FormLabel>
               <Input
                 name="phone"
@@ -106,9 +154,14 @@ const AddDoctorModal = ({ isOpen, onClose }: Props) => {
                 type="tel"
                 placeholder="Indtast telefonnummer"
               />
+              {errors.phone && (
+                <Text fontSize="sm" color="red.500">
+                  {errors.phone}
+                </Text>
+              )}
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.password}>
               <FormLabel fontWeight="bold">Adgangskode</FormLabel>
               <Input
                 name="password"
@@ -117,6 +170,11 @@ const AddDoctorModal = ({ isOpen, onClose }: Props) => {
                 onChange={handleChange}
                 placeholder="Vælg adgangskode"
               />
+              {errors.password && (
+                <Text fontSize="sm" color="red.500">
+                  {errors.password}
+                </Text>
+              )}
             </FormControl>
           </VStack>
         </ModalBody>
