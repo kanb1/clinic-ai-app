@@ -2,7 +2,6 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
-import pingRoutes from "./routes/ping.routes";
 import { connectDB } from "./config/db";
 // Routes
 import authRoutes from "./routes/auth.routes";
@@ -42,9 +41,6 @@ app.use(
 
 app.use(helmet());
 app.use(express.json());
-
-// Example route
-app.use("/api/ping", pingRoutes);
 
 // Routes - Fundament
 app.use("/api/auth", authRoutes);
