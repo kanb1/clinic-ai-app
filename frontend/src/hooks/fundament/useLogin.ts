@@ -61,7 +61,7 @@ export const useLogin = (
             // Hvis admin endnu ikke har en klinik → send videre til opret klinik-siden
             navigate("/createclinic");
           } else {
-            navigate("/admin/dashboard");
+            navigate("/admin/frontpage");
           }
           break;
         case "doctor":
