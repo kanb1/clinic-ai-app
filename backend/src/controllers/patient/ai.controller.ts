@@ -17,11 +17,6 @@ export const startChatSession = async (req: Request, res: Response) => {
   try {
     const { message } = req.body;
 
-    if (!message) {
-      res.status(400).json({ error: "Besked mangler" });
-      return;
-    }
-
     // creating a system-prompt
     // empathic, clinic-frienly
     const completion = await openai.chat.completions.create({
@@ -58,11 +53,6 @@ export const saveChatHistory = async (req: Request, res: Response) => {
   try {
     const patientId = req.user!._id;
     const { messages, appointmentId } = req.body;
-
-    if (!messages || !Array.isArray(messages)) {
-      res.status(400).json({ message: "Ugyldig samtalehistorik" });
-      return;
-    }
 
     // Tjekker om der allerede findes en chatsession for den appointment - må max have 1 pr appoint.
     const existing = await ChatSessionModel.findOne({

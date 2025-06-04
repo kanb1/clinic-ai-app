@@ -22,6 +22,10 @@ import {
   validatePatientIdParam,
   validateUpdateProfile,
 } from "../validators/patientValidators";
+import {
+  validateSaveChatHistory,
+  validateStartChatSession,
+} from "../validators/aiValidators";
 
 const router = express.Router();
 
@@ -70,7 +74,18 @@ router.put(
 );
 
 // AI/Chatbot
-router.post("/ai/start", chatLimiter, startChatSession);
-router.post("/ai/save-chat", saveChatHistory);
+router.post(
+  "/ai/start",
+  chatLimiter,
+  validateStartChatSession,
+  handleValidationErrors,
+  startChatSession
+);
+router.post(
+  "/ai/save-chat",
+  validateSaveChatHistory,
+  handleValidationErrors,
+  saveChatHistory
+);
 
 export default router;
