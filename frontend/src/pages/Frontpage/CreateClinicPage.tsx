@@ -221,7 +221,7 @@ const CreateClinicPage = () => {
           </Text>
           <Button
             variant="solidBlack"
-            onClick={() => navigate("/admin/dashboard")}
+            onClick={() => navigate("/admin/frontpage")}
           >
             Gå til dashboard
           </Button>
