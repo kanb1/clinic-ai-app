@@ -23,6 +23,7 @@ import Layout from "@/components/layout/Layout";
 import { useDisclosure } from "@chakra-ui/react";
 import SaveChatModal from "@/components/patient/Chatbot/SaveChatModal";
 import AutoResizeTextarea from "@/components/patient/Chatbot/AutoResizeTextarea";
+import TypingDots from "@/components/patient/Chatbot/TypingDots";
 
 const AIChatPage = () => {
   const toast = useToast();
@@ -44,7 +45,42 @@ const AIChatPage = () => {
   const handleSubmit = () => {
     // Det forhindrer både tomme beskeder og beskeder med kun mellemrum.
     // forhidnrer spam/fejl i input
-    if (!message.trim()) return;
+    const trimmedMessage = message.trim();
+
+    // andre valideringsregler
+    if (!trimmedMessage) {
+      toast({
+        title: "Besked mangler",
+        description: "Du skal skrive noget før du sender.",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    if (trimmedMessage.length < 5) {
+      toast({
+        title: "Beskeden er for kort",
+        description: "Beskeden skal være mindst 5 tegn.",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const wordCount = trimmedMessage.split(/\s+/).length;
+    if (wordCount > 100) {
+      toast({
+        title: "For mange ord",
+        description: "Beskeden må maksimalt være 100 ord.",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
 
     const userMessage = message.trim();
 
@@ -133,10 +169,7 @@ const AIChatPage = () => {
           {/* Loading-indikator for AI */}
           {isPending && (
             <HStack mt={3} pl={4}>
-              <Spinner size="sm" color="blue.500" />
-              <Text fontSize="sm" color="gray.500">
-                AI skriver...
-              </Text>
+              <TypingDots />
             </HStack>
           )}
         </Box>
