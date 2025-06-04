@@ -20,6 +20,8 @@ import { useAuth } from "@/context/AuthContext";
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  initialEmail: string;
+  initialPhone?: string;
 }
 
 const EditPatientInfoModal = ({ isOpen, onClose }: Props) => {
