@@ -2,6 +2,7 @@
 module.exports = {
   preset: "ts-jest", //skriv test i ts
   testEnvironment: "node",
+  setupFiles: ["<rootDir>/jest.setup.ts"], //hvor jeg har sat env op til de forskellige controllers
   collectCoverage: true, //lav automatisk en mappekaldet collect inde i backend
   collectCoverageFrom: ["src/**/*.{ts,tsx}", "!src/tests/**"], //Indsaml coverage på alle filer i src/ — også dem der ikke blev importeret i tests. Tvinger jest til at inkludere alle filer
   coverageDirectory: "coverage",

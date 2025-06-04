@@ -1,6 +1,13 @@
+import dotenv from "dotenv";
+import path from "path";
+
+dotenv.config({ path: path.resolve(__dirname, "../../../.env.test") });
+
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import { UserModel } from "../../models/user.model";
+import { v4 as uuidv4 } from "uuid";
+import { SessionModel } from "../../models/session.model";
 
 // Opretter en bruger og returnerer en token
 export async function createTestUser(
@@ -20,10 +27,12 @@ export async function createTestUser(
   });
 
   await user.save();
-
+  const jti = uuidv4(); // Generér en unik jti
+  // Gem sessionen i databasen (det tjekker din middleware nemlig!)
+  await SessionModel.create({ jti, userId: user._id });
   //   genererer så jwttoken based on brugerens id, role osv
   const token = jwt.sign(
-    { _id: user._id, role: user.role, clinicId },
+    { _id: user._id, role: user.role, clinicId, jti },
     process.env.JWT_SECRET!,
     { expiresIn: "1d" }
   );
