@@ -1,4 +1,3 @@
-// src/components/admin/EditPatientModal.tsx
 import {
   Modal,
   ModalOverlay,
@@ -28,8 +27,14 @@ interface Props {
 const EditPatientModal = ({ isOpen, onClose, patient }: Props) => {
   const toast = useToast();
   const { mutate: updatePatient, isPending } = useUpdatePatient();
+
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+
+  const [errors, setErrors] = useState({
+    email: "",
+    phone: "",
+  });
 
   useEffect(() => {
     if (patient) {
@@ -38,15 +43,32 @@ const EditPatientModal = ({ isOpen, onClose, patient }: Props) => {
     }
   }, [patient]);
 
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = { email: "", phone: "" };
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (email && !emailRegex.test(email)) {
+      newErrors.email = "Ugyldig email-adresse";
+      isValid = false;
+    }
+
+    const phoneRegex = /^[\d+\s-]{6,20}$/;
+    if (phone && !phoneRegex.test(phone)) {
+      newErrors.phone = "Ugyldigt telefonnummer";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
   const handleSave = () => {
     if (!patient?._id) return;
+    if (!validateForm()) return;
 
     updatePatient(
-      {
-        id: patient._id,
-        email,
-        phone,
-      },
+      { id: patient._id, email, phone },
       {
         onSuccess: () => {
           toast({
@@ -127,22 +149,32 @@ const EditPatientModal = ({ isOpen, onClose, patient }: Props) => {
               />
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.email}>
               <FormLabel>Email</FormLabel>
               <Input
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Indtast ny email"
               />
+              {errors.email && (
+                <Text fontSize="sm" color="red.500">
+                  {errors.email}
+                </Text>
+              )}
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.phone}>
               <FormLabel>Telefonnummer</FormLabel>
               <Input
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="Indtast nyt nummer"
               />
+              {errors.phone && (
+                <Text fontSize="sm" color="red.500">
+                  {errors.phone}
+                </Text>
+              )}
             </FormControl>
           </Stack>
         </ModalBody>
@@ -150,7 +182,7 @@ const EditPatientModal = ({ isOpen, onClose, patient }: Props) => {
         <ModalFooter mt={4}>
           <Button
             backgroundColor="black"
-            color={"white"}
+            color="white"
             onClick={onClose}
             mr={3}
           >
@@ -158,7 +190,7 @@ const EditPatientModal = ({ isOpen, onClose, patient }: Props) => {
           </Button>
           <Button
             backgroundColor="#1c5e3a"
-            color={"white"}
+            color="white"
             onClick={handleSave}
             isLoading={isPending}
           >
