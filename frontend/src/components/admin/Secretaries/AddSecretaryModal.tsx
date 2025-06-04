@@ -24,6 +24,7 @@ interface Props {
 
 const AddSecretaryModal = ({ isOpen, onClose }: Props) => {
   const toast = useToast();
+  const [search, setSearch] = useState("");
   const { mutate: createSecretary, isPending } = useCreateSecretary();
 
   const [form, setForm] = useState({
@@ -102,6 +103,11 @@ const AddSecretaryModal = ({ isOpen, onClose }: Props) => {
         });
       },
     });
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.trimStart().slice(0, 100); // max 100 tegn
+    setSearch(value.replace(/[<>]/g, "")); // fjern < og > hvis nogen prøver HTML-lignende input
   };
 
   return (
