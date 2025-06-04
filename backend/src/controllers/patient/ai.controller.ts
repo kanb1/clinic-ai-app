@@ -48,7 +48,7 @@ export const startChatSession = async (req: Request, res: Response) => {
     res.status(429).json({
       message: "For mange beskeder på kort tid. Nulstiller om 10 min.",
     });
-    res.status(500).json({ error: "Noget gik galt med OpenAI." });
+    res.status(500).json({ error: "Noget gik desværre galt" });
   }
 };
 
@@ -108,6 +108,6 @@ export const saveChatHistory = async (req: Request, res: Response) => {
     res.status(201).json({ message: "Samtale gemt", chat: newChat });
   } catch (error) {
     console.error("Fejl ved gem af chat:", error);
-    res.status(500).json({ message: "Noget gik galt", error });
+    res.status(500).json({ message: "Noget gik galt" });
   }
 };

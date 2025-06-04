@@ -30,7 +30,7 @@ export const getUnreadMessagesForPatient = async (
     res.status(200).json(messages);
   } catch (error) {
     console.error("Fejl i getUnreadMessagesForPatient:", error);
-    res.status(500).json({ message: "Failed to fetch unread messages", error });
+    res.status(500).json({ message: "Failed to get ressources" });
   }
 };
 
@@ -69,7 +69,8 @@ export const markMessageAsRead = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: "Message marked as read" });
   } catch (error) {
-    res.status(500).json({ message: "Failed to mark message as read", error });
+    console.error("Kunne ikke markere besked som læst", error);
+    res.status(500).json({ message: "Failed to complete this task" });
   }
 };
 
@@ -94,9 +95,9 @@ export const getUpcomingAppointments = async (req: Request, res: Response) => {
 
     res.status(200).json(upcomingAppointments);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Failed to fetch upcoming appointments", error });
+    console.error("Failed to fetch upcoming appointments", error);
+
+    res.status(500).json({ message: "error" });
   }
 };
 
@@ -124,7 +125,9 @@ export const confirmAppointment = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: "Aftale bekræftet" });
   } catch (error) {
-    res.status(500).json({ message: "Noget gik galt", error });
+    console.error("Kunne ikke bekræfte aftale", error);
+
+    res.status(500).json({ message: "Noget gik galt" });
   }
 };
 
@@ -154,7 +157,9 @@ export const cancelAppointment = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: "Aftale blev aflyst" });
   } catch (error) {
-    res.status(500).json({ message: "Noget gik galt ved aflysning", error });
+    console.error("Noget gik galt ved aflysning", error);
+
+    res.status(500).json({ message: "Noget gik galt" });
   }
 };
 
@@ -175,8 +180,7 @@ export const getPrescriptionsForPatient = async (
   } catch (error) {
     console.error("Fejl ved hentning af recepter:", error);
     res.status(500).json({
-      message: "Noget gik galt ved hentning af recepter.",
-      error,
+      message: "Noget gik galt ",
     });
   }
 };
@@ -207,8 +211,9 @@ export const updateMyProfile = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Fejl ved opdatering:", error);
-    res.status(500).json({ message: "Noget gik galt", error });
+    res.status(500).json({ message: "Noget gik galt" });
   }
 };
 
 // *********************************************************** AI/Chatbot
+// tjek ai.controller

@@ -48,7 +48,7 @@ export const getAppointmentsForDoctor = async (req: Request, res: Response) => {
     res.status(200).json(appointments);
   } catch (error) {
     console.error("Error fetching doctor's appointments:", error);
-    res.status(500).json({ message: "Failed to fetch appointments", error });
+    res.status(500).json({ message: "Could not get ressources" });
   }
 };
 
@@ -109,9 +109,7 @@ export const getTodayAppointmentDetails = async (
     });
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({ message: "Failed to fetch today’s appointments", error });
+    res.status(500).json({ message: "Could not get ressources" });
   }
 };
 
@@ -147,7 +145,7 @@ export const cancelAppointmentByDoctor = async (
     res.status(200).json({ message: "Appointment cancelled", appointment });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error cancelling appointment", error });
+    res.status(500).json({ message: "An error occurred. Try again later.." });
   }
 };
 
@@ -187,7 +185,7 @@ export const getPatientDetails = async (req: Request, res: Response) => {
     res.status(200).json(patient);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed to fetch patient details", error });
+    res.status(500).json({ message: "Could not get ressources" });
   }
 };
 
@@ -242,9 +240,7 @@ export const getJournalOverview = async (req: Request, res: Response) => {
     res.status(200).json(formatted);
   } catch (error) {
     console.error("Failed to get journal overview:", error);
-    res
-      .status(500)
-      .json({ message: "Failed to fetch journal overview", error });
+    res.status(500).json({ message: "Could not get ressources" });
   }
 };
 
@@ -291,7 +287,7 @@ export const getJournalById = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Failed to fetch journal", error);
-    res.status(500).json({ message: "Failed to fetch journal", error });
+    res.status(500).json({ message: "Could not get the ressource" });
   }
 };
 
@@ -323,7 +319,7 @@ export const createTestJournalEntry = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error creating JournalEntry:", error);
     res.status(400).json({
-      message: "Failed to create entry",
+      message: "An error occured. Try again later",
     });
     return;
   }
@@ -351,8 +347,7 @@ export const createPrescription = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Fejl ved oprettelse af recept:", error);
     res.status(500).json({
-      message: "Noget gik galt ved oprettelsen af recepten",
-      error,
+      message: "Noget gik galt.. prøv igen senere",
     });
   }
 };
@@ -371,7 +366,7 @@ export const getPrescriptionsByPatient = async (
     res.status(200).json(prescriptions);
   } catch (error) {
     console.error("Failed to fetch prescriptions", error);
-    res.status(500).json({ message: "Failed to fetch prescriptions", error });
+    res.status(500).json({ message: "Could not get ressources" });
   }
 };
 
@@ -391,7 +386,9 @@ export const createTestResult = async (req: Request, res: Response) => {
     res.status(201).json({ message: "Testresultat oprettet", newResult });
   } catch (error) {
     console.error("Fejl ved oprettelse af testresultat", error);
-    res.status(500).json({ message: "Fejl ved oprettelse", error });
+    res.status(500).json({
+      message: "Could not complete this task. Try again later",
+    });
   }
 };
 
@@ -406,7 +403,7 @@ export const getTestResultsByPatient = async (req: Request, res: Response) => {
     res.status(200).json(results);
   } catch (error) {
     console.error("Fejl ved hentning af testresultater", error);
-    res.status(500).json({ message: "Kunne ikke hente testresultater", error });
+    res.status(500).json({ message: "Could not get ressources" });
   }
 };
 
@@ -435,6 +432,6 @@ export const getChatSessionByAppointment = async (
     res.status(200).json(chat);
   } catch (error) {
     console.error("Fejl ved hentning af gemt AI-chat:", error);
-    res.status(500).json({ message: "Noget gik galt", error });
+    res.status(500).json({ message: "Noget gik galt" });
   }
 };

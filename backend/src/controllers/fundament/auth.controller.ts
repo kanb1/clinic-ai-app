@@ -128,6 +128,8 @@ export const logout = async (req: Request, res: Response) => {
     res.status(200).json({ message: "Logout successful" });
   } catch (error) {
     console.error(error);
-    res.status(400).json({ message: "Invalid token" });
+    res
+      .status(400)
+      .json({ message: "Could not complete this task. Try again later" });
   }
 };

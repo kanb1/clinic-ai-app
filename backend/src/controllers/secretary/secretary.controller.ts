@@ -64,7 +64,7 @@ export const getUnreadMessages = async (req: Request, res: Response) => {
     res.status(200).json(filtered);
   } catch (error) {
     console.error("Error in getUnreadMessages:", error);
-    res.status(500).json({ message: "Failed to get unread messages", error });
+    res.status(500).json({ message: "Failed to complete this task" });
   }
 };
 
@@ -106,7 +106,7 @@ export const sendMessage = async (req: Request, res: Response) => {
     res.status(429).json({
       message: "For mange beskeder sendt på kort tid. Nulstiller om 20 min.",
     });
-    res.status(500).json({ message: "Error sending message", error });
+    res.status(500).json({ message: "Error" });
   }
 };
 
@@ -135,7 +135,8 @@ export const markMessageAsReadBySecretary = async (
 
     res.status(200).json({ message: "Message marked as read by secretary" });
   } catch (error) {
-    res.status(500).json({ message: "Failed to mark message as read", error });
+    console.error("Failed to mark message as read", error);
+    res.status(500).json({ message: "Error" });
   }
 };
 
@@ -176,7 +177,8 @@ export const searchPatients = async (req: Request, res: Response) => {
     const patients = await UserModel.find(query);
     res.status(200).json(patients);
   } catch (error) {
-    res.status(500).json({ message: "Failed to search patients", error });
+    console.error("Failed to search patients", error);
+    res.status(500).json({ message: "fejl" });
   }
 };
 
@@ -191,7 +193,8 @@ export const getDoctors = async (req: Request, res: Response) => {
 
     res.status(200).json(doctors);
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch doctors", error });
+    console.error("Failed to fetch doctors", error);
+    res.status(500).json({ message: "fejl" });
   }
 };
 
@@ -210,7 +213,7 @@ export const getAppointments = async (req: Request, res: Response) => {
     res.status(200).json(appointments);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed to fetch appointments", error });
+    res.status(500).json({ message: "Failed to complete this tasks" });
   }
 };
 
@@ -321,9 +324,7 @@ export const getAvailabilityOverview = async (req: Request, res: Response) => {
     res.status(200).json(slots);
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({ message: "Failed to fetch availability slots", error });
+    res.status(500).json({ message: "Fail" });
   }
 };
 
@@ -402,7 +403,7 @@ export const getAvailabilitySlots = async (req: Request, res: Response) => {
     res.status(200).json(formatted);
   } catch (error) {
     console.error("Failed to fetch slots:", error);
-    res.status(500).json({ message: "Server error", error });
+    res.status(500).json({ message: "Server error" });
   }
 };
 // **************************************************** AvailabilitySlots Seeding Fallback
@@ -512,7 +513,7 @@ export const checkAndSeedSlots = async (req: Request, res: Response) => {
     }
   } catch (error) {
     console.error("Fejl under check-and-seed:", error);
-    res.status(500).json({ message: "Serverfejl", error });
+    res.status(500).json({ message: "Serverfejl" });
   }
 };
 
@@ -554,7 +555,7 @@ export const createAppointment = async (req: Request, res: Response) => {
     res.status(201).json({ message: "Appointment created", appointment });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error creating appointment", error });
+    res.status(500).json({ message: "Error" });
   }
 };
 
@@ -581,7 +582,8 @@ export const addSymptomNote = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: "Symptom note added", appointment });
   } catch (error) {
-    res.status(500).json({ message: "Error adding note", error });
+    console.error(error);
+    res.status(500).json({ message: "Error" });
   }
 };
 
@@ -610,9 +612,8 @@ export const getTodaysAppointments = async (req: Request, res: Response) => {
 
     res.status(200).json(appointments);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Failed to fetch today’s appointments", error });
+    console.error(error);
+    res.status(500).json({ message: "Failed" });
   }
 };
 
@@ -671,8 +672,6 @@ export const getPastAppointmentsToday = async (req: Request, res: Response) => {
     res.status(200).json(sorted);
   } catch (error) {
     console.error("Error fetching past appointments:", error);
-    res
-      .status(500)
-      .json({ message: "Failed to fetch past appointments", error });
+    res.status(500).json({ message: "Failed" });
   }
 };

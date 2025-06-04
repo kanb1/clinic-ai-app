@@ -18,7 +18,8 @@ export const getStaff = async (req: Request, res: Response) => {
     }).select("-password_hash");
     res.status(200).json(staff);
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch the staff", error });
+    console.error("Error fetching staffs", error);
+    res.status(500).json({ message: "Der opstod en fejl. Prøv igen senere." });
   }
 };
 
@@ -33,7 +34,8 @@ export const getDoctors = async (req: Request, res: Response) => {
 
     res.status(200).json(doctors);
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch doctors", error });
+    console.error("Error getting doctor", error);
+    res.status(500).json({ message: "Ressourcerne blev ikke fundet" });
   }
 };
 
@@ -44,7 +46,7 @@ export const addDoctor = async (req: Request, res: Response) => {
 
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
-      res.status(400).json({ message: "Email is already in use" });
+      res.status(400).json({ message: "Ugyldige oplysninger. Prøv igen." });
       return;
     }
 
@@ -61,7 +63,9 @@ export const addDoctor = async (req: Request, res: Response) => {
     // sender det nye lægeobjekt retur som bekræftelse og debug
     res.status(201).json(newDoctor);
   } catch (error) {
-    res.status(500).json({ message: "Failed to create doctor", error });
+    console.error("Error adding new doctor", error);
+
+    res.status(500).json({ message: "Resourcen blev ikke fundet" });
   }
 };
 
@@ -74,7 +78,7 @@ export const updateDoctor = async (req: Request, res: Response) => {
 
     const doctor = await UserModel.findById(id);
     if (!doctor) {
-      res.status(404).json({ message: "Doctor not found" });
+      res.status(404).json({ message: "Resourcen blev ikke fundet" });
       return;
     }
 
@@ -95,7 +99,8 @@ export const updateDoctor = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: "Doctor updated", doctor });
   } catch (error) {
-    res.status(500).json({ message: "Problems updating the doctor", error });
+    console.error("Error updating the doctor", error);
+    res.status(500).json({ message: "Problemer opstod. Prøven igen senere" });
   }
 };
 
@@ -117,7 +122,10 @@ export const deleteDoctor = async (req: Request, res: Response) => {
 
     res.json({ message: "Doctor deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Problems when deleting doctor", error });
+    console.error("Error deleting doctor", error);
+    res
+      .status(500)
+      .json({ message: "Der opstod et problem. Prøv igen senere" });
   }
 };
 
@@ -132,7 +140,8 @@ export const getSecretaries = async (req: Request, res: Response) => {
 
     res.status(200).json(secretaries);
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch secretaries", error });
+    console.error("Could not find secretaries", error);
+    res.status(500).json({ message: "Ressourcerne blev ikke fundet" });
   }
 };
 
@@ -142,7 +151,7 @@ export const addSecretary = async (req: Request, res: Response) => {
 
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
-      res.status(400).json({ message: "Email already in use" });
+      res.status(400).json({ message: "Ugyldige oplysninger. Prøv igen." });
       return;
     }
 
@@ -159,7 +168,9 @@ export const addSecretary = async (req: Request, res: Response) => {
 
     res.status(201).json(newSecretary);
   } catch (error) {
-    res.status(500).json({ message: "Failed to create secretary", error });
+    console.error("could not create secretary", error);
+
+    res.status(500).json({ message: "Handlingen kunne ikke blive udført" });
   }
 };
 
@@ -170,7 +181,7 @@ export const updateSecretary = async (req: Request, res: Response) => {
 
     const secretary = await UserModel.findById(id);
     if (!secretary) {
-      res.status(404).json({ message: "Could not find secretary" });
+      res.status(404).json({ message: "Kunne ikke finde ressourcen" });
       return;
     }
 
@@ -198,8 +209,8 @@ export const updateSecretary = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error", error });
+    console.error("could not update secretary", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -213,13 +224,15 @@ export const deleteSecretary = async (req: Request, res: Response) => {
     });
 
     if (!deleted) {
-      res.status(404).json({ message: "Secretary not found" });
+      res.status(404).json({ message: "Kunne ikke finde ressource" });
       return;
     }
 
     res.json({ message: "Secretary deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Error deleting secretary", error });
+    console.error("Could not delete secretary", error);
+
+    res.status(500).json({ message: "Problemer opstod. Prøv igen senere" });
   }
 };
 
@@ -237,7 +250,9 @@ export const getPatients = async (req: Request, res: Response) => {
 
     res.status(200).json(patients);
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch patients", error });
+    console.error("Could not get patients", error);
+
+    res.status(500).json({ message: "Kunne ikke finde ressourcerne" });
   }
 };
 
@@ -295,7 +310,11 @@ export const lookupPatientByCpr = async (req: Request, res: Response) => {
     return;
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error during CPR lookup", error });
+    console.error("Could not find patient", error);
+
+    res
+      .status(500)
+      .json({ message: "Der opstod et problem. Prøv igen senere" });
   }
 };
 
@@ -310,7 +329,7 @@ export const updatePatient = async (req: Request, res: Response) => {
 
     const patient = await UserModel.findById(id);
     if (!patient || patient.role !== "patient") {
-      res.status(404).json({ message: "C ould not find patient" });
+      res.status(404).json({ message: "Kunne ikke finde ressourcen" });
       return;
     }
 
@@ -331,7 +350,9 @@ export const updatePatient = async (req: Request, res: Response) => {
       patient,
     });
   } catch (error) {
-    res.status(500).json({ message: "Error when updating patient", error });
+    console.error("Could not update patient", error);
+
+    res.status(500).json({ message: "Problemer opstod. Prøv igen senere" });
   }
 };
 
@@ -347,14 +368,14 @@ export const deletePatient = async (req: Request, res: Response) => {
     });
 
     if (!deleted) {
-      res.status(404).json({ message: "Patient not found" });
+      res.status(404).json({ message: "Kunne ikke finde ressource" });
       return;
     }
 
     res.status(200).json({ message: "Patient deleted successfully" });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error deleting patient", error });
+    console.error("Could not delete patient", error);
+    res.status(500).json({ message: "Problemer opstod, prøv igen senere" });
   }
 };
 

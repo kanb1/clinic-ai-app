@@ -110,7 +110,7 @@ export const getAppointmentsWithJournalForPatient = async (
   } catch (error) {
     console.error("Fejl ved hentning af aftaler + journal:", error);
     res.status(500).json({
-      message: "Serverfejl under hentning af aftaler og journaldata",
+      message: "Serverfejl",
       error,
     });
   }

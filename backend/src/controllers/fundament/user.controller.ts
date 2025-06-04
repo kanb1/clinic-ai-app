@@ -32,7 +32,8 @@ export const getStaffStatuses = async (req: Request, res: Response) => {
 
     res.status(200).json(staff);
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch staff statuses", error });
+    console.error("Could not get staff status", error);
+    res.status(500).json({ message: "Failed to complete this task" });
   }
 };
 
@@ -53,7 +54,9 @@ export const updateMyOwnStatus = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: "Status updated", user });
   } catch (error) {
-    res.status(500).json({ message: "Error updating status", error });
+    console.error("Error updating status", error);
+
+    res.status(500).json({ message: "Error" });
   }
 };
 
@@ -68,6 +71,7 @@ export const getPatients = async (req: Request, res: Response) => {
 
     res.status(200).json(patients);
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch patients", error });
+    console.error(" Failed to fetch patients", error);
+    res.status(500).json({ message: "error" });
   }
 };

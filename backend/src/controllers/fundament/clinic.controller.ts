@@ -23,7 +23,8 @@ export const createClinic = async (req: Request, res: Response) => {
     });
     res.status(201).json(clinic);
   } catch (error) {
-    res.status(500).json({ message: "Error when creating clinic", error });
+    console.error("Could not create the clinic", error);
+    res.status(500).json({ message: "Error" });
   }
 };
 
@@ -32,7 +33,9 @@ export const getClinics = async (req: Request, res: Response) => {
     const clinics = await ClinicModel.find();
     res.json(clinics);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching the clinics", error });
+    console.error("Could not get clinics", error);
+
+    res.status(500).json({ message: "Error" });
   }
 };
 
@@ -50,7 +53,7 @@ export const getClinicById = async (req: Request, res: Response) => {
     res.status(200).json(clinic);
   } catch (error) {
     console.error("Error fetching clinic by ID:", error);
-    res.status(500).json({ message: "Server error", error });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -70,8 +73,8 @@ export const getMyClinic = async (req: Request, res: Response) => {
     res.status(200).json(clinic);
     return;
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Serverfejl ved fetching af clinic", error });
+    console.error("Could not get my clinic", error);
+
+    res.status(500).json({ message: "Serverfejl" });
   }
 };
