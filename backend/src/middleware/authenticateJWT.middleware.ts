@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { JwtPayload } from "../types/express"; // eller hvor du nu gemmer det
+import { SessionModel } from "../models/session.model";
 
 // vil blive brugt i routes
-export const authenticateJWT = (
+export const authenticateJWT = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -25,6 +26,16 @@ export const authenticateJWT = (
 
     // er tokenet gyldigt? er signaturen korrekt?
     const decoded = jwt.verify(token, process.env.JWT_SECRET) as JwtPayload;
+
+    // Tjekker JTI i databasen
+    const session = await SessionModel.findOne({ jti: decoded.jti });
+    if (!session) {
+      res
+        .status(401)
+        .json({ message: "Token is no longer valid (session not found)" });
+      return;
+    }
+
     // hvis ja, så får vi payloaden ud --> gemmer payloaden i req.user
     //  kan nemlig bruges i andre routes
     req.user = {

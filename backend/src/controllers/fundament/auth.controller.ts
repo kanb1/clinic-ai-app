@@ -1,8 +1,10 @@
 import { Request, Response } from "express";
 import { UserModel } from "../../models/user.model";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { JournalModel } from "../../models/journal.model";
+import { v4 as uuidv4 } from "uuid";
+import { SessionModel } from "../../models/session.model";
 
 // Allerede eksisterende login...
 
@@ -67,6 +69,12 @@ export const login = async (req: Request, res: Response) => {
       throw new Error("Missing JWT_SECRET environment variable");
     }
 
+    // unikt Id jeg selv laver og tilføjer til payload
+    const jti = uuidv4();
+
+    // gemmer i db, hvor vi kontrollerer den i authmiddleware
+    await SessionModel.create({ jti });
+
     // hemmelig signatur-kode som sidste del af toket "header . payload . signature"
     // ingen kan ændre token
     const token = jwt.sign(
@@ -74,6 +82,7 @@ export const login = async (req: Request, res: Response) => {
         _id: user._id,
         role: user.role,
         clinicId: user.clinic_id,
+        jti,
       },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
@@ -97,5 +106,28 @@ export const login = async (req: Request, res: Response) => {
     });
     res.status(500).json({ message: "Server error" });
     return;
+  }
+};
+
+export const logout = async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    res.status(400).json({ message: "No token provided" });
+    return;
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
+
+    // Slet JTI = "log ud"
+    await SessionModel.deleteOne({ jti: decoded.jti });
+
+    res.status(200).json({ message: "Logout successful" });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: "Invalid token" });
   }
 };
