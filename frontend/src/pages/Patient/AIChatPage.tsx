@@ -42,6 +42,8 @@ const AIChatPage = () => {
   const cancelRef = useRef(null);
 
   const handleSubmit = () => {
+    // Det forhindrer både tomme beskeder og beskeder med kun mellemrum.
+    // forhidnrer spam/fejl i input
     if (!message.trim()) return;
 
     const userMessage = message.trim();
@@ -163,6 +165,7 @@ const AIChatPage = () => {
               value={message}
               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                 const text = e.target.value;
+                // max-grænse på 100 ord
                 const wordCount = text.trim().split(/\s+/).length;
                 if (wordCount <= 100) {
                   setMessage(text);
