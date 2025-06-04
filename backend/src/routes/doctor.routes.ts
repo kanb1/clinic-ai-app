@@ -24,6 +24,14 @@ import {
   getAppointmentsWithJournalForPatient,
   getOrCreateJournalByPatientId,
 } from "../controllers/doctor/journal.controller";
+import { handleValidationErrors } from "../middleware/validationError.middleware";
+import {
+  validateCancelAppointment,
+  validateCreatePrescription,
+  validateGetJournalById,
+  validateGetPatientDetails,
+  validateTodayAppointmentDetails,
+} from "../validators/doctorValidators";
 
 const router = express.Router();
 
@@ -38,20 +46,45 @@ router.get("/appointments/today", getTodaysAppointments);
 router.get("/appointments", getAppointmentsForDoctor);
 
 // Dagens aftaler (patientdetaljer og muligheder)
-router.get("/appointments/today-details", getTodayAppointmentDetails);
-router.patch("/appointments/:id/cancel", cancelAppointmentByDoctor);
+router.get(
+  "/appointments/today-details",
+  validateTodayAppointmentDetails,
+  handleValidationErrors,
+  getTodayAppointmentDetails
+);
+router.patch(
+  "/appointments/:id/cancel",
+  validateCancelAppointment,
+  handleValidationErrors,
+  cancelAppointmentByDoctor
+);
 
 // Patientoversigt
 router.get("/patients", getPatientsForDoctor);
-router.get("/patients/:id", getPatientDetails);
+router.get(
+  "/patients/:id",
+  validateGetPatientDetails,
+  handleValidationErrors,
+  getPatientDetails
+);
 
 // Journaler
 router.get("/journals", getJournalOverview);
-router.get("/journals/:id", getJournalById);
+router.get(
+  "/journals/:id",
+  validateGetJournalById,
+  handleValidationErrors,
+  getJournalById
+);
 router.post("/test/create-journal-entry", createTestJournalEntry); //SEED JOURNAL ENTRIES
 
 // Recept og Testresultater
-router.post("/prescriptions", createPrescription);
+router.post(
+  "/prescriptions",
+  validateCreatePrescription,
+  handleValidationErrors,
+  createPrescription
+);
 router.get("/prescriptions/:patientId", getPrescriptionsByPatient);
 router.post("/test/create-testresults", createTestResult); //SEED TEST RESULTS
 router.get("/testresults/:patientId", getTestResultsByPatient);
