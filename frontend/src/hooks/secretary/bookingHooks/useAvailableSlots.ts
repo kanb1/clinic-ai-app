@@ -20,9 +20,11 @@ export const useAvailabilitySlots = (weekStart: string, doctorId?: string) => {
     queryKey: ["availability-slots", weekStart, doctorId],
     queryFn: async () => {
       // /secretary/availability-slots?weekStart=2025-05-27&doctorId=abc123
-      const res = await api.get("/secretary/availability-slots", {
-        params: { weekStart, doctorId },
-      });
+      // undlader  helt at sende doctorId ind i URL, når den ikke er defineret -> Ingen tom streng i URL (fejl)
+      const params: Record<string, string> = { weekStart };
+      if (doctorId) params.doctorId = doctorId;
+
+      const res = await api.get("/secretary/availability-slots", { params });
       return res.data;
     },
     // kør kun hvis vi har weekStart for at undgå at få alle ledige tider
