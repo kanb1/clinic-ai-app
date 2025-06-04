@@ -23,14 +23,14 @@ router.patch(
   "/update-status/me",
   authenticateJWT,
   authorizeRoles(["secretary", "doctor"]),
+  updateStatusValidator,
+  handleValidationErrors,
   updateMyOwnStatus
 );
 router.get(
   "/patients",
   authenticateJWT,
   authorizeRoles(["secretary", "doctor"]),
-  updateStatusValidator,
-  handleValidationErrors,
   getPatients
 );
 
