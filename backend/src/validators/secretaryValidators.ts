@@ -29,29 +29,14 @@ export const validateBookAppointment = [
 ];
 
 export const validateCreateAppointment = [
-  body("doctorId")
-    .notEmpty()
-    .withMessage("Læge-ID er påkrævet")
-    .isMongoId()
-    .withMessage("Ugyldigt læge-ID"),
-
-  body("patientId")
-    .notEmpty()
-    .withMessage("Patient-ID er påkrævet")
-    .isMongoId()
-    .withMessage("Ugyldigt patient-ID"),
-
-  body("date")
-    .notEmpty()
-    .withMessage("Dato er påkrævet")
-    .isISO8601()
-    .withMessage("Ugyldig datoformat. Brug ISO8601"),
-
-  body("time")
-    .notEmpty()
-    .withMessage("Tidspunkt er påkrævet")
-    .matches(/^([01]\d|2[0-3]):([0-5]\d)$/)
-    .withMessage("Ugyldigt tidsformat (fx 14:30)"),
+  body("doctor_id").isMongoId().withMessage("Ugyldigt læge-ID"),
+  body("patient_id").isMongoId().withMessage("Ugyldigt patient-ID"),
+  body("slot_id").isMongoId().withMessage("Ugyldigt slot-ID"),
+  body("secretary_note")
+    .optional()
+    .isString()
+    .isLength({ max: 500 })
+    .withMessage("Noten må maks være 500 tegn"),
 ];
 
 export const validateAddNoteToAppointment = [
