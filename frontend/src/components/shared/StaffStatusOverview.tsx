@@ -1,4 +1,12 @@
-import { Badge, Box, Flex, Spinner, Text, VStack } from "@chakra-ui/react";
+import {
+  Badge,
+  Box,
+  Flex,
+  Heading,
+  Spinner,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
 import { useStaffStatus } from "@/hooks/common/useStaffStatus";
 import ToggleStatusButton from "@/components/shared/ToggleStatusButton";
 import { useAuth } from "@/context/AuthContext";
@@ -30,13 +38,9 @@ const StaffStatusOverview = ({
       }}
       overflowX="hidden"
     >
-      <Text
-        fontSize="xl"
-        fontWeight="semibold"
-        mb={{ base: "10px", sm: "12px", md: "14px" }}
-      >
+      <Heading size={"heading2"} mb={{ base: "10px", sm: "12px", md: "14px" }}>
         Personale
-      </Text>
+      </Heading>
 
       <VStack align="start" spacing={3} w="full">
         {staff?.map((person) => {
