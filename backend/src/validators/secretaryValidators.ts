@@ -69,15 +69,11 @@ export const validateAddNoteToAppointment = [
 ];
 
 export const validateAvailabilityQuery = [
-  query("doctorId")
-    .notEmpty()
-    .withMessage("Læge-ID er påkrævet")
-    .isMongoId()
-    .withMessage("Ugyldigt læge-ID"),
+  query("doctorId").optional().isMongoId().withMessage("Ugyldigt læge-ID"),
 
-  query("date")
+  query("weekStart")
     .notEmpty()
-    .withMessage("Dato er påkrævet")
+    .withMessage("weekStart er påkrævet")
     .isISO8601()
-    .withMessage("Ugyldig datoformat"),
+    .withMessage("Ugyldigt datoformat"),
 ];
