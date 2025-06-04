@@ -32,6 +32,11 @@ import {
   validateGetPatientDetails,
   validateTodayAppointmentDetails,
 } from "../validators/doctorValidators";
+import {
+  validateCreateJournalEntry,
+  validateGetAppointmentsWithJournal,
+  validateGetOrCreateJournal,
+} from "../validators/journalValidators";
 
 const router = express.Router();
 
@@ -91,11 +96,25 @@ router.get("/testresults/:patientId", getTestResultsByPatient);
 
 // AI-noter og journal
 router.get("/ai-notes/:appointmentId", getChatSessionByAppointment);
+// (FRA JOURNAL CONTROLLER)
 router.get(
   "/appointments-with-journal/:patientId",
-  getAppointmentsWithJournalForPatient
+  getAppointmentsWithJournalForPatient,
+  validateGetAppointmentsWithJournal,
+  handleValidationErrors
 );
-router.get("/journals/patient/:patientId", getOrCreateJournalByPatientId);
-router.post("/journalentry", createJournalEntry);
+
+router.get(
+  "/journals/patient/:patientId",
+  validateGetOrCreateJournal,
+  handleValidationErrors,
+  getOrCreateJournalByPatientId
+);
+router.post(
+  "/journalentry",
+  validateCreateJournalEntry,
+  handleValidationErrors,
+  createJournalEntry
+);
 
 export default router;
