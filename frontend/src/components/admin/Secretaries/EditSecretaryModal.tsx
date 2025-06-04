@@ -30,6 +30,10 @@ const EditSecretaryModal = ({ isOpen, onClose, secretary }: Props) => {
   const [phone, setPhone] = useState("");
   const { mutate: updateSecretary, isPending } = useUpdateSecretary();
 
+  // Validation
+  const [emailError, setEmailError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+
   useEffect(() => {
     if (secretary) {
       setEmail(secretary.email || "");
@@ -39,6 +43,22 @@ const EditSecretaryModal = ({ isOpen, onClose, secretary }: Props) => {
 
   const handleSave = () => {
     if (!secretary) return;
+
+    setEmailError("");
+    setPhoneError("");
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setEmailError("Ugyldig email-adresse");
+      return;
+    }
+
+    const phoneRegex = /^[\d+\s-]{6,20}$/;
+    if (phone && !phoneRegex.test(phone)) {
+      setPhoneError("Ugyldigt telefonnummer");
+      return;
+    }
+
     updateSecretary(
       { id: secretary._id, email, phone },
       {
@@ -74,22 +94,24 @@ const EditSecretaryModal = ({ isOpen, onClose, secretary }: Props) => {
         <ModalCloseButton />
         <ModalBody>
           <Stack spacing={4}>
-            <FormControl>
+            <FormControl isInvalid={!!emailError}>
               <FormLabel>Email</FormLabel>
               <Input
                 placeholder="Indtast ny email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
+              {emailError && <p style={{ color: "red" }}>{emailError}</p>}
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!phoneError}>
               <FormLabel>Telefonnummer</FormLabel>
               <Input
                 placeholder="Indtast nyt nummer"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
               />
+              {phoneError && <p style={{ color: "red" }}>{phoneError}</p>}
             </FormControl>
           </Stack>
         </ModalBody>

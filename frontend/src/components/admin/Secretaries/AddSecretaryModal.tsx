@@ -1,5 +1,3 @@
-// src/components/admin/Secretaries/AddSecretaryModal.tsx
-
 import {
   Modal,
   ModalOverlay,
@@ -8,12 +6,13 @@ import {
   ModalCloseButton,
   ModalBody,
   ModalFooter,
-  Button,
   Input,
+  Button,
   FormLabel,
   VStack,
   useToast,
   FormControl,
+  Text,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useCreateSecretary } from "@/hooks/admin/admin-secretaryHooks/useCreateSecretary";
@@ -25,6 +24,8 @@ interface Props {
 
 const AddSecretaryModal = ({ isOpen, onClose }: Props) => {
   const toast = useToast();
+  const { mutate: createSecretary, isPending } = useCreateSecretary();
+
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -32,24 +33,52 @@ const AddSecretaryModal = ({ isOpen, onClose }: Props) => {
     password: "",
   });
 
-  const { mutate: createSecretary, isPending } = useCreateSecretary();
+  const [errors, setErrors] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+  });
+
+  const validateForm = () => {
+    const newErrors = { name: "", email: "", phone: "", password: "" };
+    let isValid = true;
+
+    if (form.name.trim().length < 2) {
+      newErrors.name = "Navn er påkrævet og skal være mindst 2 tegn";
+      isValid = false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email)) {
+      newErrors.email = "Ugyldig email-adresse";
+      isValid = false;
+    }
+
+    const phoneRegex = /^[\d+\s-]{6,20}$/;
+    if (form.phone && !phoneRegex.test(form.phone)) {
+      newErrors.phone = "Ugyldigt telefonnummer";
+      isValid = false;
+    }
+
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{12,}$/;
+    if (!passwordRegex.test(form.password)) {
+      newErrors.password =
+        "Adgangskoden skal være mindst 12 tegn og indeholde store og små bogstaver, tal og specialtegn";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleCreate = () => {
-    const { name, email, password } = form;
-
-    if (!name || !email || !password) {
-      toast({
-        title: "Alle felter er påkrævede",
-        status: "warning",
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
+  const handleSave = () => {
+    if (!validateForm()) return;
 
     createSecretary(form, {
       onSuccess: () => {
@@ -59,12 +88,13 @@ const AddSecretaryModal = ({ isOpen, onClose }: Props) => {
           duration: 3000,
           isClosable: true,
         });
-        setForm({ name: "", email: "", phone: "", password: "" });
         onClose();
+        setForm({ name: "", email: "", phone: "", password: "" });
+        setErrors({ name: "", email: "", phone: "", password: "" });
       },
       onError: () => {
         toast({
-          title: "Fejl",
+          title: "Noget gik galt",
           description: "Kunne ikke oprette sekretær",
           status: "error",
           duration: 3000,
@@ -89,7 +119,7 @@ const AddSecretaryModal = ({ isOpen, onClose }: Props) => {
         <ModalCloseButton />
         <ModalBody>
           <VStack spacing={4} align="stretch">
-            <FormControl>
+            <FormControl isInvalid={!!errors.name}>
               <FormLabel fontWeight="bold">Navn</FormLabel>
               <Input
                 name="name"
@@ -97,9 +127,14 @@ const AddSecretaryModal = ({ isOpen, onClose }: Props) => {
                 onChange={handleChange}
                 placeholder="Indtast navn"
               />
+              {errors.name && (
+                <Text fontSize="sm" color="red.500">
+                  {errors.name}
+                </Text>
+              )}
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.email}>
               <FormLabel fontWeight="bold">Email</FormLabel>
               <Input
                 name="email"
@@ -108,9 +143,14 @@ const AddSecretaryModal = ({ isOpen, onClose }: Props) => {
                 type="email"
                 placeholder="Indtast email"
               />
+              {errors.email && (
+                <Text fontSize="sm" color="red.500">
+                  {errors.email}
+                </Text>
+              )}
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.phone}>
               <FormLabel fontWeight="bold">Telefon</FormLabel>
               <Input
                 name="phone"
@@ -119,9 +159,14 @@ const AddSecretaryModal = ({ isOpen, onClose }: Props) => {
                 type="tel"
                 placeholder="Indtast telefonnummer"
               />
+              {errors.phone && (
+                <Text fontSize="sm" color="red.500">
+                  {errors.phone}
+                </Text>
+              )}
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.password}>
               <FormLabel fontWeight="bold">Adgangskode</FormLabel>
               <Input
                 name="password"
@@ -130,6 +175,11 @@ const AddSecretaryModal = ({ isOpen, onClose }: Props) => {
                 onChange={handleChange}
                 placeholder="Vælg adgangskode"
               />
+              {errors.password && (
+                <Text fontSize="sm" color="red.500">
+                  {errors.password}
+                </Text>
+              )}
             </FormControl>
           </VStack>
         </ModalBody>
@@ -140,7 +190,7 @@ const AddSecretaryModal = ({ isOpen, onClose }: Props) => {
           </Button>
           <Button
             colorScheme="green"
-            onClick={handleCreate}
+            onClick={handleSave}
             isLoading={isPending}
           >
             Gem
