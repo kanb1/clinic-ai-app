@@ -38,6 +38,26 @@ const MessageModal = ({
       return;
     }
 
+    if (content.length > 1000) {
+      toast({
+        title: "Beskeden er for lang.",
+        description: "Maks. længde er 1000 tegn.",
+        status: "warning",
+      });
+      return;
+    }
+
+    const wordCount = content.trim().split(/\s+/).length;
+
+    if (wordCount < 5) {
+      toast({
+        title: "Beskeden er for kort.",
+        description: "Skriv mindst 5 ord.",
+        status: "warning",
+      });
+      return;
+    }
+
     // brug af mutate
     // kalder mutate() og giver den et objekt (payload) med beskeddata
     // Dette objekt bliver sendt direkte videre til din mutationFn i hooken: hvor vi kalder api.post
