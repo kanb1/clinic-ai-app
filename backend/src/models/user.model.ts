@@ -25,7 +25,9 @@ const UserSchema: Schema = new Schema(
     clinic_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Clinic",
-      required: true,
+      required: function (this: IUser) {
+        return this.role !== "admin";
+      },
     },
     email: { type: String, required: true, unique: true },
     password_hash: { type: String, required: true, select: false }, //extra security: skal aktivt select hvis det skal bruges

@@ -57,7 +57,12 @@ export const useLogin = (
       // Redirect baseret på rolle
       switch (role) {
         case "admin":
-          navigate("/admin/frontpage");
+          if (!data.user.clinicId) {
+            // Hvis admin endnu ikke har en klinik → send videre til opret klinik-siden
+            navigate("/createclinic");
+          } else {
+            navigate("/admin/dashboard");
+          }
           break;
         case "doctor":
           navigate("/doctor/dashboard");
