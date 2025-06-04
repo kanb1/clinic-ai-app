@@ -39,13 +39,6 @@ export const createJournalEntry = async (req: Request, res: Response) => {
   try {
     const { journalId, appointmentId, notes } = req.body;
 
-    if (!journalId || !appointmentId || !notes) {
-      res
-        .status(400)
-        .json({ message: "journalId, appointmentId og notes er påkrævet" });
-      return;
-    }
-
     // Opret journal entry
     const newEntry = await JournalEntryModel.create({
       appointment_id: appointmentId,
