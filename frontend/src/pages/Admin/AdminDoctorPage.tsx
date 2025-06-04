@@ -97,6 +97,11 @@ const AdminDoctorPage = () => {
       .includes(search.toLowerCase())
   );
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.trimStart().slice(0, 100); // max 100 tegn
+    setSearch(value.replace(/[<>]/g, "")); // fjern < og > hvis nogen prøver HTML-lignende input
+  };
+
   return (
     <Layout>
       <Box
@@ -119,7 +124,7 @@ const AdminDoctorPage = () => {
           <Input
             placeholder="Søg efter navn eller email"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={handleSearchChange}
           />
           <Button variant={"outlineWhite"} onClick={onCreateOpen}>
             + Opret læge
