@@ -28,39 +28,69 @@ const EditDoctorModal = ({ isOpen, onClose, doctor }: Props) => {
   const toast = useToast();
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [name, setName] = useState("");
   const { mutate: updateDoctor } = useUpdateDoctor();
 
-  // error states:
+  // error states
   const [emailError, setEmailError] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [addressError, setAddressError] = useState("");
 
   useEffect(() => {
     if (doctor) {
       setEmail(doctor.email || "");
       setPhone(doctor.phone || "");
+      setAddress(doctor.address || "");
+      setName(doctor.name || "");
     }
   }, [doctor]);
 
   const handleSave = () => {
     if (!doctor) return;
 
+    // reset errors
     setEmailError("");
     setPhoneError("");
+    setNameError("");
+    setAddressError("");
 
+    // validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^[\d+\s-]{6,20}$/;
+    const nameRegex = /^[a-zA-ZÆØÅæøå\s]+$/;
+
+    let hasError = false;
+
+    if (!name.trim() || name.length < 2) {
+      setNameError("Navn skal være mindst 2 tegn");
+      hasError = true;
+    } else if (!nameRegex.test(name)) {
+      setNameError("Navnet må kun indeholde bogstaver og mellemrum");
+      hasError = true;
+    }
+
     if (!emailRegex.test(email)) {
       setEmailError("Ugyldig email-adresse");
-      return;
+      hasError = true;
     }
 
-    const phoneRegex = /^[\d+\s-]{6,20}$/; // tillader +45 12345678 eller 123-456-7890 osv.
     if (phone && !phoneRegex.test(phone)) {
       setPhoneError("Ugyldigt telefonnummer");
-      return;
+      hasError = true;
     }
 
+    if (address && address.trim().length < 5) {
+      setAddressError("Adressen skal være mindst 5 tegn");
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    // send request
     updateDoctor(
-      { id: doctor._id, email, phone },
+      { id: doctor._id, email, phone, name, address },
       {
         onSuccess: () => {
           toast({
@@ -87,10 +117,24 @@ const EditDoctorModal = ({ isOpen, onClose, doctor }: Props) => {
         <ModalCloseButton />
         <ModalBody>
           <Stack spacing={4}>
+            <FormControl isInvalid={!!nameError}>
+              <FormLabel>Navn</FormLabel>
+              <Input
+                placeholder="Indtast navn"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+              {nameError && (
+                <Text fontSize="sm" color="red.500">
+                  {nameError}
+                </Text>
+              )}
+            </FormControl>
+
             <FormControl isInvalid={!!emailError}>
               <FormLabel>Email</FormLabel>
               <Input
-                placeholder="Indtast ny email"
+                placeholder="Indtast email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -104,7 +148,7 @@ const EditDoctorModal = ({ isOpen, onClose, doctor }: Props) => {
             <FormControl isInvalid={!!phoneError}>
               <FormLabel>Telefonnummer</FormLabel>
               <Input
-                placeholder="Indtast nyt nummer"
+                placeholder="Indtast telefonnummer"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
               />
@@ -114,22 +158,32 @@ const EditDoctorModal = ({ isOpen, onClose, doctor }: Props) => {
                 </Text>
               )}
             </FormControl>
+
+            <FormControl isInvalid={!!addressError}>
+              <FormLabel>Adresse</FormLabel>
+              <Input
+                placeholder="Indtast adresse"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
+              {addressError && (
+                <Text fontSize="sm" color="red.500">
+                  {addressError}
+                </Text>
+              )}
+            </FormControl>
           </Stack>
         </ModalBody>
         <ModalFooter mt={4}>
           <Button
-            backgroundColor="black"
-            color={"white"}
             onClick={onClose}
             mr={3}
+            backgroundColor="black"
+            color="white"
           >
             Annuller
           </Button>
-          <Button
-            backgroundColor="#1c5e3a"
-            color={"white"}
-            onClick={handleSave}
-          >
+          <Button onClick={handleSave} backgroundColor="#1c5e3a" color="white">
             Gem
           </Button>
         </ModalFooter>
