@@ -122,6 +122,7 @@ const AdminSecretaryPage = () => {
           mb={4}
           gap={4}
           flexDir={{ base: "column", sm: "row" }}
+          alignItems={"center"}
         >
           <Input
             placeholder="Søg efter navn eller email"
