@@ -14,20 +14,6 @@ export const validateMarkMessageAsRead = [
   param("id").isMongoId().withMessage("Ugyldigt besked-ID"),
 ];
 
-export const validateBookAppointment = [
-  body("patient_id").isMongoId().withMessage("Ugyldigt patient-ID"),
-  body("doctor_id").isMongoId().withMessage("Ugyldigt læge-ID"),
-  body("date").isISO8601().withMessage("Dato skal være gyldig (YYYY-MM-DD)"),
-  body("time")
-    .matches(/^([0-1]\d|2[0-3]):([0-5]\d)$/)
-    .withMessage("Tidsformat skal være HH:mm"),
-  body("secretary_note")
-    .optional()
-    .isString()
-    .isLength({ max: 500 })
-    .withMessage("Noten må maks være 500 tegn"),
-];
-
 export const validateCreateAppointment = [
   body("doctor_id").isMongoId().withMessage("Ugyldigt læge-ID"),
   body("patient_id").isMongoId().withMessage("Ugyldigt patient-ID"),

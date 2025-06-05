@@ -21,7 +21,6 @@ import { handleValidationErrors } from "../middleware/validationError.middleware
 import {
   validateAddNoteToAppointment,
   validateAvailabilityQuery,
-  validateBookAppointment,
   validateCreateAppointment,
   validateMarkMessageAsRead,
   validateSendMessage,
@@ -54,12 +53,7 @@ router.get("/patients", searchPatients); // samme som før, men nu med ?search=
 router.get("/doctors", getDoctors);
 
 // Kalender og ledige tider
-router.get(
-  "/appointments",
-  validateBookAppointment,
-  handleValidationErrors,
-  getAppointments
-);
+router.get("/appointments", handleValidationErrors, getAppointments);
 router.get("/availability", authenticateJWT, getAvailabilityOverview);
 router.get(
   "/availability-slots",
