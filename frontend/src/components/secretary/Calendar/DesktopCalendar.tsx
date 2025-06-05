@@ -20,19 +20,11 @@ import moment from "moment";
 import { useState } from "react";
 import { api } from "../../../services/httpClient";
 import { useCheckNextWeekHasSlots } from "@/hooks/secretary/calendarHooks/useCheckNextWeekHasSlots";
-
-interface Appointment {
-  _id: string;
-  date: string;
-  time: string;
-  end_time: string;
-  patient_id: { name: string };
-  doctor_id: { name: string };
-  secretary_note?: string;
-}
+import AppointmentDetailsModal from "@/components/shared/AppointmentModal";
+import { IAppointment } from "@/types/appointment.types";
 
 interface Props {
-  appointments: Appointment[];
+  appointments: IAppointment[];
   refetch: () => void;
 }
 
@@ -44,7 +36,7 @@ const doctorColors: Record<string, string> = {
 
 export const CustomCalendar = ({ appointments, refetch }: Props) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [selected, setSelected] = useState<Appointment | null>(null);
+  const [selectedAppt, setSelectedAppt] = useState<IAppointment | null>(null);
   const [weekOffset, setWeekOffset] = useState(0);
   const [loading, setLoading] = useState(false);
   const { data: hasNextWeek, isLoading: checkingNext } =
@@ -57,8 +49,8 @@ export const CustomCalendar = ({ appointments, refetch }: Props) => {
 
   const visibleDays = days;
 
-  const handleClick = (appt: Appointment) => {
-    setSelected(appt);
+  const handleClick = (appt: IAppointment) => {
+    setSelectedAppt(appt);
     onOpen();
   };
 
@@ -203,41 +195,11 @@ export const CustomCalendar = ({ appointments, refetch }: Props) => {
         </Grid>
       </Box>
 
-      <Modal isOpen={isOpen} onClose={onClose} size="md">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Aftaledetaljer</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            {selected && (
-              <>
-                <Text>
-                  <strong>Patient:</strong> {selected.patient_id.name}
-                </Text>
-                <Text>
-                  <strong>Læge:</strong> {selected.doctor_id.name}
-                </Text>
-                <Text>
-                  <strong>Dato:</strong>{" "}
-                  {moment(selected.date).format("dddd D/M")}
-                </Text>
-                <Text>
-                  <strong>Klokkeslæt:</strong> {selected.time} –{" "}
-                  {selected.end_time}
-                </Text>
-                {selected.secretary_note && (
-                  <Text mt={2}>
-                    <strong>Note:</strong> {selected.secretary_note}
-                  </Text>
-                )}
-              </>
-            )}
-          </ModalBody>
-          <ModalFooter>
-            <Button onClick={onClose}>Luk</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <AppointmentDetailsModal
+        isOpen={isOpen}
+        onClose={onClose}
+        appointment={selectedAppt}
+      />
     </Box>
   );
 };

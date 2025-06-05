@@ -20,6 +20,8 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 import moment from "moment";
 import { useCheckNextWeekHasSlots } from "@/hooks/secretary/calendarHooks/useCheckNextWeekHasSlots";
+import AppointmentDetailsModal from "@/components/shared/AppointmentModal";
+import { IAppointment } from "@/types/appointment.types";
 
 interface Props {
   appointments: any[];
@@ -31,7 +33,7 @@ const CompactCalendar = ({ appointments }: Props) => {
     "Mie Christensen": "purple.400",
   };
   const [selectedDate, setSelectedDate] = useState(moment());
-  const [selectedAppt, setSelectedAppt] = useState<any>(null);
+  const [selectedAppt, setSelectedAppt] = useState<IAppointment | null>(null);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -143,36 +145,11 @@ const CompactCalendar = ({ appointments }: Props) => {
       </Grid>
 
       {/* Modal for appointment details */}
-      <Modal isOpen={isOpen} onClose={onClose} size={{ base: "sm" }}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Aftaledetaljer</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            {selectedAppt ? (
-              <Box>
-                <Text>
-                  <strong>Patient:</strong> {selectedAppt.patient_id?.name}
-                </Text>
-                <Text>
-                  <strong>Læge:</strong> {selectedAppt.doctor_id?.name}
-                </Text>
-                <Text>
-                  <strong>Tid:</strong> {selectedAppt.time} –{" "}
-                  {selectedAppt.end_time || "?"}
-                </Text>
-                <Text>
-                  <strong>Status:</strong> {selectedAppt.status || "-"}
-                </Text>
-              </Box>
-            ) : (
-              <Text>Ingen data</Text>
-            )}
-          </ModalBody>
-
-          <ModalFooter></ModalFooter>
-        </ModalContent>
-      </Modal>
+      <AppointmentDetailsModal
+        isOpen={isOpen}
+        onClose={onClose}
+        appointment={selectedAppt}
+      />
     </Box>
   );
 };

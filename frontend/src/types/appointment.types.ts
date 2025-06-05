@@ -11,4 +11,5 @@ export interface IAppointment {
   time: string; // fx "10:30"
   end_time: string;
   status: "bekræftet" | "aflyst" | "udført" | "venter";
+  secretary_note?: string;
 }
