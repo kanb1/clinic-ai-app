@@ -6,6 +6,7 @@ import AdminPatientPage from "@/pages/Admin/AdminPatientPage";
 import AdminStaffPage from "@/pages/Admin/AdminDoctorPage";
 import AdminDoctorPage from "@/pages/Admin/AdminDoctorPage";
 import AdminSecretaryPage from "@/pages/Admin/AdminSecretaryPage";
+import AdminSendMessagePage from "@/pages/Admin/AdminSendMessagePage";
 
 export const adminRoutes: RouteObject[] = [
   {
@@ -33,6 +34,10 @@ export const adminRoutes: RouteObject[] = [
       {
         path: "secretaries",
         element: <AdminSecretaryPage />,
+      },
+      {
+        path: "send-message",
+        element: <AdminSendMessagePage />,
       },
     ],
   },
