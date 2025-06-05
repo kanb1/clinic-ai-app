@@ -10,6 +10,7 @@ import {
   getSecretaries,
   getStaff,
   lookupPatientByCpr,
+  sendSystemMessage,
   updateDoctor,
   updatePatient,
   updateSecretary,
@@ -94,8 +95,6 @@ router.put(
 );
 
 router.delete("/:id", deletePatient);
-
-// Genbrug fra sekretær:
-router.post("/messages", sendMessage);
+router.post("/system-messages", handleValidationErrors, sendSystemMessage);
 
 export default router;

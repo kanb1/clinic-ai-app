@@ -380,5 +380,46 @@ export const deletePatient = async (req: Request, res: Response) => {
 };
 
 // ************************************************* */ SEND MESSAGES AS ADMIN
+export const sendSystemMessage = async (req: Request, res: Response) => {
+  try {
+    const { content, receiver_scope, receiver_id } = req.body;
 
-// Vi genbruger samme besked-api "sendMessage" som sekretæren bruger
+    if (!content || !receiver_scope) {
+      res
+        .status(400)
+        .json({ message: "Indhold og modtagergruppe skal angives." });
+      return;
+    }
+
+    if (receiver_scope === "individual" && !receiver_id) {
+      res.status(400).json({
+        message: "receiver_id er påkrævet for individuelle beskeder.",
+      });
+      return;
+    }
+
+    if (
+      receiver_scope === "individual" &&
+      !mongoose.Types.ObjectId.isValid(receiver_id)
+    ) {
+      res.status(400).json({ message: "Ugyldigt receiver_id" });
+      return;
+    }
+
+    const newMessage = await MessageModel.create({
+      sender_id: req.user!._id, // admin
+      receiver_scope,
+      receiver_id:
+        receiver_scope === "individual"
+          ? new mongoose.Types.ObjectId(receiver_id)
+          : null,
+      content,
+      type: "system", //da det er fra admin er det "system" typen
+    });
+
+    res.status(201).json({ message: "Systembesked sendt", newMessage });
+  } catch (error) {
+    console.error("Fejl ved afsendelse af systembesked:", error);
+    res.status(500).json({ message: "Problemer med at udføre denne handling" });
+  }
+};
