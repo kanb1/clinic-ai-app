@@ -13,7 +13,7 @@ export const getMyProfile = async (req: Request, res: Response) => {
       return;
     }
 
-    res.status(200).json(user);
+    res.status(200).json({ user });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
