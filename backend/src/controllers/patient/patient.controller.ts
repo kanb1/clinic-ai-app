@@ -23,9 +23,9 @@ export const getUnreadMessagesForPatient = async (
           receiver_id: new mongoose.Types.ObjectId(userId),
         },
       ],
-    });
-    console.log("🔎 User ID:", userId);
-    console.log("📩 Query result:", messages);
+    })
+      .populate("sender_id", "name role")
+      .sort({ createdAt: -1 });
 
     res.status(200).json(messages);
   } catch (error) {
