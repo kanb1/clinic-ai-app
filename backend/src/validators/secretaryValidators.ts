@@ -1,13 +1,23 @@
 import { body, param, query } from "express-validator";
 
 export const validateSendMessage = [
-  body("receiver_id").isMongoId().withMessage("Ugyldigt modtager-ID"),
   body("content")
     .trim()
     .notEmpty()
     .withMessage("Beskedindhold er påkrævet")
     .isLength({ max: 1000 })
     .withMessage("Besked må maks være 1000 tegn"),
+
+  body("receiver_scope")
+    .notEmpty()
+    .isIn(["individual", "patients", "staff", "all"])
+    .withMessage("Ugyldig receiver_scope"),
+
+  // Kun hvis receiver_scope === "individual" - da den ellers ik er nødvendig da receiver_scope==="all"
+  body("receiver_id")
+    .if(body("receiver_scope").equals("individual"))
+    .isMongoId()
+    .withMessage("Ugyldigt modtager-ID"),
 ];
 
 export const validateMarkMessageAsRead = [
