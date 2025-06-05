@@ -6,6 +6,7 @@ import {
   useToast,
   Select,
   VStack,
+  Text,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import Layout from "@/components/layout/Layout";
@@ -61,11 +62,14 @@ const AdminSendMessagePage = () => {
   return (
     <Layout>
       <Box w="full" maxW="lg" mx="auto" mt={6}>
-        <Heading size="lg" mb={4}>
-          Send systembesked
+        <Heading size="heading1" mb={4} textAlign={"center"}>
+          Send besked
         </Heading>
+        <Text size="body" textAlign={"center"}>
+          Alle dine beskeder vil blive sendt som en systembesked
+        </Text>
 
-        <VStack align="stretch" spacing={4}>
+        <VStack align="stretch" spacing={4} mt={{ base: 5 }}>
           <Select
             value={receiverScope}
             onChange={(e) =>
@@ -87,7 +91,7 @@ const AdminSendMessagePage = () => {
           <Button
             onClick={handleSend}
             isLoading={isPending}
-            colorScheme="red"
+            variant="solidRed"
             alignSelf="end"
           >
             Send besked
