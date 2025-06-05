@@ -12,6 +12,7 @@ import {
   Input,
   Text,
   useToast,
+  Stack,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useUpdateMyProfile } from "@/hooks/patient/settingHooks/useUpdateMyProfile";
@@ -27,6 +28,7 @@ interface Props {
 const EditPatientInfoModal = ({ isOpen, onClose }: Props) => {
   const toast = useToast();
   const { user, setUser } = useAuth();
+
   const [email, setEmail] = useState(user?.email || "");
   const [phone, setPhone] = useState(user?.phone || "");
 
@@ -90,48 +92,112 @@ const EditPatientInfoModal = ({ isOpen, onClose }: Props) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered size="md">
+    <Modal isOpen={isOpen} onClose={onClose} isCentered size="lg">
       <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Rediger dine oplysninger</ModalHeader>
+      <ModalContent borderRadius="lg" p={2}>
+        <ModalHeader fontSize="xl" fontWeight="bold">
+          Redigér dine oplysninger
+        </ModalHeader>
         <ModalCloseButton />
-        <ModalBody pb={6}>
-          <FormControl isInvalid={!!errors.email} mb={4}>
-            <FormLabel>Email</FormLabel>
-            <Input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              type="email"
-              placeholder="Indtast din email"
-            />
-            {errors.email && (
-              <Text fontSize="sm" color="red.500" mt={1}>
-                {errors.email}
-              </Text>
-            )}
-          </FormControl>
 
-          <FormControl isInvalid={!!errors.phone}>
-            <FormLabel>Telefonnummer</FormLabel>
-            <Input
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              type="tel"
-              placeholder="Indtast dit telefonnummer"
-            />
-            {errors.phone && (
-              <Text fontSize="sm" color="red.500" mt={1}>
-                {errors.phone}
-              </Text>
-            )}
-          </FormControl>
+        <ModalBody>
+          <Text fontSize="sm" color="gray.500" mb={6}>
+            Navn, CPR og fødselsdato er skrivebeskyttede, da de simuleres som
+            CPR-data.
+          </Text>
+
+          <Stack spacing={4}>
+            <FormControl isDisabled>
+              <FormLabel>Navn</FormLabel>
+              <Input
+                value={user?.name || ""}
+                isReadOnly
+                bg="gray.100"
+                color="gray.600"
+                border="1px solid"
+                borderColor="gray.200"
+              />
+            </FormControl>
+
+            <FormControl isDisabled>
+              <FormLabel>CPR-nummer</FormLabel>
+              <Input
+                value={user?.cpr_number || ""}
+                isReadOnly
+                bg="gray.100"
+                color="gray.600"
+                border="1px solid"
+                borderColor="gray.200"
+              />
+            </FormControl>
+
+            <FormControl isDisabled>
+              <FormLabel>Adresse</FormLabel>
+              <Input
+                value={user?.address || ""}
+                isReadOnly
+                bg="gray.100"
+                color="gray.600"
+                border="1px solid"
+                borderColor="gray.200"
+              />
+            </FormControl>
+
+            <FormControl isDisabled>
+              <FormLabel>Fødselsdato</FormLabel>
+              <Input
+                value={
+                  user?.birth_date
+                    ? new Date(user.birth_date).toLocaleDateString("da-DK")
+                    : ""
+                }
+                isReadOnly
+                bg="gray.100"
+                color="gray.600"
+                border="1px solid"
+                borderColor="gray.200"
+              />
+            </FormControl>
+
+            <FormControl isInvalid={!!errors.email}>
+              <FormLabel>Email</FormLabel>
+              <Input
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Indtast ny email"
+              />
+              {errors.email && (
+                <Text fontSize="sm" color="red.500">
+                  {errors.email}
+                </Text>
+              )}
+            </FormControl>
+
+            <FormControl isInvalid={!!errors.phone}>
+              <FormLabel>Telefonnummer</FormLabel>
+              <Input
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Indtast nyt telefonnummer"
+              />
+              {errors.phone && (
+                <Text fontSize="sm" color="red.500">
+                  {errors.phone}
+                </Text>
+              )}
+            </FormControl>
+          </Stack>
         </ModalBody>
 
-        <ModalFooter>
+        <ModalFooter mt={4}>
           <Button onClick={onClose} variant="ghost" mr={3}>
             Annuller
           </Button>
-          <Button colorScheme="blue" onClick={handleSave} isLoading={isPending}>
+          <Button
+            colorScheme="green"
+            onClick={handleSave}
+            isLoading={isPending}
+          >
             Gem ændringer
           </Button>
         </ModalFooter>
