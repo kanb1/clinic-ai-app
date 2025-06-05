@@ -83,22 +83,34 @@ const PatientJournalPage = () => {
               <Heading size="heading2" mb={3}>
                 Recepter
               </Heading>
-              <VStack align="stretch" spacing={4}>
-                {prescriptions.map((r: any) => (
-                  <PrescriptionBox
-                    key={r._id}
-                    prescription={r}
-                    onView={() => setSelectedPrescription(r)}
-                  />
-                ))}
-                <Button
-                  onClick={() => setShowAddPrescription(true)}
-                  variant={"solidBlack"}
-                  alignSelf="end"
-                >
-                  + Tilføj recept
-                </Button>
-              </VStack>
+              <Box
+                maxH={{ base: "60vh", md: "70vh", xl: "55vh" }}
+                overflowY="auto"
+                pr={2}
+                sx={{
+                  "&::-webkit-scrollbar": {
+                    width: "6px",
+                  },
+                  "&::-webkit-scrollbar-track": {
+                    background: "gray.100",
+                    borderRadius: "full",
+                  },
+                  "&::-webkit-scrollbar-thumb": {
+                    background: "gray.400",
+                    borderRadius: "full",
+                  },
+                }}
+              >
+                <VStack align="stretch" spacing={4}>
+                  {prescriptions.map((r: any) => (
+                    <PrescriptionBox
+                      key={r._id}
+                      prescription={r}
+                      onView={() => setSelectedPrescription(r)}
+                    />
+                  ))}
+                </VStack>
+              </Box>
             </Box>
           )}
 
