@@ -26,13 +26,22 @@ export const validateGetJournalById = [
 
 export const validateCreatePrescription = [
   body("patient_id").isMongoId().withMessage("Ugyldigt patient ID"),
+
   body("medication_name")
     .isString()
-    .notEmpty()
-    .withMessage("Medicin-navn er påkrævet"),
-  body("dosage").isString().notEmpty().withMessage("Dosering er påkrævet"),
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage("Medicin-navn skal være mellem 2 og 100 tegn"),
+
+  body("dosage")
+    .isString()
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage("Dosering skal være mellem 2 og 100 tegn"),
+
   body("instructions")
     .isString()
-    .notEmpty()
-    .withMessage("Instruktioner er påkrævet"),
+    .trim()
+    .isLength({ min: 2, max: 250 })
+    .withMessage("Instruktioner skal være mellem 2 og 250 tegn"),
 ];
