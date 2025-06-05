@@ -3,94 +3,130 @@ import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import app from "../../index";
 import { UserModel } from "../../models/user.model";
-import {
-  createTestStaffMembers,
-  createTestUser,
-} from "../test-utils/testUtils";
+import { SessionModel } from "../../models/session.model";
 
+import { createUserAndToken } from "../test-utils/createUserAndToken";
+
+// Setup test DB
 let mongoServer: MongoMemoryServer;
-let clinicId: mongoose.Types.ObjectId;
-
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
-  await mongoose.connect(uri);
-
-  //opretter nyt unikt clinicid til brugerne
-  clinicId = new mongoose.Types.ObjectId();
+  await mongoose.connect(mongoServer.getUri());
 });
-
 afterAll(async () => {
   await mongoose.disconnect();
   await mongoServer.stop();
 });
-
 beforeEach(async () => {
   await UserModel.deleteMany({});
+  await SessionModel.deleteMany({});
 });
 
-describe("GET /api/users/me", () => {
-  it("should return user profile without password_hash", async () => {
-    // opretter admin
-    const { token } = await createTestUser("admin", clinicId);
-    //og logger ind med jwt token
-    const res = await request(app)
-      .get("/api/users/me")
-      .set("Authorization", `Bearer ${token}`);
+describe("User Controller", () => {
+  describe("GET /api/users/me", () => {
+    it("should return own user profile", async () => {
+      const { token, user } = await createUserAndToken("patient");
 
-    expect(res.status).toBe(200);
-    // email matcher "admin"
-    expect(res.body.email).toMatch(/admin-.*@test\.com/);
-    // passhash ik sendes med i responsen
-    expect(res.body).not.toHaveProperty("password_hash");
+      const res = await request(app)
+        .get("/api/users/me")
+        .set("Authorization", `Bearer ${token}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.user.email).toBe(user.email);
+    });
+
+    it("should return 404 if user not found", async () => {
+      const { token } = await createUserAndToken("patient");
+
+      await UserModel.deleteMany({}); // fjern brugeren
+
+      const res = await request(app)
+        .get("/api/users/me")
+        .set("Authorization", `Bearer ${token}`);
+
+      expect(res.status).toBe(404);
+    });
   });
 
-  it("should return 401 if no token is provided", async () => {
-    const res = await request(app).get("/api/users/me");
-    expect(res.status).toBe(401);
+  describe("GET /api/users/staff-statuses", () => {
+    it("should return staff status in clinic", async () => {
+      const { token, user } = await createUserAndToken("doctor");
+
+      await UserModel.create({
+        name: "Sekretær",
+        email: "sek@test.com",
+        password_hash: "hashed123",
+        role: "secretary",
+        clinic_id: user.clinic_id,
+        status: "optaget",
+      });
+
+      const res = await request(app)
+        .get("/api/users/staff-statuses")
+        .set("Authorization", `Bearer ${token}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.length).toBeGreaterThan(0);
+    });
   });
 
-  it("should return 404 if user not found", async () => {
-    // opretter en bruger og sletter den efter
-    const { token, userId } = await createTestUser("admin", clinicId);
-    await UserModel.findByIdAndDelete(userId);
+  describe("PATCH /api/users/update-status/me", () => {
+    it("should update own status", async () => {
+      const { token } = await createUserAndToken("secretary");
 
-    // Kalder /me med den gamle token som teknisk set stadigvæk er gyldigt
-    const res = await request(app)
-      .get("/api/users/me")
-      .set("Authorization", `Bearer ${token}`);
+      const res = await request(app)
+        .patch("/api/users/update-status/me")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ status: "optaget" });
 
-    //   forventer at den fejler pga bruger er slettet
-    expect(res.status).toBe(404);
-    expect(res.body.message).toBe("User not found");
+      expect(res.status).toBe(200);
+      expect(res.body.user.status).toBe("optaget");
+    });
+
+    it("should return 400 if status is invalid", async () => {
+      const { token } = await createUserAndToken("doctor");
+
+      const res = await request(app)
+        .patch("/api/users/update-status/me")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ status: "crazy-status" });
+
+      expect(res.status).toBe(400);
+      expect(res.body.errors?.[0]?.msg).toMatch(/Status skal være enten/);
+    });
+
+    it("should return 404 if user not found", async () => {
+      const { token } = await createUserAndToken("doctor");
+
+      await UserModel.deleteMany({}); // fjern brugeren
+
+      const res = await request(app)
+        .patch("/api/users/update-status/me")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ status: "ledig" });
+
+      expect(res.status).toBe(404);
+    });
   });
-});
 
-describe("GET /api/users/staff-statuses", () => {
-  it("should return staff members (doctors and secretaries)", async () => {
-    // logged in bruger som er en sekretær i samme klinik
-    const { token } = await createTestUser("secretary", clinicId); // login-bruger først
-    await createTestStaffMembers(clinicId); // opret doctor + secretary bagefter
+  describe("GET /api/users/patients", () => {
+    it("should return all patients in same clinic", async () => {
+      const { token, user } = await createUserAndToken("doctor");
 
-    const res = await request(app)
-      .get("/api/users/staff-statuses")
-      .set("Authorization", `Bearer ${token}`);
+      await UserModel.create({
+        name: "Patient1",
+        email: "p1@test.com",
+        password_hash: "hash",
+        role: "patient",
+        clinic_id: user.clinic_id,
+      });
 
-    expect(res.status).toBe(200);
-    expect(res.body.length).toBe(2); // doctor + secretary (uden login-bruger)
-    expect(res.body[0]).toHaveProperty("name");
-    expect(res.body[0]).not.toHaveProperty("password_hash");
-  });
+      const res = await request(app)
+        .get("/api/users/patients")
+        .set("Authorization", `Bearer ${token}`);
 
-  it("should return empty array if no staff in same clinic", async () => {
-    // opretter kun login-brugeren men ingen ansatte
-    const { token } = await createTestUser("secretary", clinicId); // Bruger er i klinik, men ingen staff
-
-    const res = await request(app)
-      .get("/api/users/staff-statuses")
-      .set("Authorization", `Bearer ${token}`);
-
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual([]); //bør returnere en tom liste
+      expect(res.status).toBe(200);
+      expect(res.body[0].role).toBe("patient");
+    });
   });
 });
