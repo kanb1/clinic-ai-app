@@ -10,12 +10,17 @@ import {
   Divider,
   Avatar,
 } from "@chakra-ui/react";
-import { useAuth } from "@/context/AuthContext";
 import EditPatientInfoModal from "@/components/patient/Settings/EditPatientInfoModal";
+import { useMyProfile } from "@/hooks/patient/settingHooks/useMyProfile";
 
 const PatientSettings = () => {
-  const { user } = useAuth();
+  const { data, isLoading } = useMyProfile(); // Henter opdaterede brugerdata
+  const user = data?.user;
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  if (isLoading) return <p>Indlæser...</p>; // loading state
+
+  console.log("USER:", user);
 
   return (
     <Layout>
