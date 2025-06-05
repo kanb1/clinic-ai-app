@@ -31,7 +31,7 @@ const UserSchema: Schema = new Schema(
     },
     email: { type: String, required: true, unique: true },
     password_hash: { type: String, required: true, select: false }, //extra security: skal aktivt select hvis det skal bruges
-    phone: { type: String },
+    phone: { type: String, unique: true },
     address: { type: String },
     birth_date: { type: Date },
     cpr_number: {
