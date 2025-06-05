@@ -10,6 +10,7 @@ export const createAdminWithClinicAndToken = async () => {
   const admin = await UserModel.create({
     name: "Admin Test",
     email: `admin-${Date.now()}@test.com`,
+    phone: `9999${Date.now()}`,
     password_hash: "Strong123!",
     role: "admin",
     clinic_id: clinicId,

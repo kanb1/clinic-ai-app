@@ -99,7 +99,7 @@ export const updateDoctor = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: "Doctor updated", doctor });
   } catch (error) {
-    console.error("Error updating the doctor", error);
+    console.error("Doctor update fejl", error);
     res.status(500).json({ message: "Problemer opstod. Prøven igen senere" });
   }
 };
@@ -209,7 +209,7 @@ export const updateSecretary = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("could not update secretary", error);
+    console.error("Secretary update fejl", error);
     res.status(500).json({ message: "Server error" });
   }
 };

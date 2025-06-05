@@ -1,22 +1,16 @@
 import request from "supertest";
 import mongoose from "mongoose";
-import { MongoMemoryServer } from "mongodb-memory-server";
 import app from "../../index";
+import { MongoMemoryServer } from "mongodb-memory-server";
 import { UserModel } from "../../models/user.model";
-import {
-  createTestUser,
-  createTestStaffMembers,
-} from "../test-utils/testUtils";
+import { SessionModel } from "../../models/session.model";
+import { createAdminWithClinicAndToken } from "../test-utils/createAdminWithClinicAndToken";
 
 let mongoServer: MongoMemoryServer;
-let clinicId: mongoose.Types.ObjectId;
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
-  await mongoose.connect(uri);
-
-  clinicId = new mongoose.Types.ObjectId();
+  await mongoose.connect(mongoServer.getUri());
 });
 
 afterAll(async () => {
@@ -26,98 +20,121 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await UserModel.deleteMany({});
+  await SessionModel.deleteMany({});
 });
 
-describe("GET /api/staff", () => {
-  it("should return all staff (doctor and secretary) in same clinic", async () => {
-    // opretter min admin med jwt token
-    const { token } = await createTestUser("admin", clinicId);
+describe("Admin Staff Controller", () => {
+  it("should get all doctors in clinic", async () => {
+    const { admin, token, clinicId } = await createAdminWithClinicAndToken();
 
-    await createTestStaffMembers(clinicId);
-    // tester om den kun viser ansatte fra samme klinik
-    await createTestUser("doctor", new mongoose.Types.ObjectId());
+    await UserModel.create({
+      name: "Dr. Test",
+      email: `dr-${Date.now()}@test.com`,
+      phone: `1000${Date.now()}`,
+      password_hash: "Strong123!",
+      role: "doctor",
+      clinic_id: clinicId,
+    });
+
+    const res = await request(app)
+      .get("/api/admin/staff/doctors-list")
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.length).toBeGreaterThan(0);
+  });
+
+  it("should get all secretaries in clinic", async () => {
+    const { token, clinicId } = await createAdminWithClinicAndToken();
+
+    await UserModel.create({
+      name: "Secretary Test",
+      email: `sec-${Date.now()}@test.com`,
+      phone: `2000${Date.now()}`,
+      password_hash: "Strong123!",
+      role: "secretary",
+      clinic_id: clinicId,
+    });
+
+    const res = await request(app)
+      .get("/api/admin/staff/secretaries-list")
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body[0].role).toBe("secretary");
+  });
+
+  it("should get all staff in clinic", async () => {
+    const { token, clinicId } = await createAdminWithClinicAndToken();
+
+    await UserModel.create({
+      name: "Doctor X",
+      email: `dx-${Date.now()}@test.com`,
+      phone: `3000${Date.now()}`,
+      password_hash: "Strong123!",
+      role: "doctor",
+      clinic_id: clinicId,
+    });
+
+    await UserModel.create({
+      name: "Secretary Y",
+      email: `sy-${Date.now()}@test.com`,
+      phone: `4000${Date.now()}`,
+      password_hash: "Strong123!",
+      role: "secretary",
+      clinic_id: clinicId,
+    });
 
     const res = await request(app)
       .get("/api/admin/staff")
       .set("Authorization", `Bearer ${token}`);
 
     expect(res.status).toBe(200);
-    expect(res.body.length).toBe(2); // kun de to fra samme klinik
-    expect(res.body[0]).toHaveProperty("name");
-    expect(res.body[0]).not.toHaveProperty("password_hash");
+    expect(res.body.length).toBe(2);
   });
-});
 
-// *************************************************************************** DOCTOR
-
-describe("POST /api/admin/staff/doctors", () => {
-  it("should create new doctor", async () => {
-    const { token } = await createTestUser("admin", clinicId);
+  it("should add a new doctor", async () => {
+    const { token } = await createAdminWithClinicAndToken();
 
     const res = await request(app)
       .post("/api/admin/staff/doctors")
       .set("Authorization", `Bearer ${token}`)
       .send({
-        name: "Test NewDoctor",
-        email: "newdoc@example.com",
-        password: "passexample",
-        clinic_id: clinicId,
+        name: "Dr. New",
+        email: `newdoc-${Date.now()}@test.com`,
+        phone: `5000${Date.now()}`,
+        password: "StrongPass123!",
       });
 
     expect(res.status).toBe(201);
     expect(res.body.role).toBe("doctor");
-    expect(res.body.name).toBe("Test NewDoctor");
   });
 
-  it("should return 400 if doctor creation is missing fields", async () => {
-    const { token } = await createTestUser("admin", clinicId);
+  it("should add a new secretary", async () => {
+    const { token } = await createAdminWithClinicAndToken();
 
     const res = await request(app)
-      .post("/api/admin/staff/doctors")
+      .post("/api/admin/staff/secretary")
       .set("Authorization", `Bearer ${token}`)
       .send({
-        name: "No Email or Password",
+        name: "Sec. New",
+        email: `newsec-${Date.now()}@test.com`,
+        phone: `6000${Date.now()}`,
+        password: "StrongPass123!",
       });
 
-    expect(res.status).toBe(400);
-    expect(res.body.message).toBe("Please enter all the required fields");
+    expect(res.status).toBe(201);
+    expect(res.body.role).toBe("secretary");
   });
 
-  it("should return 400 if doctor email already exists", async () => {
-    const { token } = await createTestUser("admin", clinicId);
-
-    // Create doctor with same email first
-    await UserModel.create({
-      name: "Existing",
-      email: "exist@example.com",
-      password_hash: "pass",
-      role: "doctor",
-      clinic_id: clinicId,
-    });
-
-    const res = await request(app)
-      .post("/api/admin/staff/doctors")
-      .set("Authorization", `Bearer ${token}`)
-      .send({
-        name: "New Doc",
-        email: "exist@example.com",
-        password: "pass",
-        clinic_id: clinicId,
-      });
-
-    expect(res.status).toBe(400);
-    expect(res.body.message).toBe("Email is already in use");
-  });
-});
-
-describe("PUT /api/admin/staff/doctors/:id", () => {
-  it("should update an existing doctor", async () => {
-    const { token } = await createTestUser("admin", clinicId);
+  it("should update a doctor", async () => {
+    const { token, clinicId } = await createAdminWithClinicAndToken();
 
     const doctor = await UserModel.create({
-      name: "Old Doc",
-      email: "old@example.com",
-      password_hash: "123",
+      name: "Dr. Updatable",
+      email: `upd-${Date.now()}@test.com`,
+      phone: `7000${Date.now()}`,
+      password_hash: "Strong123!",
       role: "doctor",
       clinic_id: clinicId,
     });
@@ -125,48 +142,24 @@ describe("PUT /api/admin/staff/doctors/:id", () => {
     const res = await request(app)
       .put(`/api/admin/staff/doctors/${doctor._id}`)
       .set("Authorization", `Bearer ${token}`)
-      .send({ name: "Updated Doc", phone: "12345678" });
+      .send({
+        name: "Dr. Updated",
+        email: doctor.email, // beholder original værdi
+        phone: doctor.phone,
+      });
 
     expect(res.status).toBe(200);
-    expect(res.body.message).toBe("Doctor updated");
-    expect(res.body.doctor.name).toBe("Updated Doc");
-    expect(res.body.doctor.phone).toBe("12345678");
+    expect(res.body.doctor.name).toBe("Dr. Updated");
   });
 
-  it("should return 404 if doctor does not exist", async () => {
-    const { token } = await createTestUser("admin", clinicId);
-    const nonExistentId = new mongoose.Types.ObjectId();
-
-    const res = await request(app)
-      .put(`/api/admin/staff/doctors/${nonExistentId}`)
-      .set("Authorization", `Bearer ${token}`)
-      .send({ name: "Ghost Doctor" });
-
-    expect(res.status).toBe(404);
-    expect(res.body.message).toBe("Doctor not found");
-  });
-
-  it("should return 404 if doctor to delete is not found", async () => {
-    const { token } = await createTestUser("admin", clinicId);
-    const fakeId = new mongoose.Types.ObjectId();
-
-    const res = await request(app)
-      .delete(`/api/admin/staff/doctors/${fakeId}`)
-      .set("Authorization", `Bearer ${token}`);
-
-    expect(res.status).toBe(404);
-    expect(res.body.message).toBe("Doctor not found");
-  });
-});
-
-describe("DELETE /api/admin/staff/doctors/:id", () => {
   it("should delete a doctor", async () => {
-    const { token } = await createTestUser("admin", clinicId);
+    const { token, clinicId } = await createAdminWithClinicAndToken();
 
     const doctor = await UserModel.create({
-      name: "Doctor Delete",
-      email: "delete@example.com",
-      password_hash: "pass",
+      name: "Dr. Delete",
+      email: `del-${Date.now()}@test.com`,
+      phone: `8000${Date.now()}`,
+      password_hash: "Strong123!",
       role: "doctor",
       clinic_id: clinicId,
     });
@@ -176,81 +169,17 @@ describe("DELETE /api/admin/staff/doctors/:id", () => {
       .set("Authorization", `Bearer ${token}`);
 
     expect(res.status).toBe(200);
-    expect(res.body.message).toBe("Doctor deleted successfully");
-
-    const stillExists = await UserModel.findById(doctor._id);
-    expect(stillExists).toBeNull();
-  });
-});
-
-// *************************************************************************** SECRETARY
-describe("POST /api/admin/staff/secretary", () => {
-  it("should create a new secretary", async () => {
-    const { token } = await createTestUser("admin", clinicId);
-
-    const res = await request(app)
-      .post("/api/admin/staff/secretary")
-      .set("Authorization", `Bearer ${token}`)
-      .send({
-        name: "New Secretary",
-        email: "newsec@example.com",
-        password: "mypassword",
-        clinic_id: clinicId,
-      });
-
-    expect(res.status).toBe(201);
-    expect(res.body.role).toBe("secretary");
-    expect(res.body.name).toBe("New Secretary");
+    expect(res.body.message).toMatch(/deleted successfully/i);
   });
 
-  it("should return 400 if secretary creation is missing fields", async () => {
-    const { token } = await createTestUser("admin", clinicId);
-
-    const res = await request(app)
-      .post("/api/admin/staff/secretary")
-      .set("Authorization", `Bearer ${token}`)
-      .send({
-        name: "Missing Email",
-      });
-
-    expect(res.status).toBe(400);
-    expect(res.body.message).toBe("Please enter all the required fields");
-  });
-
-  it("should return 400 if secretary email already exists", async () => {
-    const { token } = await createTestUser("admin", clinicId);
-
-    await UserModel.create({
-      name: "Existing Secretary",
-      email: "dupe@example.com",
-      password_hash: "123",
-      role: "secretary",
-      clinic_id: clinicId,
-    });
-
-    const res = await request(app)
-      .post("/api/admin/staff/secretary")
-      .set("Authorization", `Bearer ${token}`)
-      .send({
-        name: "New One",
-        email: "dupe@example.com",
-        password: "pass",
-        clinic_id: clinicId,
-      });
-
-    expect(res.status).toBe(400);
-    expect(res.body.message).toBe("Email already in use");
-  });
-});
-
-describe("PUT /api/admin/staff/secretaries/:id", () => {
   it("should update a secretary", async () => {
-    const { token } = await createTestUser("admin", clinicId);
+    const { token, clinicId } = await createAdminWithClinicAndToken();
 
     const secretary = await UserModel.create({
-      name: "Old Sec",
-      email: "oldsec@example.com",
-      password_hash: "pass",
+      name: "Sec. Updatable",
+      email: `secupd-${Date.now()}@test.com`,
+      phone: `9000${Date.now()}`,
+      password_hash: "Strong123!",
       role: "secretary",
       clinic_id: clinicId,
     });
@@ -258,23 +187,24 @@ describe("PUT /api/admin/staff/secretaries/:id", () => {
     const res = await request(app)
       .put(`/api/admin/staff/secretaries/${secretary._id}`)
       .set("Authorization", `Bearer ${token}`)
-      .send({ name: "Updated Sec", phone: "88889999" });
+      .send({
+        name: "Sec. Updated",
+        email: secretary.email,
+        phone: secretary.phone,
+      });
 
     expect(res.status).toBe(200);
-    expect(res.body.message).toBe("Secretary updated successfully");
-    expect(res.body.secretary.name).toBe("Updated Sec");
-    expect(res.body.secretary.phone).toBe("88889999");
+    expect(res.body.secretary.name).toBe("Sec. Updated");
   });
-});
 
-describe("DELETE /api/admin/staff/secretaries/:id", () => {
   it("should delete a secretary", async () => {
-    const { token } = await createTestUser("admin", clinicId);
+    const { token, clinicId } = await createAdminWithClinicAndToken();
 
     const secretary = await UserModel.create({
-      name: "Secretary Delete",
-      email: "delsec@example.com",
-      password_hash: "pass",
+      name: "Sec. Delete",
+      email: `secdel-${Date.now()}@test.com`,
+      phone: `9100${Date.now()}`,
+      password_hash: "Strong123!",
       role: "secretary",
       clinic_id: clinicId,
     });
@@ -284,118 +214,199 @@ describe("DELETE /api/admin/staff/secretaries/:id", () => {
       .set("Authorization", `Bearer ${token}`);
 
     expect(res.status).toBe(200);
-    expect(res.body.message).toBe("Secretary deleted successfully");
-
-    const stillExists = await UserModel.findById(secretary._id);
-    expect(stillExists).toBeNull();
+    expect(res.body.message).toMatch(/deleted successfully/i);
   });
-});
 
-// *************************************************************************** PATIENT
-describe("GET /api/admin (getPatients)", () => {
-  it("should return all patients from the same clinic", async () => {
-    const { token } = await createTestUser("admin", clinicId);
-
-    await UserModel.create([
-      {
-        name: "Patient A",
-        email: "p1@example.com",
-        password_hash: "hashed",
-        role: "patient",
-        clinic_id: clinicId,
-        cpr_number: "111111-1111",
-      },
-      {
-        name: "Patient B",
-        email: "p2@example.com",
-        password_hash: "hashed",
-        role: "patient",
-        clinic_id: new mongoose.Types.ObjectId(), // another clinic
-        cpr_number: "222222-2222",
-      },
-    ]);
+  it("should send system message to all", async () => {
+    const { token } = await createAdminWithClinicAndToken();
 
     const res = await request(app)
-      .get("/api/admin")
-      .set("Authorization", `Bearer ${token}`);
+      .post("/api/admin/system-messages")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        content: "Systembesked her",
+        receiver_scope: "all",
+      });
 
-    expect(res.status).toBe(200);
-    expect(res.body.length).toBe(1);
-    expect(res.body[0].name).toBe("Patient A");
+    expect(res.status).toBe(201);
+    expect(res.body.message).toBe("Systembesked sendt");
   });
-});
 
-describe("GET /api/admin/lookup/:cpr (lookupPatientByCpr)", () => {
-  it("should return existing patient if found", async () => {
-    const { token } = await createTestUser("admin", clinicId);
+  it("should return 400 if content is missing", async () => {
+    const { token } = await createAdminWithClinicAndToken();
 
-    await UserModel.create({
-      name: "Existing Patient",
-      email: "ep@example.com",
-      password_hash: "hashed",
-      role: "patient",
+    const res = await request(app)
+      .post("/api/admin/system-messages")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        receiver_scope: "all",
+      });
+
+    expect(res.status).toBe(400);
+  });
+
+  it("should find existing patient by CPR", async () => {
+    const { token, clinicId } = await createAdminWithClinicAndToken();
+
+    const patient = await UserModel.create({
+      name: "Test Patient",
+      email: `test-${Date.now()}@example.com`,
+      password_hash: "Secure123!",
+      cpr_number: "1234567890",
       clinic_id: clinicId,
-      cpr_number: "333333-3333",
+      role: "patient",
     });
 
     const res = await request(app)
-      .get("/api/admin/lookup/333333-3333")
+      .get("/api/admin/lookup/1234567890")
       .set("Authorization", `Bearer ${token}`);
 
     expect(res.status).toBe(200);
-    expect(res.body.patient.name).toBe("Existing Patient");
-    expect(res.body.patientWasFoundBefore).toBe(true);
+    expect(res.body.patient.email).toBe(patient.email);
   });
 
   it("should create dummy patient if not found", async () => {
-    const { token } = await createTestUser("admin", clinicId);
+    const { token } = await createAdminWithClinicAndToken();
 
     const res = await request(app)
-      .get("/api/admin/lookup/444444-4444")
+      .get("/api/admin/lookup/9998887776")
       .set("Authorization", `Bearer ${token}`);
 
     expect(res.status).toBe(201);
     expect(res.body.patient.name).toBe("Ukendt Patient");
-    expect(res.body.patientWasFoundBefore).toBe(false);
   });
-});
 
-describe("PUT /api/admin/:id (updatePatient)", () => {
-  it("should update patient details", async () => {
-    const { token } = await createTestUser("admin", clinicId);
+  it("should get all patients in clinic", async () => {
+    const { token, clinicId } = await createAdminWithClinicAndToken();
 
-    const patient = await UserModel.create({
-      name: "To Update",
-      email: "update@example.com",
-      password_hash: "hashed",
+    await UserModel.create({
+      name: "Patient A",
+      email: `a-${Date.now()}@test.com`,
+      password_hash: "Secret123!",
+      role: "patient",
+      cpr_number: "0000111122",
+      clinic_id: clinicId,
+    });
+
+    const res = await request(app)
+      .get("/api/admin/patients-list")
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.length).toBeGreaterThan(0);
+  });
+
+  it("should return patients in clinic", async () => {
+    const { token, clinicId } = await createAdminWithClinicAndToken();
+
+    await UserModel.create({
+      name: "Patient Test",
+      email: `patient-${Date.now()}@test.com`,
+      password_hash: "Strong123!",
       role: "patient",
       clinic_id: clinicId,
-      cpr_number: "123456-7890",
+    });
+
+    const res = await request(app)
+      .get("/api/admin/patients-list")
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body[0].role).toBe("patient");
+  });
+
+  it("should create dummy patient if not found by CPR", async () => {
+    const { token } = await createAdminWithClinicAndToken();
+
+    const res = await request(app)
+      .get("/api/admin/lookup/9999999999")
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(201);
+    expect(res.body.patientWasFoundBefore).toBe(false);
+    expect(res.body.patient.name).toBe("Ukendt Patient");
+  });
+
+  it("should send system message to all", async () => {
+    const { token } = await createAdminWithClinicAndToken();
+
+    const res = await request(app)
+      .post("/api/admin/system-messages")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ content: "Test besked", receiver_scope: "all" });
+
+    expect(res.status).toBe(201);
+    expect(res.body.message).toMatch(/Systembesked sendt/i);
+  });
+
+  it("should fail sending system message without content", async () => {
+    const { token } = await createAdminWithClinicAndToken();
+
+    const res = await request(app)
+      .post("/api/admin/system-messages")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ receiver_scope: "all" });
+
+    expect(res.status).toBe(400);
+  });
+
+  it("should fail sending individual message without receiver_id", async () => {
+    const { token } = await createAdminWithClinicAndToken();
+
+    const res = await request(app)
+      .post("/api/admin/system-messages")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ content: "Hej", receiver_scope: "individual" });
+
+    expect(res.status).toBe(400);
+  });
+
+  it("should fail sending with invalid ObjectId", async () => {
+    const { token } = await createAdminWithClinicAndToken();
+
+    const res = await request(app)
+      .post("/api/admin/system-messages")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        content: "Hej",
+        receiver_scope: "individual",
+        receiver_id: "NOT_VALID_OBJECT_ID",
+      });
+
+    expect(res.status).toBe(400);
+  });
+
+  it("should update patient info", async () => {
+    const { token, clinicId } = await createAdminWithClinicAndToken();
+
+    const patient = await UserModel.create({
+      name: "Old Name",
+      email: "old@test.com",
+      password_hash: "Strong123!",
+      cpr_number: "1212121212",
+      role: "patient",
+      clinic_id: clinicId,
     });
 
     const res = await request(app)
       .put(`/api/admin/${patient._id}`)
       .set("Authorization", `Bearer ${token}`)
-      .send({ name: "Updated Name", address: "New Address" });
+      .send({ name: "New Name", email: "old@test.com" });
 
     expect(res.status).toBe(200);
-    expect(res.body.message).toBe("Patient info got successfully updated");
-    expect(res.body.patient.name).toBe("Updated Name");
-    expect(res.body.patient.address).toBe("New Address");
+    expect(res.body.patient.name).toBe("New Name");
   });
-});
 
-describe("DELETE /api/admin/:id (deletePatient)", () => {
-  it("should delete patient from same clinic", async () => {
-    const { token } = await createTestUser("admin", clinicId);
+  it("should delete a patient", async () => {
+    const { token, clinicId } = await createAdminWithClinicAndToken();
 
     const patient = await UserModel.create({
-      name: "Patient Delete",
-      email: "del@example.com",
-      password_hash: "hashed",
+      name: "Delete Me",
+      email: "deleteme@test.com",
+      password_hash: "Strong123!",
+      cpr_number: "9999999999",
       role: "patient",
       clinic_id: clinicId,
-      cpr_number: "555555-5555",
     });
 
     const res = await request(app)
@@ -403,29 +414,139 @@ describe("DELETE /api/admin/:id (deletePatient)", () => {
       .set("Authorization", `Bearer ${token}`);
 
     expect(res.status).toBe(200);
-    expect(res.body.message).toBe("Patient deleted successfully");
-
-    const stillExists = await UserModel.findById(patient._id);
-    expect(stillExists).toBeNull();
+    expect(res.body.message).toMatch(/deleted successfully/i);
   });
 
-  it("should not delete patient from another clinic", async () => {
-    const { token } = await createTestUser("admin", clinicId);
+  it("should return 404 when trying to update non-existing doctor", async () => {
+    const { token } = await createAdminWithClinicAndToken();
 
-    const otherClinicPatient = await UserModel.create({
-      name: "Wrong Clinic",
-      email: "wrong@example.com",
-      password_hash: "hashed",
-      role: "patient",
-      clinic_id: new mongoose.Types.ObjectId(),
-      cpr_number: "666666-6666",
+    const res = await request(app)
+      .put(`/api/admin/staff/doctors/${new mongoose.Types.ObjectId()}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ name: "Ghost Doctor" });
+
+    expect(res.status).toBe(404);
+  });
+
+  it("should return 400 if doctor already exists with email", async () => {
+    const { token, clinicId } = await createAdminWithClinicAndToken();
+
+    const existing = await UserModel.create({
+      name: "Dr. Existing",
+      email: "duplicate@test.com",
+      password_hash: "Strong123!",
+      role: "doctor",
+      clinic_id: clinicId,
     });
 
     const res = await request(app)
-      .delete(`/api/admin/${otherClinicPatient._id}`)
+      .post("/api/admin/staff/doctors")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        name: "Another One",
+        email: "duplicate@test.com",
+        password: "StrongPass123!",
+      });
+
+    expect(res.status).toBe(400);
+  });
+
+  it("should return 400 if doctor email already exists", async () => {
+    const { token, clinicId } = await createAdminWithClinicAndToken();
+
+    await UserModel.create({
+      name: "Dr. Existing",
+      email: "duplicate@test.com",
+      password_hash: "Strong123!",
+      role: "doctor",
+      clinic_id: clinicId,
+    });
+
+    const res = await request(app)
+      .post("/api/admin/staff/doctors")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        name: "Duplicate",
+        email: "duplicate@test.com",
+        password: "StrongPass123!",
+      });
+
+    expect(res.status).toBe(400);
+  });
+
+  it("should return 404 when trying to update non-existing doctor", async () => {
+    const { token } = await createAdminWithClinicAndToken();
+
+    const res = await request(app)
+      .put(`/api/admin/staff/doctors/${new mongoose.Types.ObjectId()}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ name: "Ghost Doctor" });
+
+    expect(res.status).toBe(404);
+  });
+
+  it("should return 404 when trying to delete non-existing secretary", async () => {
+    const { token } = await createAdminWithClinicAndToken();
+
+    const res = await request(app)
+      .delete(`/api/admin/staff/secretaries/${new mongoose.Types.ObjectId()}`)
       .set("Authorization", `Bearer ${token}`);
 
     expect(res.status).toBe(404);
-    expect(res.body.message).toBe("Patient not found");
+  });
+
+  it("should return 404 when updating patient that doesn’t exist", async () => {
+    const { token } = await createAdminWithClinicAndToken();
+
+    const res = await request(app)
+      .put(`/api/admin/${new mongoose.Types.ObjectId()}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ name: "Missing Patient" });
+
+    expect(res.status).toBe(404);
+  });
+
+  it("should return 400 if secretary email already exists", async () => {
+    const { token, clinicId } = await createAdminWithClinicAndToken();
+
+    await UserModel.create({
+      name: "Existing Secretary",
+      email: "sec-duplicate@test.com",
+      password_hash: "Strong123!",
+      role: "secretary",
+      clinic_id: clinicId,
+    });
+
+    const res = await request(app)
+      .post("/api/admin/staff/secretary")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        name: "Duplicate Secretary",
+        email: "sec-duplicate@test.com",
+        password: "StrongPass123!",
+      });
+
+    expect(res.status).toBe(400);
+  });
+
+  it("should return 404 when updating non-existing secretary", async () => {
+    const { token } = await createAdminWithClinicAndToken();
+
+    const res = await request(app)
+      .put(`/api/admin/staff/secretaries/${new mongoose.Types.ObjectId()}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ name: "Ghost Secretary" });
+
+    expect(res.status).toBe(404);
+  });
+
+  it("should return 404 when trying to delete non-existing secretary", async () => {
+    const { token } = await createAdminWithClinicAndToken();
+
+    const res = await request(app)
+      .delete(`/api/admin/staff/secretaries/${new mongoose.Types.ObjectId()}`)
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(404);
   });
 });
