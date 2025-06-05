@@ -22,6 +22,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import RecentAppointmentsCarousel from "@/components/secretary/Dashboard/RecentAppointmentsCarousel";
 import StaffStatusOverview from "@/components/shared/StaffStatusOverview";
+import { IMessage } from "@/types/message.types";
 
 const SecretaryDashboard = () => {
   const { data, isLoading, error } = useUnreadMessages();
@@ -52,6 +53,18 @@ const SecretaryDashboard = () => {
   const handleToggle = (currentStatus: "ledig" | "optaget") => {
     const newStatus = currentStatus === "ledig" ? "optaget" : "ledig";
     updateStatus({ status: newStatus });
+  };
+
+  const typeLabels: Record<IMessage["type"], string> = {
+    besked: "Besked",
+    aflysning: "Aflysning",
+    system: "System",
+  };
+
+  const typeColors: Record<IMessage["type"], string> = {
+    besked: "blue",
+    aflysning: "red",
+    system: "gray",
   };
 
   return (
@@ -110,9 +123,15 @@ const SecretaryDashboard = () => {
                     borderRadius="md"
                     boxShadow="sm"
                   >
-                    <Text fontWeight="bold">
-                      {msg.sender_id.name} ({msg.sender_id.role})
-                    </Text>
+                    <Flex justify="space-between" align="center" mb={2}>
+                      <Text fontWeight="bold">
+                        {msg.sender_id.name} ({msg.sender_id.role})
+                      </Text>
+                      <Badge colorScheme={typeColors[msg.type]}>
+                        {typeLabels[msg.type]}
+                      </Badge>
+                    </Flex>
+
                     <Text mb={2}>"{msg.content}"</Text>
                     <Text fontSize="sm" color="gray.600">
                       {new Date(msg.createdAt).toLocaleString("da-DK")}

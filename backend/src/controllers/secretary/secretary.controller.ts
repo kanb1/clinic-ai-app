@@ -18,7 +18,8 @@ export const getUnreadMessages = async (req: Request, res: Response) => {
     // ulæste beskeder
     const messages = await MessageModel.find({ read: false })
       .populate("sender_id", "name role clinic_id") // brugerobjekt af sender_id da det er en objectID
-      .populate("receiver_id", "name role");
+      .populate("receiver_id", "name role")
+      .sort({ createdAt: -1 }); // nyeste først
 
     //IPopulatedMessage: ts-workaround - populate.() gør objectID til brugerobjekter i runtime men det ved TS ikke, da den stadig ser som objectID
     //as unknown ← ignorer den type, TypeScript tror det er
