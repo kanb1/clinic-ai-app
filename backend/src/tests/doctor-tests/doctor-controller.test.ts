@@ -32,30 +32,6 @@ beforeEach(async () => {
   await TestResultModel.deleteMany({});
 });
 
-const createDoctorAndToken = async () => {
-  const clinicId = new mongoose.Types.ObjectId();
-  const doctor = await UserModel.create({
-    name: "Dr. Test",
-    email: `dr-${Date.now()}@test.com`,
-    phone: `1000${Date.now()}`,
-    password_hash: "Strong123!",
-    role: "doctor",
-    clinic_id: clinicId,
-  });
-
-  const token = jwt.sign(
-    {
-      _id: doctor._id,
-      role: "doctor",
-      clinicId: clinicId.toString(),
-    },
-    process.env.JWT_SECRET || "dev-secret",
-    { expiresIn: "1h" }
-  );
-
-  return { doctor, token, clinicId };
-};
-
 describe("Doctor Controller", () => {
   it("should get today's appointments", async () => {
     const { token, clinicId, doctor } = await createDoctorWithToken();
