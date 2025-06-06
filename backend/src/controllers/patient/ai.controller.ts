@@ -5,7 +5,7 @@ import { ChatSessionModel } from "../../models/chatsession.model";
 dotenv.config();
 
 // opretter kun en openaI-klient hvis denne her funktion kaldes, for at undgå den er global
-const getOpenAIClient = () => {
+export const getOpenAIClient = () => {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("Missing OpenAI API key");
   return new OpenAI({ apiKey });
