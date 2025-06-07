@@ -11,5 +11,6 @@
     "outDir": "dist", //fortæller TypeScript at alle kompilerede .js-filer skal placeres i backend/dist
     "rootDir": "src" //fortæller den at kildekoden ligger i src, så strukturen bliver som den er
   },
-  "include": ["src", "src/config/jest.setup.ts"]
+  "include": ["src"],
+  "exclude": ["**/*.test.ts", "src/config/jest.setup.ts"]
 }
