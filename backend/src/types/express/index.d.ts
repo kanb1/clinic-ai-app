@@ -4,6 +4,7 @@ export interface JwtPayload extends DefaultJwtPayload {
   _id: string;
   role: string;
   clinicId: string;
+  jti?: string;
 }
 // tilføjer selv user property på request typen af express
 
@@ -24,6 +25,7 @@ declare global {
         _id: string;
         role: string;
         clinicId: string;
+        jti?: string;
       };
     }
   }
