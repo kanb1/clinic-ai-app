@@ -30,11 +30,13 @@ export const getUnreadMessages = async (req: Request, res: Response) => {
         const sender = msg.sender_id;
         // Tjekker at sender_id er et objekt og ikke null
         // at det har et clinic og den matcher logged in brugers clinic
+
         const fromSameClinic =
+          sender &&
           typeof sender === "object" &&
           // "sender"-objektet har et felt der hedder "clinic_id"
-          "clinic_id" in sender &&
-          sender.clinic_id?.toString() === clinicId;
+          sender.clinic_id != null && // både null og undefined filtreres væk
+          sender.clinic_id.toString() === clinicId;
 
         //Håndterer flere tilfælde, om receiver_scope er til all eller staff eller en indiivudel eller patienter
         // problemet er at receiver_scope kan være flere forskellige ting, en string "all" eller et objekt emd _id, navn osv
@@ -65,6 +67,10 @@ export const getUnreadMessages = async (req: Request, res: Response) => {
     res.status(200).json(filtered);
   } catch (error) {
     console.error("Error in getUnreadMessages:", error);
+    if (error instanceof Error) {
+      console.error(error.message);
+      console.error(error.stack);
+    }
     res.status(500).json({ message: "Failed to complete this task" });
   }
 };
@@ -102,11 +108,17 @@ export const sendMessage = async (req: Request, res: Response) => {
     });
 
     res.status(201).json({ message: "Message sent", newMessage });
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    res.status(429).json({
-      message: "For mange beskeder sendt på kort tid. Nulstiller om 20 min.",
-    });
+
+    if (error.message && error.message.toLowerCase().includes("rate limit")) {
+      res.status(429).json({
+        message: "For mange beskeder sendt på kort tid. Nulstiller om 20 min.",
+      });
+      return;
+    }
+
+    // Ellers send generel 500:
     res.status(500).json({ message: "Error" });
   }
 };
