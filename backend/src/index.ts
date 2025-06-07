@@ -31,7 +31,7 @@ const allowedOrigins = [
   // for development
   "http://localhost:5173",
   // production
-  "",
+  "https://clinic-ai-app.vercel.app",
 ];
 
 app.use(
