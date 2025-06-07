@@ -7,8 +7,9 @@
     "strict": true,
     "skipLibCheck": true,
 
-    "types": ["jest", "node"],
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "outDir": "dist", //fortæller TypeScript at alle kompilerede .js-filer skal placeres i backend/dist
+    "rootDir": "src" //fortæller den at kildekoden ligger i src, så strukturen bliver som den er
   },
-  "include": ["src", "jest.setup.ts"]
+  "include": ["src", "src/config/jest.setup.ts"]
 }
