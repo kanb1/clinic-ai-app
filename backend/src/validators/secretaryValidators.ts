@@ -36,7 +36,7 @@ export const validateCreateAppointment = [
 ];
 
 export const validateAddNoteToAppointment = [
-  body("appointmentId")
+  param("id")
     .notEmpty()
     .withMessage("Aftale-ID er påkrævet")
     .isMongoId()
