@@ -15,6 +15,9 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@types/express-validator": "^2.20.33",
+    "@types/mongoose": "^5.11.96",
+    "@types/uuid": "^10.0.0",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
@@ -31,10 +34,10 @@
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.17",
-    "@types/express": "^5.0.1",
+    "@types/express": "^5.0.3",
     "@types/jest": "^29.5.14",
     "@types/jsonwebtoken": "^9.0.9",
-    "@types/node": "^22.14.1",
+    "@types/node": "^22.15.30",
     "@types/supertest": "^6.0.3",
     "@typescript-eslint/eslint-plugin": "^8.31.1",
     "@typescript-eslint/parser": "^8.31.1",
