@@ -1,5 +1,4 @@
-import { body, query } from "express-validator";
-import { param } from "express-validator";
+import { body, query, param } from "express-validator";
 
 export const validateTodayAppointmentDetails = [
   query("page")
