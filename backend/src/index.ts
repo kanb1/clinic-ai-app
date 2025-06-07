@@ -14,11 +14,12 @@ import "./middleware/authenticateJWT.middleware";
 import secretaryRoutes from "./routes/secretary.routes";
 import doctorRoutes from "./routes/doctor.routes";
 import testRouter from "./routes/test-routes/seed-test.routes";
+import devRoutes from "./routes/development-routes/dev-routes";
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 
 // MongoDB connection
 // Hvis env ik er "test", så connect - inde i package.json har vi sat jest testenv. til at være "test", hvor deer ik bliver connected
@@ -41,6 +42,9 @@ app.use(
 
 app.use(helmet());
 app.use(express.json());
+
+// SKAL SLETTES - MIDLERTIDIGE TEST/DEVLEOPMENT Routes
+app.use("/api", devRoutes);
 
 // Routes - Fundament
 app.use("/api/auth", authRoutes);
