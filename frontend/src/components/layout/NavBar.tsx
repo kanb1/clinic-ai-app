@@ -1,4 +1,3 @@
-import { useAuth } from "@/context/AuthContext";
 import {
   Box,
   Flex,
@@ -14,8 +13,10 @@ import {
   DrawerContent,
   DrawerCloseButton,
   VStack,
+  Text,
 } from "@chakra-ui/react";
 import { HamburgerIcon } from "@chakra-ui/icons";
+import { useAuth } from "@/context/AuthContext";
 import { useNavigate, Outlet } from "react-router-dom";
 import { sidebarItems } from "../constants/sidebarItems";
 import { useLogout } from "@/hooks//fundament/useLogout";
@@ -69,17 +70,22 @@ const Navbar = () => {
               <Button
                 variant="ghost"
                 fontWeight="normal"
-                onClick={() => navigate("/about")}
-              >
-                Om os
-              </Button>
-              <Button
-                variant="ghost"
-                fontWeight="normal"
                 onClick={() => navigate("/help")}
               >
-                Hjælp
+                Hjælp?
               </Button>
+
+              {!user && (
+                <Button
+                  color="white"
+                  bg="primary.black"
+                  _hover={{ bg: "gray" }}
+                  onClick={() => navigate("/")}
+                >
+                  Log ind
+                </Button>
+              )}
+
               {user && (
                 <Button
                   color="white"
@@ -109,48 +115,64 @@ const Navbar = () => {
                   <DrawerCloseButton />
                   <DrawerBody mt={12}>
                     <VStack spacing={4} align="start">
-                      {/* Sidebar links */}
-                      {sidebarLinks.map((item) => (
-                        <Button
-                          key={item.path}
-                          variant="ghost"
-                          onClick={() => {
-                            navigate(item.path);
-                            onClose();
-                          }}
-                        >
-                          {item.label}
-                        </Button>
-                      ))}
-                      <Button
-                        variant="ghost"
-                        onClick={() => {
-                          navigate("/about");
-                          onClose();
-                        }}
-                      >
-                        Om os
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        onClick={() => {
-                          navigate("/help");
-                          onClose();
-                        }}
-                      >
-                        Hjælp
-                      </Button>
-                      {user && (
-                        <Button
-                          colorScheme="red"
-                          variant="outline"
-                          onClick={() => {
-                            logout();
-                            onClose();
-                          }}
-                        >
-                          Log ud
-                        </Button>
+                      {user ? (
+                        <>
+                          {sidebarLinks.map((item) => (
+                            <Button
+                              key={item.path}
+                              variant="ghost"
+                              onClick={() => {
+                                navigate(item.path);
+                                onClose();
+                              }}
+                            >
+                              {item.label}
+                            </Button>
+                          ))}
+                          <Button
+                            variant="ghost"
+                            onClick={() => {
+                              navigate("/help");
+                              onClose();
+                            }}
+                          >
+                            Hjælp?
+                          </Button>
+                          <Button
+                            color="white"
+                            bg="primary.black"
+                            _hover={{ bg: "gray" }}
+                            onClick={() => {
+                              logout();
+                              onClose();
+                            }}
+                          >
+                            Log ud
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button
+                            variant="ghost"
+                            onClick={() => {
+                              navigate("/help");
+                              onClose();
+                            }}
+                          >
+                            Hjælp?
+                          </Button>
+                          <Button
+                            color="white"
+                            bg="primary.black"
+                            _hover={{ bg: "gray" }}
+                            onClick={() => {
+                              navigate("/");
+                              onClose();
+                            }}
+                          >
+                            Log ind
+                          </Button>
+                        </>
                       )}
                     </VStack>
                   </DrawerBody>
