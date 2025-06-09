@@ -155,8 +155,6 @@ export const addSecretary = async (req: Request, res: Response) => {
       return;
     }
 
-    console.log("Creating secretary with password:", password);
-
     const newSecretary = await UserModel.create({
       name,
       email,

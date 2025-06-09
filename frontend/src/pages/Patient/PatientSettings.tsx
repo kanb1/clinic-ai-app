@@ -20,8 +20,6 @@ const PatientSettings = () => {
 
   if (isLoading) return <p>Indlæser...</p>; // loading state
 
-  console.log("USER:", user);
-
   return (
     <Layout>
       <Box w="full" mx="auto" px={{ base: 4, md: 6 }} py={{ base: 6 }}>

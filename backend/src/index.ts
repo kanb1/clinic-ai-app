@@ -68,6 +68,6 @@ export default app;
 //Express-serveren skal kun kaldes under et ikke-test-miljø
 if (process.env.NODE_ENV !== "test") {
   app.listen(PORT, () => {
-    console.log(`🚀 Server is running at http://localhost:${PORT}`);
+    console.log(` Server is running at http://localhost:${PORT}`);
   });
 }
