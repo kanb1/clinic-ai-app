@@ -6,6 +6,7 @@ import { UserModel } from "../../models/user.model";
 import { AppointmentModel } from "../../models/appointment.model";
 import { AvailabilitySlotModel } from "../../models/availabilityslots.model";
 import { generateTimeSlots } from "../../utils/slot.utils";
+import { IUser } from "../../types/user.types";
 
 // **************************************************** BESKEDER
 // HENT NYE BESKEDER
@@ -427,10 +428,10 @@ export const checkAndSeedSlots = async (req: Request, res: Response) => {
     const clinicId = req.user!.clinicId;
 
     // finder alle læger i den aktuelle klinik, da vi skal generere slots for hver læge
-    const doctors = await UserModel.find({
+    const doctors = (await UserModel.find({
       clinic_id: clinicId,
       role: "doctor",
-    });
+    })) as (IUser & { _id: Types.ObjectId })[];
 
     if (!doctors.length) {
       res
@@ -453,27 +454,29 @@ export const checkAndSeedSlots = async (req: Request, res: Response) => {
       date: { $gte: today, $lte: futureDate },
     });
 
-    // laver en set (unik samling) af alle datoer, hvor der allerede findes slots
-    const existingDates = new Set(
-      // fx ["2025-06-01", "2025-06-02", "2025-06-03", ...]
-      existingSlots.map((slot) => slot.date.toISOString().split("T")[0])
+    // laver en set (unik samling) af alle datoer, hvor der allerede findes slots pr læge og dato
+    // Unik identifikation af slots per læge og dato
+    const existingKeys = new Set(
+      existingSlots.map(
+        (slot) =>
+          `${slot.doctor_id.toString()}-${
+            slot.date.toISOString().split("T")[0]
+          }`
+      )
     );
 
-    // forbereder nye slots hvis der mangler
-    let seededCount = 0;
-
-    interface SlotInput {
+    // opretter en tom array til nye slots der skal insertes
+    const slotsToInsert: {
       doctor_id: Types.ObjectId;
       clinic_id: Types.ObjectId;
       date: Date;
       start_time: string;
       end_time: string;
       is_booked: boolean;
-    }
-    // opretter en tom array til nye slots der skal insertes
-    const slotsToInsert: SlotInput[] = [];
+    }[] = [];
 
     // loop over hver dag de næste 21 dage
+
     for (let i = 0; i < 21; i++) {
       const date = new Date(today);
       // Vi går dag for dag fra i dag og 21 dage frem
@@ -481,20 +484,23 @@ export const checkAndSeedSlots = async (req: Request, res: Response) => {
       // isoDate er datoen som string (fx "2025-06-01")
       const isoDate = date.toISOString().split("T")[0];
 
-      // Skip hvis datoen allerede har slots, for at undgå doubleseeding
-      if (existingDates.has(isoDate)) continue;
-
       // Skip hvis det er weekend
       // springer lørdage (6) og søndage (0) over..
       const isWeekend = date.getDay() === 6 || date.getDay() === 0;
       if (isWeekend) continue;
 
       // generer tider for hver læge for denne dag
+
       for (const doctor of doctors) {
+        const key = `${doctor._id.toString()}-${isoDate}`;
+        // Skip hvis datoen allerede har slots, for at undgå doubleseeding
+        if (existingKeys.has(key)) continue;
+
         // util funktion der opretter timeslots
+
         for (const { start, end } of generateTimeSlots()) {
           slotsToInsert.push({
-            doctor_id: doctor._id as mongoose.Types.ObjectId,
+            doctor_id: doctor._id as Types.ObjectId,
             clinic_id: doctor.clinic_id,
             date: new Date(date),
             start_time: start,
@@ -510,23 +516,21 @@ export const checkAndSeedSlots = async (req: Request, res: Response) => {
     if (slotsToInsert.length > 0) {
       await AvailabilitySlotModel.insertMany(slotsToInsert);
       console.log(`Seeded ${slotsToInsert.length} nye tider.`);
-      res.status(201).json({
-        message: "Seeded nye tider.",
-        count: slotsToInsert.length,
-      });
+      res
+        .status(201)
+        .json({ message: "Nye tider tilføjet", count: slotsToInsert.length });
       return;
     } else {
-      console.log(
-        "Slots dækker allerede 3 uger frem – ingen seeding nødvendig."
-      );
-      res.status(200).json({
-        message: "Allerede opdateret. Ingen grund til at seede.",
-      });
+      console.log("Ingen nye tider nødvendige – allerede dækket.");
+      res
+        .status(200)
+        .json({ message: "Ingen nye tider nødvendig – alt opdateret." });
       return;
     }
   } catch (error) {
-    console.error("Fejl under check-and-seed:", error);
+    console.error(" Fejl under check-and-seed:", error);
     res.status(500).json({ message: "Serverfejl" });
+    return;
   }
 };
 
