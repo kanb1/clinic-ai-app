@@ -64,16 +64,6 @@ const AppointmentDetailsModal = ({ isOpen, onClose, appointment }: Props) => {
             </HStack>
             <Divider />
 
-            <HStack justify="space-between" align="flex-start">
-              <Text color="gray.500" mt={1}>
-                Note
-              </Text>
-              <Text fontWeight="medium" textAlign="right">
-                {appointment.secretary_note || "Ingen note"}
-              </Text>
-            </HStack>
-            <Divider />
-
             <HStack justify="space-between">
               <Text color="gray.500">Status</Text>
               <Text fontWeight="medium">{appointment.status || "Ukendt"}</Text>
