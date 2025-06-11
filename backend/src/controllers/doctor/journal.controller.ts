@@ -5,7 +5,7 @@ import {
   JournalEntryModel,
 } from "../../models/journalentry.model";
 import { AppointmentModel } from "../../models/appointment.model";
-import { IUser } from "../../models/user.model";
+import { IUser, UserModel } from "../../models/user.model";
 
 // ***************** Gets or creates a journal by patientId
 // Har allerede patienter i min løsning - borgerservice-systemet der laver patienterne
@@ -23,9 +23,12 @@ export const getOrCreateJournalByPatientId = async (
       journal = await JournalModel.create({ patient_id: patientId });
     }
 
+    const patient = await UserModel.findById(patientId).select("name");
+
     res.status(200).json({
       journalId: journal._id,
       patientId: journal.patient_id,
+      patientName: patient?.name || "Ukendt",
       entryCount: journal.entries.length,
     });
   } catch (error) {

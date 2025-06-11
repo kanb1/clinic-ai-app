@@ -29,6 +29,7 @@ import PrescriptionModal from "@/components/doctor/Journals/Prescriptions/Prescr
 import { useDoctorTestResults } from "@/hooks/doctor/journalHooks/useDoctorTestResults";
 import TestResultBox from "@/components/doctor/Journals/Testresults/TestResultBox";
 import Layout from "@/components/layout/Layout";
+import { useAuth } from "@/context/AuthContext";
 
 const PatientJournalPage = () => {
   const [searchParams] = useSearchParams();
@@ -64,7 +65,7 @@ const PatientJournalPage = () => {
     <Layout>
       <Stack spacing={6} w="full" p={{ base: 2, md: 4 }} overflowX="hidden">
         <Heading size="heading1" textAlign={{ base: "center" }}>
-          Journal for patient
+          {journalMeta?.patientName || "Patient"}
         </Heading>
 
         {!isLoadingTests && <TestResultBox results={testResults} />}
