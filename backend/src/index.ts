@@ -14,7 +14,6 @@ import "./middleware/authenticateJWT.middleware";
 import secretaryRoutes from "./routes/secretary.routes";
 import doctorRoutes from "./routes/doctor.routes";
 import testRouter from "./routes/test-routes/seed-test.routes";
-import devRoutes from "./routes/development-routes/dev-routes";
 
 dotenv.config();
 
@@ -42,9 +41,6 @@ app.use(
 
 app.use(helmet());
 app.use(express.json());
-
-// SKAL SLETTES - MIDLERTIDIGE TEST/DEVLEOPMENT Routes
-app.use("/api", devRoutes);
 
 // Routes - Fundament
 app.use("/api/auth", authRoutes);

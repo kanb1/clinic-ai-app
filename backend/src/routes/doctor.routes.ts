@@ -4,8 +4,6 @@ import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import {
   cancelAppointmentByDoctor,
   createPrescription,
-  createTestJournalEntry,
-  createTestResult,
   getAppointmentsForDoctor,
   getChatSessionByAppointment,
   getJournalById,
@@ -37,6 +35,8 @@ import {
   validateGetAppointmentsWithJournal,
   validateGetOrCreateJournal,
 } from "../validators/journalValidators";
+import { createTestJournalEntry } from "./test-routes/doctor/seed-doctor-journalentry";
+import { createTestResult } from "./test-routes/doctor/seed-doctor-testresults";
 
 const router = express.Router();
 
@@ -81,7 +81,6 @@ router.get(
   handleValidationErrors,
   getJournalById
 );
-router.post("/test/create-journal-entry", createTestJournalEntry); //SEED JOURNAL ENTRIES
 
 // Recept og Testresultater
 router.post(
@@ -91,7 +90,6 @@ router.post(
   createPrescription
 );
 router.get("/prescriptions/:patientId", getPrescriptionsByPatient);
-router.post("/test/create-testresults", createTestResult); //SEED TEST RESULTS
 router.get("/testresults/:patientId", getTestResultsByPatient);
 
 // AI-noter og journal
@@ -116,5 +114,9 @@ router.post(
   handleValidationErrors,
   createJournalEntry
 );
+
+// SEEDS FOR DEVELOPMENT
+router.post("/test/create-journal-entry", createTestJournalEntry); //SEED JOURNAL ENTRIES
+router.post("/test/create-testresults", createTestResult); //SEED TEST RESULTS
 
 export default router;

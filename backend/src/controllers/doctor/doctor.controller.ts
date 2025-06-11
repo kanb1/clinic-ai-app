@@ -291,40 +291,6 @@ export const getJournalById = async (req: Request, res: Response) => {
   }
 };
 
-// SEED ENTRIES ************ SKAL SLETTES INDEN AFLEVERING ************
-export const createTestJournalEntry = async (req: Request, res: Response) => {
-  try {
-    const { journalId, appointmentId, notes, created_by_ai } = req.body;
-
-    if (!journalId || !appointmentId) {
-      res
-        .status(400)
-        .json({ message: "journalId & appointmentId are neccessary" });
-      return;
-    }
-
-    // Opretter selve JournalEntry-dokumentet
-    const newEntry = await JournalEntryModel.create({
-      appointment_id: appointmentId,
-      notes,
-      created_by_ai,
-    });
-
-    //Tilføjer reference til Journal
-    await JournalModel.findByIdAndUpdate(journalId, {
-      $push: { entries: newEntry._id },
-    });
-
-    res.status(201).json({ message: "JournalEntry created", entry: newEntry });
-  } catch (error) {
-    console.error("Error creating JournalEntry:", error);
-    res.status(400).json({
-      message: "An error occured. Try again later",
-    });
-    return;
-  }
-};
-
 // Recept og Testresultater
 export const createPrescription = async (req: Request, res: Response) => {
   try {
@@ -367,28 +333,6 @@ export const getPrescriptionsByPatient = async (
   } catch (error) {
     console.error("Failed to fetch prescriptions", error);
     res.status(500).json({ message: "Could not get ressources" });
-  }
-};
-
-// SEED TESTRESULTS ************ SKAL SLETTES INDEN AFLEVERING ************
-export const createTestResult = async (req: Request, res: Response) => {
-  try {
-    const { patient_id, test_name, result, date } = req.body;
-
-    const newResult = new TestResultModel({
-      patient_id,
-      test_name,
-      result,
-      date,
-    });
-
-    await newResult.save();
-    res.status(201).json({ message: "Testresultat oprettet", newResult });
-  } catch (error) {
-    console.error("Fejl ved oprettelse af testresultat", error);
-    res.status(500).json({
-      message: "Could not complete this task. Try again later",
-    });
   }
 };
 
