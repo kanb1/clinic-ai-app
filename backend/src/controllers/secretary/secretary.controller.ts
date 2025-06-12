@@ -384,7 +384,6 @@ export const checkAndSeedSlots = async (req: Request, res: Response) => {
   try {
     const clinicId = req.user!.clinicId;
 
-    // finder alle læger i den aktuelle klinik, da vi skal generere slots for hver læge
     const doctors = (await UserModel.find({
       clinic_id: clinicId,
       role: "doctor",
@@ -399,6 +398,7 @@ export const checkAndSeedSlots = async (req: Request, res: Response) => {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
     const futureDate = new Date(today);
     futureDate.setDate(futureDate.getDate() + 20);
 
@@ -407,15 +407,6 @@ export const checkAndSeedSlots = async (req: Request, res: Response) => {
       clinic_id: clinicId,
       date: { $gte: today, $lte: futureDate },
     });
-
-    const existingKeys = new Set(
-      existingSlots.map(
-        (slot) =>
-          `${slot.doctor_id.toString()}-${
-            slot.date.toISOString().split("T")[0]
-          }`
-      )
-    );
 
     // opretter en tom array til nye slots der skal insertes
     const slotsToInsert: {
@@ -428,23 +419,29 @@ export const checkAndSeedSlots = async (req: Request, res: Response) => {
     }[] = [];
 
     // loop over hver dag de næste 21 dage
-
     for (let i = 0; i < 21; i++) {
       const date = new Date(today);
       date.setDate(date.getDate() + i);
+      date.setHours(12, 0, 0, 0);
+
       const isoDate = date.toISOString().split("T")[0];
 
       const isWeekend = date.getDay() === 6 || date.getDay() === 0;
       if (isWeekend) continue;
 
       for (const doctor of doctors) {
-        const key = `${doctor._id.toString()}-${isoDate}`;
-        if (existingKeys.has(key)) continue;
+        const slotCount = existingSlots.filter(
+          (s) =>
+            s.doctor_id.toString() === doctor._id.toString() &&
+            s.date.toISOString().split("T")[0] === isoDate
+        ).length;
+
+        if (slotCount >= 10) continue;
 
         // util funktion der opretter timeslots
         for (const { start, end } of generateTimeSlots()) {
           slotsToInsert.push({
-            doctor_id: doctor._id as Types.ObjectId,
+            doctor_id: doctor._id,
             clinic_id: doctor.clinic_id,
             date: new Date(date),
             start_time: start,
@@ -472,7 +469,7 @@ export const checkAndSeedSlots = async (req: Request, res: Response) => {
       return;
     }
   } catch (error) {
-    console.error(" Fejl under check-and-seed:", error);
+    console.error("Fejl under check-and-seed:", error);
     res.status(500).json({ message: "Serverfejl" });
     return;
   }
@@ -500,6 +497,7 @@ export const createAppointment = async (req: Request, res: Response) => {
 
     // Kopiér dato uden at mutere slot.date direkte
     const slotDate = new Date(slot.date);
+    slotDate.setHours(0, 0, 0, 0);
     const startOfDay = new Date(slotDate);
     startOfDay.setHours(0, 0, 0, 0);
     const endOfDay = new Date(slotDate);
