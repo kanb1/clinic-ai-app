@@ -107,15 +107,45 @@ const PatientMyAppointments = () => {
             ) : messages.length === 0 ? (
               <Text>Ingen nye beskeder.</Text>
             ) : (
-              <Stack spacing={4}>
-                {messages.map((msg: any) => (
-                  <MessageCard
-                    key={msg._id}
-                    msg={msg}
-                    onOpenMessage={handleOpenMessage}
-                  />
-                ))}
-              </Stack>
+              <Box
+                maxH={{ base: "60vh", md: "70vh", xl: "55vh" }}
+                overflowY="auto"
+                pr={2}
+                sx={{
+                  "&::-webkit-scrollbar": {
+                    width: "6px",
+                  },
+                  "&::-webkit-scrollbar-track": {
+                    background: "gray.100",
+                    borderRadius: "full",
+                  },
+                  "&::-webkit-scrollbar-thumb": {
+                    background: "gray.400",
+                    borderRadius: "full",
+                  },
+                }}
+              >
+                <Stack spacing={4}>
+                  {messages.map((msg: any) => (
+                    <MessageCard
+                      key={msg._id}
+                      msg={msg}
+                      onOpenMessage={handleOpenMessage}
+                      onMarkAsRead={(id) =>
+                        markAsRead(id, {
+                          onSuccess: async () => {
+                            await refetch();
+                            toast({
+                              title: "Besked markeret som læst",
+                              status: "success",
+                            });
+                          },
+                        })
+                      }
+                    />
+                  ))}
+                </Stack>
+              </Box>
             )}
           </Box>
 
@@ -129,11 +159,30 @@ const PatientMyAppointments = () => {
             ) : prescriptions.length === 0 ? (
               <Text>Ingen aktive recepter.</Text>
             ) : (
-              <Stack spacing={3}>
-                {prescriptions.map((rx: any) => (
-                  <PrescriptionCard key={rx._id} prescription={rx} />
-                ))}
-              </Stack>
+              <Box
+                maxH={{ base: "60vh", md: "70vh", xl: "55vh" }}
+                overflowY="auto"
+                pr={2}
+                sx={{
+                  "&::-webkit-scrollbar": {
+                    width: "6px",
+                  },
+                  "&::-webkit-scrollbar-track": {
+                    background: "gray.100",
+                    borderRadius: "full",
+                  },
+                  "&::-webkit-scrollbar-thumb": {
+                    background: "gray.400",
+                    borderRadius: "full",
+                  },
+                }}
+              >
+                <Stack spacing={3}>
+                  {prescriptions.map((rx: any) => (
+                    <PrescriptionCard key={rx._id} prescription={rx} />
+                  ))}
+                </Stack>
+              </Box>
             )}
           </Box>
         </Stack>
