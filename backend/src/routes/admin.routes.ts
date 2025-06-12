@@ -9,7 +9,6 @@ import {
   getPatients,
   getSecretaries,
   getStaff,
-  lookupPatientByCpr,
   sendSystemMessage,
   updateDoctor,
   updatePatient,
@@ -83,9 +82,6 @@ router.delete(
   handleValidationErrors,
   deleteSecretary
 );
-
-//CPR-lookup
-router.get("/lookup/:cpr", lookupPatientByCpr);
 
 router.put(
   "/:id",

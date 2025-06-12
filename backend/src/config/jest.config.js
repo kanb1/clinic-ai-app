@@ -13,7 +13,7 @@ module.exports = {
   },
   coverageThreshold: {
     global: {
-      branches: 70, //I coeverageTreshold angiver jeg minimumskrav på 75%
+      branches: 70, //I coeverageTreshold angiver jeg minimumskrav på 70%
       functions: 70,
       lines: 70,
       statements: 70,

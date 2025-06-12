@@ -6,15 +6,14 @@ import crypto from "crypto";
 import { MessageModel } from "../../models/message.model";
 import { JournalModel } from "../../models/journal.model";
 
-// FÅ FAT PÅ ALLE MEDARBEJDERE
+//************************* */ GET ALL STAFFS
 export const getStaff = async (req: Request, res: Response) => {
   try {
-    // JWT middleware sætter dette. Vi skal nemlig kun have staffs fra den clinic admin er administreret til (den tager clinic_id af den admin som er logget ind)
     const clinicId = req.user!.clinicId;
 
     const staff = await UserModel.find({
       role: { $in: ["doctor", "secretary"] },
-      clinic_id: clinicId, // matcher kun ansatte fra samme klinik ved at filtrere med clinic_id af den logged in user.
+      clinic_id: clinicId,
     }).select("-password_hash");
     res.status(200).json(staff);
   } catch (error) {
@@ -22,7 +21,6 @@ export const getStaff = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Der opstod en fejl. Prøv igen senere." });
   }
 };
-
 //************************* */ MANAGE DOCTORS
 export const getDoctors = async (req: Request, res: Response) => {
   try {
@@ -41,7 +39,7 @@ export const getDoctors = async (req: Request, res: Response) => {
 
 export const addDoctor = async (req: Request, res: Response) => {
   try {
-    // destrukterer til at hente de felter vi forventer fra frontend (req.body)
+    // hent de felter vi forventer fra frontend
     const { name, email, password } = req.body;
 
     const existingUser = await UserModel.findOne({ email });
@@ -50,17 +48,15 @@ export const addDoctor = async (req: Request, res: Response) => {
       return;
     }
 
-    // opretter ny bruger med usermodel.create til db
     const newDoctor = await UserModel.create({
       name,
       email,
       password_hash: password,
-      role: "doctor", //vigtigt for rbac
-      clinic_id: req.user!.clinicId, // ← her henter vi klinik-id fra den admin, der er logget ind
+      role: "doctor",
+      clinic_id: req.user!.clinicId,
       status: "ledig",
     });
 
-    // sender det nye lægeobjekt retur som bekræftelse og debug
     res.status(201).json(newDoctor);
   } catch (error) {
     console.error("Error adding new doctor", error);
@@ -73,7 +69,7 @@ export const updateDoctor = async (req: Request, res: Response) => {
   try {
     // /:id, eksempel /x/x/x/doctors/345243de24e
     const { id } = req.params;
-    // Hvad klienten har sendt i bodyen af nye updates. Udtrækker vi.
+    // udtrækker hvad klient har sendt
     const { name, email, phone, address, password, status } = req.body;
 
     const doctor = await UserModel.findById(id);
@@ -82,7 +78,7 @@ export const updateDoctor = async (req: Request, res: Response) => {
       return;
     }
 
-    //  opdaterer kun felterne hvis de er blevet sendt med i requesten, hvis ikke så beholder vi den gamle værdi
+    // opdaterer kun felterne hvis de er blevet sendt med i requesten, hvis ikke så beholder vi den gamle værdi
     //  ?? = nullish coalescing -> Brug venstre værdi (den sendt i requesten) medmindre den er null eller undefined; ellers brug højre (gamle værdi doctor.name)
     doctor.name = name ?? doctor.name;
     doctor.email = email ?? doctor.email;
@@ -95,7 +91,7 @@ export const updateDoctor = async (req: Request, res: Response) => {
       doctor.password_hash = password;
     }
 
-    await doctor.save(); // Triggerer min pre("save") middleware i usermodel
+    await doctor.save();
 
     res.status(200).json({ message: "Doctor updated", doctor });
   } catch (error) {
@@ -110,7 +106,6 @@ export const deleteDoctor = async (req: Request, res: Response) => {
     const doctorId = req.params.id;
 
     const deleted = await UserModel.findOneAndDelete({
-      // konverterer den id vi har fået fra URL'en som først var en tekststring, til en objectID, så mongoose forstår
       _id: new mongoose.Types.ObjectId(doctorId),
       role: "doctor",
     });
@@ -129,7 +124,7 @@ export const deleteDoctor = async (req: Request, res: Response) => {
   }
 };
 
-//************************* MANAGE SECRETARY
+//************************* */ MANAGE SECRETARY
 export const getSecretaries = async (req: Request, res: Response) => {
   try {
     const clinicId = req.user!.clinicId;
@@ -160,7 +155,7 @@ export const addSecretary = async (req: Request, res: Response) => {
       email,
       password_hash: password,
       role: "secretary",
-      clinic_id: req.user!.clinicId, // ← her henter vi klinik-id fra den admin, der er logget ind
+      clinic_id: req.user!.clinicId,
       status: "ledig",
     });
 
@@ -183,7 +178,6 @@ export const updateSecretary = async (req: Request, res: Response) => {
       return;
     }
 
-    // Opdater felterne kun hvis de er sendt med (ellers behold de gamle værdier)
     secretary.name = name ?? secretary.name;
     secretary.email = email ?? secretary.email;
     secretary.phone = phone ?? secretary.phone;
@@ -194,7 +188,8 @@ export const updateSecretary = async (req: Request, res: Response) => {
       secretary.password_hash = password;
     }
 
-    await secretary.save(); // trigger pre-save hash hvis password er ændret
+    // trigger pre-save hash hvis password er ændret
+    await secretary.save();
 
     res.status(200).json({
       message: "Secretary updated successfully",
@@ -234,9 +229,7 @@ export const deleteSecretary = async (req: Request, res: Response) => {
   }
 };
 
-//************************* MANAGE PATIENTS
-
-//************************************************* */ GET ALL PATIENTS
+//************************* */ MANAGE PATIENTS
 export const getPatients = async (req: Request, res: Response) => {
   try {
     const clinicId = req.user!.clinicId;
@@ -254,72 +247,6 @@ export const getPatients = async (req: Request, res: Response) => {
   }
 };
 
-//************************************************* */ LOOKUP PATIENT BY CPR
-// Kun adgang for admin eller sekretær
-// I starten --> Brugerens basale oplysninger hentes fra CPR registret
-// Vigtigt --> modalen popper op med de færdige oplysninger --> frontend mulighed for at vide om det var en eksisterende patient eller om det er en ny dummy, som skal redigeres færdig.
-export const lookupPatientByCpr = async (req: Request, res: Response) => {
-  const { cpr } = req.params;
-  const clinicId = req.user!.clinicId;
-
-  try {
-    // Tjekker om patienten allerede findes i klinikken
-    const existing = await UserModel.findOne({
-      cpr_number: cpr,
-      clinic_id: clinicId,
-    }).select("-password_hash");
-
-    if (existing) {
-      res.status(200).json({
-        message: "Patient found",
-        patient: existing,
-        patientWasFoundBefore: true,
-      });
-      return;
-    }
-
-    // Generérer sikkert tilfældigt password, så feltet ik er blankt/usikkert
-    const randomPassword = crypto.randomBytes(16).toString("hex");
-
-    // Opretter dummy data som senere kan redigeres m. modal
-    const newPatient = await UserModel.create({
-      name: "Ukendt Patient",
-      email: `${cpr}@dummy.dk`,
-      password_hash: randomPassword,
-      role: "patient",
-      cpr_number: cpr,
-      clinic_id: clinicId,
-      status: "ledig",
-    });
-
-    // Konverterer Mongoose-dokument til almindeligt objekt, og fjerner password_hash fra det, til når vi returnerer til frontend.
-    const patientToReturn = newPatient.toObject();
-
-    // object destructuring -> tag pass_hash ud og safePatient indeholder resten af felterne
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password_hash, ...safePatient } = patientToReturn;
-    // ^ESLINT IGNORE! det er for at fjerne linting fejl ved password_hash, da jeg ved at den ikke bliver brugt, men linting kræver det bruges. Hvis jeg bruger delete pass_hash i stedet for object destructuring så får vi ts fejl. Så det er for også at fikse den fejl
-
-    res.status(201).json({
-      message: "Patient not found. Dummy patient created.",
-      patient: safePatient,
-      patientWasFoundBefore: false,
-    });
-    return;
-  } catch (error) {
-    console.error(error);
-    console.error("Could not find patient", error);
-
-    res
-      .status(500)
-      .json({ message: "Der opstod et problem. Prøv igen senere" });
-  }
-};
-
-// Så i frontend: Kald GET /api/patients/lookup/:cpr
-//Hvis patient mangler info (f.eks. name === 'Ukendt Patient'), vis en formular/modal op
-// Når sekretær/admin er færdig, kald: PUT /api/patients/:id med navn, email osv
-
 export const updatePatient = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -336,9 +263,8 @@ export const updatePatient = async (req: Request, res: Response) => {
     patient.address = address ?? patient.address;
     patient.email = email ?? patient.email;
 
-    // Hvis nyt password medsendes
     if (password) {
-      patient.password_hash = password; // Bliver hashed i pre("save")
+      patient.password_hash = password;
     }
 
     await patient.save();
@@ -354,7 +280,6 @@ export const updatePatient = async (req: Request, res: Response) => {
   }
 };
 
-// ************************************************* */ DELETE PATIENTS
 export const deletePatient = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -362,7 +287,7 @@ export const deletePatient = async (req: Request, res: Response) => {
     const deleted = await UserModel.findOneAndDelete({
       _id: id,
       role: "patient",
-      clinic_id: req.user!.clinicId, // sikkerhed: kun slet hvis patient hører til din klinik
+      clinic_id: req.user!.clinicId, // sikkerhed: kun slet hvis patient hører til admin klinik
     });
 
     if (!deleted) {
@@ -377,7 +302,8 @@ export const deletePatient = async (req: Request, res: Response) => {
   }
 };
 
-// ************************************************* */ SEND MESSAGES AS ADMIN
+//************************* */ADMIN
+// SEND MESSAGES AS ADMIN
 export const sendSystemMessage = async (req: Request, res: Response) => {
   try {
     const { content, receiver_scope, receiver_id } = req.body;
