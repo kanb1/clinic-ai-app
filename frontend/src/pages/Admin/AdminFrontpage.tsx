@@ -30,7 +30,6 @@ const AdminFrontpage = () => {
             mt={{ base: 5 }}
           >
             <Button
-              as={Link}
               onClick={() => navigate("/admin/patients")}
               variant="solidRed"
               w={{ base: "15rem", sm: "17rem", md: "18rem", xl: "20rem" }}
@@ -38,7 +37,6 @@ const AdminFrontpage = () => {
               Administrer patienter
             </Button>
             <Button
-              as={Link}
               onClick={() => navigate("/admin/doctors")}
               variant="solidRed"
               w={{ base: "15rem", sm: "17rem", md: "18rem", xl: "20rem" }}
@@ -46,7 +44,6 @@ const AdminFrontpage = () => {
               Administrer læger
             </Button>
             <Button
-              as={Link}
               onClick={() => navigate("/admin/secretaries")}
               variant="solidRed"
               w={{ base: "15rem", sm: "17rem", md: "18rem", xl: "20rem" }}
