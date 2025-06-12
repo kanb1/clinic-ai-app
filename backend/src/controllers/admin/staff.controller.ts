@@ -39,8 +39,7 @@ export const getDoctors = async (req: Request, res: Response) => {
 
 export const addDoctor = async (req: Request, res: Response) => {
   try {
-    // hent de felter vi forventer fra frontend
-    const { name, email, password } = req.body;
+    const { name, email, password, phone } = req.body;
 
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
@@ -51,6 +50,7 @@ export const addDoctor = async (req: Request, res: Response) => {
     const newDoctor = await UserModel.create({
       name,
       email,
+      phone,
       password_hash: password,
       role: "doctor",
       clinic_id: req.user!.clinicId,
@@ -142,7 +142,7 @@ export const getSecretaries = async (req: Request, res: Response) => {
 
 export const addSecretary = async (req: Request, res: Response) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, phone } = req.body;
 
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
@@ -153,6 +153,7 @@ export const addSecretary = async (req: Request, res: Response) => {
     const newSecretary = await UserModel.create({
       name,
       email,
+      phone,
       password_hash: password,
       role: "secretary",
       clinic_id: req.user!.clinicId,
