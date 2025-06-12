@@ -17,7 +17,7 @@ import doctorRoutes from "./routes/doctor.routes";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 10000;
 
 // MongoDB connection
 // Hvis env ik er "test", så connect - inde i package.json har vi sat jest testenv. til at være "test", hvor deer ik bliver connected
