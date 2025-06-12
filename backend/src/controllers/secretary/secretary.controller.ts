@@ -483,7 +483,6 @@ export const checkAndSeedSlots = async (req: Request, res: Response) => {
 export const createAppointment = async (req: Request, res: Response) => {
   try {
     const { patient_id, doctor_id, slot_id, secretary_note } = req.body;
-
     const clinicId = req.user!.clinicId;
 
     const slot = await AvailabilitySlotModel.findById(slot_id);
@@ -499,11 +498,32 @@ export const createAppointment = async (req: Request, res: Response) => {
       return;
     }
 
+    // Kopiér dato uden at mutere slot.date direkte
+    const slotDate = new Date(slot.date);
+    const startOfDay = new Date(slotDate);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(slotDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // Tjek om patienten allerede har en aftale samme dag
+    const existing = await AppointmentModel.findOne({
+      patient_id,
+      date: { $gte: startOfDay, $lt: endOfDay },
+    });
+
+    if (existing) {
+      res
+        .status(400)
+        .json({ message: "Patienten har allerede en aftale denne dag" });
+      return;
+    }
+
+    // Opret ny aftale
     const appointment = await AppointmentModel.create({
       patient_id,
       doctor_id,
       clinic_id: clinicId,
-      date: new Date(new Date(slot.date).toISOString().split("T")[0]),
+      date: slotDate,
       time: slot.start_time,
       end_time: slot.end_time,
       status: "venter",
@@ -514,9 +534,11 @@ export const createAppointment = async (req: Request, res: Response) => {
     await slot.save();
 
     res.status(201).json({ message: "Appointment created", appointment });
+    return;
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error" });
+    return;
   }
 };
 
