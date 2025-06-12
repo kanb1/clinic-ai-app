@@ -25,6 +25,8 @@ import {
   validateMarkMessageAsRead,
   validateSendMessage,
 } from "../validators/secretaryValidators";
+import { seedAppointmentsToday } from "./test-routes/secretary/seed-secretary-appointments-today";
+import { seedAvailabilitySlots } from "./test-routes/secretary/seed-secretary-availability";
 
 const router = express.Router();
 
@@ -83,10 +85,7 @@ router.get("/appointments/today", getTodaysAppointments);
 router.get("/appointments/past-today", getPastAppointmentsToday);
 // staffstatus ligger i user
 
-// ************** SEED ROUTE (KUN MIDLERTIDIGT - SLET SENERE) **************
-import { seedAppointmentsToday } from "./test-routes/secretary/seed-secretary-appointments-today";
-import { seedAvailabilitySlots } from "./test-routes/secretary/seed-secretary-availability";
-
+// ************** SEED ROUTES
 router.post("/appointments/seed-today", seedAppointmentsToday);
 router.post("/availability/seed", seedAvailabilitySlots);
 

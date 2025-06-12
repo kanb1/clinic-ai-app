@@ -32,8 +32,6 @@ export const getTodaysAppointments = async (req: Request, res: Response) => {
   }
 };
 
-// status på ansatte er i user-controlleren, da både sekretær og doctor bruger denne
-
 // Kalender (oversigt over alle aftaler)
 export const getAppointmentsForDoctor = async (req: Request, res: Response) => {
   try {
@@ -63,9 +61,9 @@ export const getTodayAppointmentDetails = async (
 
     // En slags filter for "dagens" aftaler
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // startdato = i dag kl. 00:00
+    today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1); // slutdato = i morgen kl. 00:00
+    tomorrow.setDate(today.getDate() + 1);
 
     // opbyg query (kun dagens aftaler for klinikken)
     const query = {
@@ -79,9 +77,9 @@ export const getTodayAppointmentDetails = async (
 
     // henter og paginerer data
     const appointments = await AppointmentModel.find(query)
-      .populate("patient_id", "name birth_date") // henter patientens navn og fødselsdato
-      .sort({ time: 1 }) // sorter fra morgen-eftermiddag (stigende)
-      .skip((+page - 1) * +limit) // skip = hvor mange skal vi springe over (side 2 = spring 6 over, hvis limit=6)
+      .populate("patient_id", "name birth_date")
+      .sort({ time: 1 })
+      .skip((+page - 1) * +limit)
       .limit(+limit); // hvor mange skal vi hente pr. side
 
     // resultatet er allerede formatteret så det er klar til visning i frontend-tabel
@@ -100,11 +98,10 @@ export const getTodayAppointmentDetails = async (
       }
     );
 
-    // sender både data + metadata om pagination
     res.status(200).json({
-      data: formatted, // selve dataen
-      total, // antal elementer i alt
-      page: +page, // nuværende side
+      data: formatted,
+      total,
+      page: +page,
       totalPages: Math.ceil(total / +limit), // beregn antal sider
     });
   } catch (error) {
@@ -113,6 +110,7 @@ export const getTodayAppointmentDetails = async (
   }
 };
 
+// Aflys aftale
 export const cancelAppointmentByDoctor = async (
   req: Request,
   res: Response
@@ -121,20 +119,19 @@ export const cancelAppointmentByDoctor = async (
     const appointmentId = req.params.id;
     const clinicId = req.user!.clinicId;
 
-    // Tjekker om aftalen findes og tilhører samme klinik
     const appointment = await AppointmentModel.findOne({
       _id: appointmentId,
       clinic_id: clinicId,
     });
 
     if (!appointment) {
-      res.status(404).json({ message: "Appointment not found" });
+      res.status(404).json({ message: "Could not find appointm,net" });
       return;
     }
 
     // Tjek om den allerede er aflyst
     if (appointment.status === "aflyst") {
-      res.status(400).json({ message: "Appointment already cancelled" });
+      res.status(400).json({ message: "Appointment is already cancelled" });
       return;
     }
 
@@ -142,10 +139,12 @@ export const cancelAppointmentByDoctor = async (
     appointment.status = "aflyst";
     await appointment.save();
 
-    res.status(200).json({ message: "Appointment cancelled", appointment });
+    res
+      .status(200)
+      .json({ message: "Appointment is successfully cancelled", appointment });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "An error occurred. Try again later.." });
+    res.status(500).json({ message: "An error happened. Try again later.." });
   }
 };
 
@@ -166,6 +165,7 @@ export const getPatientsForDoctor = async (req: Request, res: Response) => {
   }
 };
 
+// Patientdetaljer
 export const getPatientDetails = async (req: Request, res: Response) => {
   try {
     const clinicId = req.user!.clinicId;
@@ -198,15 +198,12 @@ export const getJournalOverview = async (req: Request, res: Response) => {
     // vi henter søgeordet fra URL'en
     const search = req.query.search as string | undefined;
 
-    // Henter alle journaler fra db (ingen filter endnu)
-    // populate --> hente data om patienten via patient_id-referencen
-    // hvis patienten matcher -> patient_id populated som objekt med navn og birth_date ellers null
     const journals = await JournalModel.find().populate({
       // find brugeren som journalen peger på (relation)
       path: "patient_id",
       // begrænser hvem vi henter ind i patient_id
       match: {
-        clinic_id: clinicId, //kun samme klinik
+        clinic_id: clinicId,
         role: "patient",
         ...(search && {
           //hvis der søgeværdi, så kun:
@@ -224,13 +221,8 @@ export const getJournalOverview = async (req: Request, res: Response) => {
       select: "name birth_date", //henter kun disse for at gøre respons lettere og hurtigere
     });
 
-    // journals er en liste med alle journaler vi fik fra journalmodel.find() - selvom match fejler - patientid bliver bare null, men populatematch fjerner ik hele journalen - så vi fjerner manuelt her med filter
-    // j er et journal objekt i listen (normalt array)
-    // j.patient_id tjekker om journalen har en gyldig patient
     const filtered = journals.filter((j) => j.patient_id);
-    // ^vi får altså en ny liste kun med journaler som har en gyldig udfyldt patient efte rpopulate
 
-    // Formatter vores data til en pæn frotnend venlig struktur
     const formatted = (filtered as unknown as IPopulatedJournal[]).map((j) => ({
       journalId: j._id,
       patientName: j.patient_id.name,
@@ -244,7 +236,7 @@ export const getJournalOverview = async (req: Request, res: Response) => {
   }
 };
 
-// Specifikke journal med patientens historik
+// Specifik journal med patientens historik
 export const getJournalById = async (req: Request, res: Response) => {
   try {
     const journalId = req.params.id;
@@ -318,6 +310,7 @@ export const createPrescription = async (req: Request, res: Response) => {
   }
 };
 
+// Get prescriptions pr patient
 export const getPrescriptionsByPatient = async (
   req: Request,
   res: Response
@@ -327,7 +320,7 @@ export const getPrescriptionsByPatient = async (
 
     const prescriptions = await PrescriptionModel.find({
       patient_id: patientId,
-    }).sort({ issued_date: -1 }); // nyeste først
+    }).sort({ issued_date: -1 });
 
     res.status(200).json(prescriptions);
   } catch (error) {

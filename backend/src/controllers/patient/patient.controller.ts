@@ -5,7 +5,7 @@ import { PrescriptionModel } from "../../models/prescription.model";
 import { UserModel } from "../../models/user.model";
 import mongoose from "mongoose";
 
-// *********************************************************** MESSAGES
+// Hent ulæste beskeder
 export const getUnreadMessagesForPatient = async (
   req: Request,
   res: Response
@@ -34,6 +34,7 @@ export const getUnreadMessagesForPatient = async (
   }
 };
 
+// Marker besked som læst
 export const markMessageAsRead = async (req: Request, res: Response) => {
   try {
     const messageId = req.params.id;
@@ -74,7 +75,7 @@ export const markMessageAsRead = async (req: Request, res: Response) => {
   }
 };
 
-// *********************************************************** Aftalehåndtering
+// Kommende aftaler for patient
 export const getUpcomingAppointments = async (req: Request, res: Response) => {
   try {
     const patientId = req.user!._id;
@@ -101,6 +102,7 @@ export const getUpcomingAppointments = async (req: Request, res: Response) => {
   }
 };
 
+// Bekræft appointmnet
 export const confirmAppointment = async (req: Request, res: Response) => {
   try {
     const appointmentId = req.params.id;
@@ -131,6 +133,7 @@ export const confirmAppointment = async (req: Request, res: Response) => {
   }
 };
 
+// Aflys aftale
 export const cancelAppointment = async (req: Request, res: Response) => {
   try {
     const appointmentId = req.params.id;
@@ -163,7 +166,7 @@ export const cancelAppointment = async (req: Request, res: Response) => {
   }
 };
 
-// *********************************************************** Sundhedsdata
+// Hens prescriptions
 export const getPrescriptionsForPatient = async (
   req: Request,
   res: Response
@@ -171,10 +174,9 @@ export const getPrescriptionsForPatient = async (
   try {
     const { patientId } = req.params;
 
-    // Find alle recepter til logged in patient
     const prescriptions = await PrescriptionModel.find({
       patient_id: patientId,
-    }).sort({ issued_date: -1 }); // nyeste først
+    }).sort({ issued_date: -1 });
 
     res.status(200).json(prescriptions);
   } catch (error) {
@@ -185,7 +187,7 @@ export const getPrescriptionsForPatient = async (
   }
 };
 
-// *********************************************************** Brugerprofil
+// Opdater min bruger
 export const updateMyProfile = async (req: Request, res: Response) => {
   try {
     const userId = req.user!._id;

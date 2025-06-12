@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ClinicModel } from "../../models/clinic.model";
 
+// Opret clinic
 export const createClinic = async (req: Request, res: Response) => {
   try {
     const { name, address } = req.body;
@@ -28,6 +29,7 @@ export const createClinic = async (req: Request, res: Response) => {
   }
 };
 
+// Hent klinikker
 export const getClinics = async (req: Request, res: Response) => {
   try {
     const clinics = await ClinicModel.find();
@@ -39,7 +41,7 @@ export const getClinics = async (req: Request, res: Response) => {
   }
 };
 
-// get specific clinic
+// Find specifik klinik by Id
 export const getClinicById = async (req: Request, res: Response) => {
   try {
     const clinicId = req.params.id;
@@ -57,7 +59,7 @@ export const getClinicById = async (req: Request, res: Response) => {
   }
 };
 
-// get clinic for the actual admin
+// Hent specifik klinik for admin
 export const getMyClinic = async (req: Request, res: Response) => {
   try {
     const adminId = req.user!._id;

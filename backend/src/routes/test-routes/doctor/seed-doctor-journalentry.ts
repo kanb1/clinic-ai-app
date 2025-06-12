@@ -14,14 +14,12 @@ export const createTestJournalEntry = async (req: Request, res: Response) => {
       return;
     }
 
-    // Opretter selve JournalEntry-dokumentet
     const newEntry = await JournalEntryModel.create({
       appointment_id: appointmentId,
       notes,
       created_by_ai,
     });
 
-    //Tilføjer reference til Journal
     await JournalModel.findByIdAndUpdate(journalId, {
       $push: { entries: newEntry._id },
     });

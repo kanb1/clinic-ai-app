@@ -65,8 +65,6 @@ export const createJournalEntry = async (req: Request, res: Response) => {
 
 // ***************** Creates journalentry (note til en appointment i journalen)
 // Henter alle appointments for den patient
-// Tjekker om der findes en journalentry til den appointment
-// Returnerer et samlet array med appointment + journalinfo
 export const getAppointmentsWithJournalForPatient = async (
   req: Request,
   res: Response

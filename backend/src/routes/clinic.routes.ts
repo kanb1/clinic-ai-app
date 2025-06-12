@@ -12,7 +12,6 @@ import { createClinicValidator } from "../validators/clinicValidators";
 
 const router = express.Router();
 
-// /api/clinics/x
 router.post(
   "/",
   authenticateJWT,

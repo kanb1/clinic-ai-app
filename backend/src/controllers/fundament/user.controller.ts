@@ -20,10 +20,11 @@ export const getMyProfile = async (req: Request, res: Response) => {
   }
 };
 
+// Hent staffstatus
 export const getStaffStatuses = async (req: Request, res: Response) => {
   try {
     const clinicId = req.user!.clinicId;
-    const userId = req.user!._id; // fra JWT payload
+    const userId = req.user!._id;
 
     const staff = await UserModel.find({
       clinic_id: clinicId,
@@ -60,6 +61,7 @@ export const updateMyOwnStatus = async (req: Request, res: Response) => {
   }
 };
 
+// Hent patienter
 export const getPatients = async (req: Request, res: Response) => {
   try {
     const clinicId = req.user!.clinicId;

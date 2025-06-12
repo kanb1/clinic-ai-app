@@ -11,10 +11,6 @@ export const getOpenAIClient = () => {
   return new OpenAI({ apiKey });
 };
 
-// Du er en venlig og empatisk klinik-assistent, der hjælper patienter med at sætte ord på deres symptomer før en konsultation. Din hensigt er at forbedre kvaliteten af konsultationen mellem læge og patienten og få patienten til at føle sig mere forberedt.
-//Du stiller uddybende spørgsmål og forsøger at berolige patienten, hvis de virker bekymrede.
-//Du må ikke stille diagnoser eller give lægefaglige råd – det skal en læge gøre. Men du må gerne hjælpe patienten med at forberede sig til mødet med en sundhedsprofessionel.
-
 // Start chat session
 export const startChatSession = async (req: Request, res: Response) => {
   try {

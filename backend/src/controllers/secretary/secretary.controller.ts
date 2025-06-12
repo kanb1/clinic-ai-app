@@ -9,6 +9,9 @@ import { generateTimeSlots } from "../../utils/slot.utils";
 import { IUser } from "../../types/user.types";
 
 // **************************************************** BESKEDER
+// **************************************************** BESKEDER
+// **************************************************** BESKEDER
+// **************************************************** BESKEDER
 // HENT NYE BESKEDER
 export const getUnreadMessages = async (req: Request, res: Response) => {
   try {
@@ -18,20 +21,17 @@ export const getUnreadMessages = async (req: Request, res: Response) => {
 
     // ulæste beskeder
     const messages = await MessageModel.find({ read: false })
-      .populate("sender_id", "name role clinic_id") // brugerobjekt af sender_id da det er en objectID
+      .populate("sender_id", "name role clinic_id")
       .populate("receiver_id", "name role")
-      .sort({ createdAt: -1 }); // nyeste først
+      .sort({ createdAt: -1 });
 
-    //IPopulatedMessage: ts-workaround - populate.() gør objectID til brugerobjekter i runtime men det ved TS ikke, da den stadig ser som objectID
-    //as unknown ← ignorer den type, TypeScript tror det er
-    // as IPopulatedMessage[] ← brug i stedet denne type (vores interface)
-    // vi fortæller ts at messages faktisk er en array af vores interface for autocomplete og typesikkerhed
+    // IPopulatedMessage: ts-workaround
     const filtered = (messages as unknown as IPopulatedMessage[]).filter(
       (msg) => {
         const sender = msg.sender_id;
+
         // Tjekker at sender_id er et objekt og ikke null
         // at det har et clinic og den matcher logged in brugers clinic
-
         const fromSameClinic =
           sender &&
           typeof sender === "object" &&
@@ -40,7 +40,7 @@ export const getUnreadMessages = async (req: Request, res: Response) => {
           sender.clinic_id.toString() === clinicId;
 
         //Håndterer flere tilfælde, om receiver_scope er til all eller staff eller en indiivudel eller patienter
-        // problemet er at receiver_scope kan være flere forskellige ting, en string "all" eller et objekt emd _id, navn osv
+        // receiver_scope -> håndterer både en string "all"/objekt emd _id, navn osv
         const toCurrentUser =
           // er besked sendt til alle? så matcher den direkte
           msg.receiver_scope === "all" ||
@@ -97,8 +97,7 @@ export const sendMessage = async (req: Request, res: Response) => {
     }
 
     const newMessage = await MessageModel.create({
-      sender_id: req.user!._id, // sekretæren der er logget ind
-      // ternary operator(kort version af ifelse) Hvis receiver_scope er "individual", så brug den receiver_id, som vi har fået med i req.body. Ellers sæt receiver_id til null
+      sender_id: req.user!._id,
       receiver_id:
         receiver_scope === "individual"
           ? new mongoose.Types.ObjectId(receiver_id)
@@ -124,6 +123,7 @@ export const sendMessage = async (req: Request, res: Response) => {
   }
 };
 
+// Marker besked som læst
 export const markMessageAsReadBySecretary = async (
   req: Request,
   res: Response
@@ -138,7 +138,6 @@ export const markMessageAsReadBySecretary = async (
       return;
     }
 
-    // Hvis allerede læst
     if (message.read) {
       res.status(200).json({ message: "Message is already marked as read" });
       return;
@@ -155,6 +154,10 @@ export const markMessageAsReadBySecretary = async (
 };
 
 // **************************************************** PATIENT OG LÆGEOPSÆTNING
+// **************************************************** PATIENT OG LÆGEOPSÆTNING
+// **************************************************** PATIENT OG LÆGEOPSÆTNING
+// **************************************************** PATIENT OG LÆGEOPSÆTNING
+// Søg efter patient
 export const searchPatients = async (req: Request, res: Response) => {
   try {
     const clinicId = req.user!.clinicId;
@@ -196,6 +199,7 @@ export const searchPatients = async (req: Request, res: Response) => {
   }
 };
 
+// Hent læger
 export const getDoctors = async (req: Request, res: Response) => {
   try {
     const clinicId = req.user!.clinicId;
@@ -213,6 +217,10 @@ export const getDoctors = async (req: Request, res: Response) => {
 };
 
 // **************************************************** Kalender og ledige tider
+// **************************************************** Kalender og ledige tider
+// **************************************************** Kalender og ledige tider
+// **************************************************** Kalender og ledige tider
+// Hent alle appointments
 export const getAppointments = async (req: Request, res: Response) => {
   try {
     const clinicId = req.user!.clinicId;
@@ -231,15 +239,10 @@ export const getAppointments = async (req: Request, res: Response) => {
   }
 };
 
+// Get availability pr. doctor
 // Dette endpoint viser et overblik over hvor mange tider der er ledige pr læge grupperet per dag
-// Valgfri filtrering på doctorId
-// Returnerer antal ledige tider grupperet per læge per dag
-// Sorter: dato stigende, navn A–Z.
-// ét objekt pr læge pr dag: fx:{ doctorName: \"Simon\", date: \"2025-06-01\", availableSlots: 5 }
-// giver et overblik over antal ledige tider pr. læge pr. dag
 export const getAvailabilityOverview = async (req: Request, res: Response) => {
   try {
-    // Læser weekstart (dato for startuge) og doctorId fra URL'en
     const { weekStart, doctorId } = req.query;
 
     if (!weekStart) {
@@ -248,22 +251,16 @@ export const getAvailabilityOverview = async (req: Request, res: Response) => {
         .json({ message: "weekStart is required (e.g. 2025-05-05)" });
       return;
     }
-
-    // Opretter to datoer, start og end date
-    const startDate = new Date(weekStart as string); // Konverterer weekStart til en Date-objekt
+    const startDate = new Date(weekStart as string);
     const endDate = new Date(startDate);
     //sætter enddate der er 20 dage frem i tid (næsten 3 uger) for at filtrere tiderne (definerer itnervallet vi vil undersøge slots i)
     endDate.setDate(endDate.getDate() + 20);
 
-    // match: mognodb query filter
-    // vi vil finde slots som:
     const match: any = {
-      date: { $gte: startDate, $lte: endDate }, //har en date som er mellem startDate og endDate
+      date: { $gte: startDate, $lte: endDate },
       is_booked: false, //ikke er booket
     };
 
-    // Hvis doctorId er angivet af brugeren - og er gyldig (et objectid) - tilføjer vi det til vores filtered
-    // resultat: får kun slots for den læge
     if (doctorId && mongoose.Types.ObjectId.isValid(doctorId as string)) {
       match.doctor_id = new mongoose.Types.ObjectId(doctorId as string);
     }
@@ -282,12 +279,7 @@ export const getAvailabilityOverview = async (req: Request, res: Response) => {
       return;
     }
 
-    // Bruger .aggresgate() (mongodbs aggregations pipeline)
-    // avanceret forespørgsel i flere trin
-    // svarer til GROUP BY i SQL men med mere fleksibilitet
     const slots = await AvailabilitySlotModel.aggregate([
-      // Først filtrer vi slots så vi kun arbejder med relevante slots (fra datointervallet og evt lægen)
-      // vi har angivet den query længere oppe
       { $match: match },
       // Vi grupperer resultaterne baseret på:
       // hvilken læge det er (doctorId)
@@ -304,34 +296,30 @@ export const getAvailabilityOverview = async (req: Request, res: Response) => {
           availableSlots: { $sum: 1 },
         },
       },
-      //$lookup for at hente info om lægen fra users-collectionen og tilføjer det som et felt kaldet doctor, fungerer lidt som JOIN
       {
         // For hver doctor_id gør vi:
         $lookup: {
           // Gå ind i users-collectionen
           from: "users",
-          //Jeg har en doctor_id i mit nuværende dokument (under _id og som lige er lavet i $group)
           localField: "_id.doctor_id",
           // Find den bruger i users hvor _id matcher det doctor_id jeg har
           foreignField: "_id",
-          // Gem det fundne brugerobjekt som et nyt felt, kaldet doctor
           as: "doctor",
         },
       },
-      // $unwind gør så doctor bliver et enkelt ojbject og ik et array.
+      // $unwind -> objekt og ik et array
       { $unwind: "$doctor" },
       // Vi definerer hvilke felter vi vil have med i resultatet - og omdøber nogle
-      // doctor oplysninger, hvornår tiderne er og hvor mange tider
       {
         $project: {
           doctorId: "$doctor._id",
           doctorName: "$doctor.name",
           role: "$doctor.role",
           date: "$_id.date",
-          availableSlots: 1, //mongo-way of saying keep this field in the output that we counted from the grouping before, "0" would be remove the field
+          availableSlots: 1,
         },
       },
-      // Sorter resultatet: vi vil have datoer i stigende rækkefølge, fx man-fre og navne i alfabetisk orden
+
       { $sort: { date: 1, doctorName: 1 } },
     ]);
 
@@ -342,14 +330,11 @@ export const getAvailabilityOverview = async (req: Request, res: Response) => {
   }
 };
 
-//Dette endpoint returnerer hver enkelt ledig tid (dato + tidspunkt) for en given klinik og (valgfrit) bestemt læge
-// et objekt pr slot fx: { doctorName: \"Simon\", date: \"2025-06-01\", start_time: \"08:00\", end_time: \"08:15\" }
+// Get specifik availability slots
 // giver hver enkelt eldig tid med klokkeslæt
 export const getAvailabilitySlots = async (req: Request, res: Response) => {
   try {
-    // trækker clinicid ud fra den authetnitcated bruger
     const clinicId = req.user!.clinicId;
-    // trækker weekstart og doctorId fr aURLens query-parametre
     const { weekStart, doctorId } = req.query;
 
     if (!weekStart) {
@@ -357,40 +342,24 @@ export const getAvailabilitySlots = async (req: Request, res: Response) => {
       return;
     }
 
-    // definerer start- og slutdato for søgningen
     const startDate = new Date(weekStart as string);
     const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + 20); //en periode på 21 dage (3 uger frem)
+    endDate.setDate(endDate.getDate() + 20);
 
-    // bygger et match-filter til mongodb
-    // vi vil gerne matche tider i databasen baseret på:
     const match: any = {
-      clinic_id: clinicId, //kun fra den aktuelle klinik
-      date: { $gte: startDate, $lte: endDate }, //kun mellem start- og end date
+      clinic_id: clinicId,
+      date: { $gte: startDate, $lte: endDate },
       is_booked: false, //ledige tider
     };
 
-    // Hvis vi fik doctorId i URL'en og den er gyldig, så filtrerer vi på det også
-    //Ellers henter vi slots for alle læger i klinikken
     if (doctorId && mongoose.Types.ObjectId.isValid(doctorId as string)) {
       match.doctor_id = new mongoose.Types.ObjectId(doctorId as string);
     }
 
     // vi hetner alle tiderne der matcher fra databasen
     const slots = await AvailabilitySlotModel.find(match)
-      // populate at få lægens navn med, udover id
       .populate("doctor_id", "name")
-      // stigende dato, og inden for samme dag (tidligste tider først) - modsat er -1
       .sort({ date: 1, start_time: 1 });
-    // vi får fx:
-    // {
-    //   _id: "123",
-    //   doctor_id: { _id: "456", name: "Mie Christensen" },
-    //   date: "2025-06-03",
-    //   start_time: "09:00",
-    //   end_time: "09:15",
-    //   is_booked: false
-    // }
 
     // beskriver hvordna hvert slot ser ud efter populate, typesikkerhed
     interface PopulatedSlot {
@@ -404,7 +373,7 @@ export const getAvailabilitySlots = async (req: Request, res: Response) => {
       end_time: string;
     }
 
-    // mapper over alle slots (enkelte tider) og formaterer dataen til et enklere og renere format til frontend
+    // mapper over alle slots (enkelte tider) --> og formaterer dataen
     const formatted = (slots as unknown as PopulatedSlot[]).map((slot) => ({
       slotId: slot._id,
       doctorId: slot.doctor_id._id,
@@ -420,6 +389,9 @@ export const getAvailabilitySlots = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+// **************************************************** AvailabilitySlots Seeding Fallback
+// **************************************************** AvailabilitySlots Seeding Fallback
+// **************************************************** AvailabilitySlots Seeding Fallback
 // **************************************************** AvailabilitySlots Seeding Fallback
 // automatisk fallback-logik, som kun seeder availability slots on-demand ved åbning af booking-siden
 // men kun hvis der mangler slots for de næste 21 dage
@@ -441,21 +413,16 @@ export const checkAndSeedSlots = async (req: Request, res: Response) => {
     }
 
     const today = new Date();
-    // sætter today til dags dato kl 00.00 - for at sammenligne slots med i dag og frem
     today.setHours(0, 0, 0, 0);
     const futureDate = new Date(today);
-    // laver en futuredate some r 3 uger (21 dage frem i tiden)
     futureDate.setDate(futureDate.getDate() + 20);
 
-    // !!check om der allerede findes slots 20 dage frem
-    // finder alle eksisterende slots i den klinik fra i dag til 3 uger frem – om de er booket eller ej
+    // !!check om der allerede findes slots de næste 20 dage
     const existingSlots = await AvailabilitySlotModel.find({
       clinic_id: clinicId,
       date: { $gte: today, $lte: futureDate },
     });
 
-    // laver en set (unik samling) af alle datoer, hvor der allerede findes slots pr læge og dato
-    // Unik identifikation af slots per læge og dato
     const existingKeys = new Set(
       existingSlots.map(
         (slot) =>
@@ -479,25 +446,17 @@ export const checkAndSeedSlots = async (req: Request, res: Response) => {
 
     for (let i = 0; i < 21; i++) {
       const date = new Date(today);
-      // Vi går dag for dag fra i dag og 21 dage frem
       date.setDate(date.getDate() + i);
-      // isoDate er datoen som string (fx "2025-06-01")
       const isoDate = date.toISOString().split("T")[0];
 
-      // Skip hvis det er weekend
-      // springer lørdage (6) og søndage (0) over..
       const isWeekend = date.getDay() === 6 || date.getDay() === 0;
       if (isWeekend) continue;
 
-      // generer tider for hver læge for denne dag
-
       for (const doctor of doctors) {
         const key = `${doctor._id.toString()}-${isoDate}`;
-        // Skip hvis datoen allerede har slots, for at undgå doubleseeding
         if (existingKeys.has(key)) continue;
 
         // util funktion der opretter timeslots
-
         for (const { start, end } of generateTimeSlots()) {
           slotsToInsert.push({
             doctor_id: doctor._id as Types.ObjectId,
@@ -535,12 +494,12 @@ export const checkAndSeedSlots = async (req: Request, res: Response) => {
 };
 
 // **************************************************** Booking og notering
+// Opret aftale
 export const createAppointment = async (req: Request, res: Response) => {
   try {
     const { patient_id, doctor_id, slot_id } = req.body;
     const clinicId = req.user!.clinicId;
 
-    // Vi finder den valgte slot med slot_id fra databasen
     const slot = await AvailabilitySlotModel.findById(slot_id);
 
     if (!slot || slot.is_booked) {
@@ -554,7 +513,6 @@ export const createAppointment = async (req: Request, res: Response) => {
       return;
     }
 
-    // Opret aftale baseret på slot info
     const appointment = await AppointmentModel.create({
       patient_id,
       doctor_id,
@@ -562,10 +520,9 @@ export const createAppointment = async (req: Request, res: Response) => {
       date: slot.date,
       time: slot.start_time,
       end_time: slot.end_time,
-      status: "venter", //default, når patient bekræfter, så ændrer vi status via patch-endpoint
+      status: "venter",
     });
 
-    // Marker slot som booket og gem
     slot.is_booked = true;
     await slot.save();
 
@@ -576,6 +533,7 @@ export const createAppointment = async (req: Request, res: Response) => {
   }
 };
 
+// Opret secretary_note
 export const addSymptomNote = async (req: Request, res: Response) => {
   try {
     const appointmentId = req.params.id;
@@ -588,7 +546,6 @@ export const addSymptomNote = async (req: Request, res: Response) => {
       return;
     }
 
-    // kun tilføj en note hvis den ik allerede har
     if (appointment.secretary_note) {
       res.status(400).json({ message: "Note already exists" });
       return;
@@ -605,28 +562,27 @@ export const addSymptomNote = async (req: Request, res: Response) => {
 };
 
 // **************************************************** Dashboard og historik
-
-// Hent besøg for i dag
+// **************************************************** Dashboard og historik
+// **************************************************** Dashboard og historik
+// **************************************************** Dashboard og historik
+// Hent besøgende for i dag
 export const getTodaysAppointments = async (req: Request, res: Response) => {
   try {
     const clinicId = req.user!.clinicId;
 
-    // Lav et datointerval fra start til slut på dagen
     const today = new Date();
-    today.setHours(0, 0, 0, 0); //Sætter tidspunktet til midnat (starten på dagen).
+    today.setHours(0, 0, 0, 0);
 
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1); // næste dag = grænse
 
     const appointments = await AppointmentModel.find({
       clinic_id: clinicId,
-      // Grænser: gte og lt er "greater than equal" og "less than or equal"
-      date: { $gte: today, $lt: tomorrow }, //Matcher alle tidspunkter i dag, (mellem de to grænser).
+      date: { $gte: today, $lt: tomorrow },
     })
       .populate("patient_id", "name")
       .populate("doctor_id", "name")
-      .sort({ time: -1 }); //time refererer til feltet "time" i mine appointments, fx "14:30", "09:15", "11:00" osv., den sorterer efter det fra højeste til laveste så seneste kommer først
-
+      .sort({ time: -1 });
     res.status(200).json(appointments);
   } catch (error) {
     console.error(error);
@@ -634,8 +590,7 @@ export const getTodaysAppointments = async (req: Request, res: Response) => {
   }
 };
 
-// skal vise alle dagens aftaler indtil nu
-// Hente kun dagens aftaler, altså fra midnat og frem.
+// Hent alle dagens aftaler indtil nu
 // Filtrere dem baseret på tidspunkt, så det kun er tider før nu.
 export const getPastAppointmentsToday = async (req: Request, res: Response) => {
   try {
@@ -643,25 +598,21 @@ export const getPastAppointmentsToday = async (req: Request, res: Response) => {
 
     // aktuelle tidspunkt
     const now = new Date();
-    //er i dag kl. 00:00, så vi kan filtrere alt der sker fra i dag og frem
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
 
-    // find alle appointments som:
     const appointments = await AppointmentModel.find({
-      clinic_id: clinicId, //der tilhører denne klinik
-      date: { $gte: startOfDay }, // som har en date fra i dag og frem
-      status: { $in: ["bekræftet", "udført", "aflyst"] }, //de her statusser vil vi gerne se
+      clinic_id: clinicId,
+      date: { $gte: startOfDay },
+      status: { $in: ["bekræftet", "udført", "aflyst"] },
     })
       .populate("patient_id", "name")
-      .populate("doctor_id", "name"); //Populerer patient og læge navn, så vi får deres navne med i stedet for bare deres ID’er.
+      .populate("doctor_id", "name");
 
-    // Trækker timer og minutter ud af now (altså tidspunktet lige nu), fx 17 og 25
     const nowHours = now.getHours();
     const nowMinutes = now.getMinutes();
 
     const filtered = appointments.filter((appt) => {
-      // Splitter appt.time, som fx er "10:30", til hourStr = "10" og minuteStr = "30"
       const [hourStr, minuteStr] = appt.time.split(":");
       // Konverterer dem til tal, så vi kan sammenligne dem med det aktuelle tidspunkt
       const apptHour = parseInt(hourStr);
@@ -684,7 +635,7 @@ export const getPastAppointmentsToday = async (req: Request, res: Response) => {
         }
         return b.time.localeCompare(a.time); // nyeste tid først (efter tjekket dato)
       })
-      .slice(0, 6); //derefter begrænser vi til de 6 nyeste
+      .slice(0, 6);
 
     res.status(200).json(sorted);
   } catch (error) {

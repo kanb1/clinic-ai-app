@@ -6,9 +6,7 @@ import { JournalModel } from "../../models/journal.model";
 import { v4 as uuidv4 } from "uuid";
 import { SessionModel } from "../../models/session.model";
 
-// Allerede eksisterende login...
-
-// bruges ikke i frontend..
+// Register (bruges ikke i frontend.. til development)
 export const register = async (req: Request, res: Response) => {
   try {
     const { name, email, password, role, clinic_id } = req.body;
@@ -47,6 +45,7 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
+// Login
 export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
@@ -69,7 +68,7 @@ export const login = async (req: Request, res: Response) => {
       throw new Error("Missing JWT_SECRET environment variable");
     }
 
-    // unikt Id jeg selv laver og tilføjer til payload
+    // unikt Id og tilføjer til payload
     const jti = uuidv4();
 
     // gemmer i db, hvor vi kontrollerer den i authmiddleware
@@ -109,6 +108,7 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
+// Logout
 export const logout = async (req: Request, res: Response) => {
   const authHeader = req.headers.authorization;
 

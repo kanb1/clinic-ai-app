@@ -30,19 +30,18 @@ const UserSchema: Schema = new Schema(
       },
     },
     email: { type: String, required: true, unique: true },
-    password_hash: { type: String, required: true, select: false }, //extra security: skal aktivt select hvis det skal bruges
+    //extra security: skal aktivt select hvis det skal bruges
+    password_hash: { type: String, required: true, select: false },
     phone: { type: String, unique: true },
     address: { type: String },
     birth_date: { type: Date },
     cpr_number: {
       type: String,
       unique: true,
-      sparse: true, //gør at kun udfyldte værdier indexeres, så unique-indexet ignorerer null for dem uden cpr_number, da den ellers også tager dem med
+      sparse: true,
       validate: {
-        //specialregel tilføjet
+        //specialregel tilføjet for patienter
         validator: function (this: IUser, value: string | undefined) {
-          //får automatisk value som er brugerens cpr_number, "this" er den akuelle dokument, for at tjekke hvad role er
-          // hvis det en patient -> felt må ik være null eller undefined
           if (this.role === "patient") {
             return value != null && value !== "";
           }
@@ -61,20 +60,16 @@ const UserSchema: Schema = new Schema(
 );
 
 // **********PRE-SAVE MIDDLEWARE
-// pre-save --> Kør denne funktion inden .save() og .create()
-// this: IUser betyder this refererer til et dokument som følger IUser interfacet. TS ting.. så ts ved this.password_hash det en string
 UserSchema.pre("save", async function (this: IUser, next) {
-  // Kun hvis password_hash er blevet ændret, så hasher vi noget
-  // return next: hopper videre til næste middleware/save
+  // Kun hvis password_hash er blevet ændret
+  //next: hopper videre til næste middleware/save
   if (!this.isModified("password_hash")) return next();
 
   try {
-    // genererer et salt med 10 runder, tilfældig værdi der tilføjes
     const salt = await bcrypt.genSalt(10);
-    // hasher det rå password og overskriver feltet password_hash med den hash
-    // så når dokumentet gemmes bagefter er pass allerede krypteret
+
     this.password_hash = await bcrypt.hash(this.password_hash, salt);
-    // jeg er færdig gå videre med at gemme dokumentet
+    // save
     next();
   } catch (error) {
     // hvis fejl, så sender vi fejlen videre til express- error handler

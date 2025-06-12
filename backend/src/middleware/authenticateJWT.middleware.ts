@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { JwtPayload } from "../types/express"; // eller hvor du nu gemmer det
+import { JwtPayload } from "../types/express";
 import { SessionModel } from "../models/session.model";
 
-// vil blive brugt i routes
 export const authenticateJWT = async (
   req: Request,
   res: Response,
@@ -16,7 +15,6 @@ export const authenticateJWT = async (
     return;
   }
 
-  //splitter headeren fra "", altså vi tager selve tokenet efter bearer
   const token = authHeader.split(" ")[1];
 
   try {

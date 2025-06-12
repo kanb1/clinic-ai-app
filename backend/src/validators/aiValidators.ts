@@ -1,6 +1,5 @@
 import { body } from "express-validator";
 
-// POST /ai/start
 export const validateStartChatSession = [
   body("message")
     .isString()
@@ -9,7 +8,6 @@ export const validateStartChatSession = [
     .withMessage("Besked mangler eller er tom"),
 ];
 
-// POST /ai/save-chat
 export const validateSaveChatHistory = [
   body("messages")
     .isArray({ min: 1 })
