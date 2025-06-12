@@ -62,6 +62,9 @@ const MessageCard = ({ msg, onOpenMessage, onMarkAsRead }: Props) => {
           )}
         </Flex>
       </Flex>
+      <Text fontSize="sm" color="gray.600">
+        {new Date(msg.createdAt).toLocaleString("da-DK")}
+      </Text>
 
       {/* Beskedindhold og åbenknap */}
       <Flex
@@ -73,6 +76,7 @@ const MessageCard = ({ msg, onOpenMessage, onMarkAsRead }: Props) => {
         <Text fontSize="md" noOfLines={3} flex="1">
           {msg.content}
         </Text>
+
         <Button
           colorScheme="blue"
           size="sm"
