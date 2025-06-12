@@ -81,9 +81,16 @@ const PatientJournalPage = () => {
           {/* Recepter */}
           {!isLoadingRx && (
             <Box flex={1} minW={0} maxW="100%" w="full">
-              <Heading size="heading2" mb={3}>
-                Recepter
-              </Heading>
+              <Flex justify="space-between" align="center" mb={3}>
+                <Heading size="heading2">Recepter</Heading>
+                <Button
+                  variant={"solidBlack"}
+                  size="sm"
+                  onClick={() => setShowAddPrescription(true)}
+                >
+                  + Opret recept
+                </Button>
+              </Flex>
               <Box
                 maxH={{ base: "60vh", md: "70vh", xl: "55vh" }}
                 overflowY="auto"
