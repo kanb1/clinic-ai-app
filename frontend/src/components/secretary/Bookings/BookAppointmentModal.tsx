@@ -49,17 +49,26 @@ const BookAppointmentModal = ({
   const [secretaryNote, setSecretaryNote] = useState("");
   const { data: doctors = [] } = useDoctors();
 
-  const { data: slotsData, isLoading: slotsLoading } =
-    useAvailabilitySlots(weekStart);
+  const { data: slotsData, isLoading: slotsLoading } = useAvailabilitySlots(
+    weekStart,
+    selectedDoctorId
+  );
+
   const { mutate: bookAppointment, isPending } = useCreateAppointment();
 
   const filteredSlots = selectedDate
-    ? slotsData?.filter(
-        (slot) =>
-          slot.date === selectedDate &&
+    ? slotsData?.filter((slot) => {
+        const slotDate = new Date(slot.date).toISOString().split("T")[0];
+        const selected = new Date(selectedDate).toISOString().split("T")[0];
+        return (
+          slotDate === selected &&
           (!selectedDoctorId || slot.doctorId === selectedDoctorId)
-      )
+        );
+      })
     : [];
+
+  console.log("selectedDate", selectedDate);
+  console.log("slotsData", slotsData);
 
   const selectedSlot = filteredSlots?.find((s) => s.slotId === selectedSlotId);
 

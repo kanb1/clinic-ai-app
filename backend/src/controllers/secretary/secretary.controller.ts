@@ -251,81 +251,66 @@ export const getAvailabilityOverview = async (req: Request, res: Response) => {
         .json({ message: "weekStart is required (e.g. 2025-05-05)" });
       return;
     }
+
     const startDate = new Date(weekStart as string);
     const endDate = new Date(startDate);
-    //sætter enddate der er 20 dage frem i tid (næsten 3 uger) for at filtrere tiderne (definerer itnervallet vi vil undersøge slots i)
     endDate.setDate(endDate.getDate() + 20);
 
     const match: any = {
       date: { $gte: startDate, $lte: endDate },
-      is_booked: false, //ikke er booket
+      is_booked: false,
     };
 
     if (doctorId && mongoose.Types.ObjectId.isValid(doctorId as string)) {
       match.doctor_id = new mongoose.Types.ObjectId(doctorId as string);
     }
 
-    if (!weekStart) {
-      res
-        .status(400)
-        .json({ message: "weekStart is required (e.g. 2025-05-05)" });
-      return;
-    }
-
-    // Hvis der er en doctorId, men den er ugyldig
-    if (doctorId && !mongoose.Types.ObjectId.isValid(doctorId as string)) {
-      //returner tomt array
-      res.status(200).json([]);
-      return;
-    }
-
     const slots = await AvailabilitySlotModel.aggregate([
       { $match: match },
-      // Vi grupperer resultaterne baseret på:
-      // hvilken læge det er (doctorId)
-      // hvilken dag det er (date)
-      // "Læg alle slots sammen, hvor lægen og datoen er den samme"
+
+      {
+        $addFields: {
+          dateOnly: {
+            $dateToString: { format: "%Y-%m-%d", date: "$date" },
+          },
+        },
+      },
+
       {
         $group: {
           _id: {
             doctor_id: "$doctor_id",
-            date: "$date",
+            date: "$dateOnly",
           },
-          // vi tæller hvor mange ledige slots der er
-          // → “læg +1 sammen for hvert dokument” → tælling
           availableSlots: { $sum: 1 },
         },
       },
       {
-        // For hver doctor_id gør vi:
         $lookup: {
-          // Gå ind i users-collectionen
           from: "users",
           localField: "_id.doctor_id",
-          // Find den bruger i users hvor _id matcher det doctor_id jeg har
           foreignField: "_id",
           as: "doctor",
         },
       },
-      // $unwind -> objekt og ik et array
       { $unwind: "$doctor" },
-      // Vi definerer hvilke felter vi vil have med i resultatet - og omdøber nogle
       {
         $project: {
           doctorId: "$doctor._id",
           doctorName: "$doctor.name",
           role: "$doctor.role",
-          date: "$_id.date",
+          date: {
+            $dateFromString: { dateString: "$_id.date", format: "%Y-%m-%d" },
+          },
           availableSlots: 1,
         },
       },
-
       { $sort: { date: 1, doctorName: 1 } },
     ]);
 
     res.status(200).json(slots);
   } catch (error) {
-    console.error(error);
+    console.error("getAvailabilityOverview error:", error);
     res.status(500).json({ message: "Fail" });
   }
 };
