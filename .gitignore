@@ -17,5 +17,8 @@ build
 # Jest
 # coverage reports
 backend/coverage
-backend/.env.test
+.env.test
 
+# env
+*.env
+*.env.*
