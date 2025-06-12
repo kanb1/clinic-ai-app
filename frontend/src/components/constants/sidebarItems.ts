@@ -6,7 +6,7 @@ export const sidebarItems = {
     { label: "Administrér Patient", path: "/admin/patients" },
     { label: "Administrér Læge", path: "/admin/doctors" },
     { label: "Administrér Sekretær", path: "/admin/secretaries" },
-    { label: "Send a message", path: "/admin/send-message" },
+    { label: "Send en besked", path: "/admin/send-message" },
   ],
   doctor: [
     { label: "Dashboard", path: "/doctor/dashboard" },
