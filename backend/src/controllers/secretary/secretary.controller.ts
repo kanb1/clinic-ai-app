@@ -363,7 +363,7 @@ export const getAvailabilitySlots = async (req: Request, res: Response) => {
       slotId: slot._id,
       doctorId: slot.doctor_id._id,
       doctorName: slot.doctor_id.name,
-      date: slot.date,
+      date: new Date(slot.date).toISOString().split("T")[0], // dato uden tid
       start_time: slot.start_time,
       end_time: slot.end_time,
     }));
@@ -483,6 +483,7 @@ export const checkAndSeedSlots = async (req: Request, res: Response) => {
 export const createAppointment = async (req: Request, res: Response) => {
   try {
     const { patient_id, doctor_id, slot_id, secretary_note } = req.body;
+
     const clinicId = req.user!.clinicId;
 
     const slot = await AvailabilitySlotModel.findById(slot_id);
@@ -502,7 +503,7 @@ export const createAppointment = async (req: Request, res: Response) => {
       patient_id,
       doctor_id,
       clinic_id: clinicId,
-      date: slot.date,
+      date: new Date(new Date(slot.date).toISOString().split("T")[0]),
       time: slot.start_time,
       end_time: slot.end_time,
       status: "venter",

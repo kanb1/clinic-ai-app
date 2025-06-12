@@ -67,9 +67,6 @@ const BookAppointmentModal = ({
       })
     : [];
 
-  console.log("selectedDate", selectedDate);
-  console.log("slotsData", slotsData);
-
   const selectedSlot = filteredSlots?.find((s) => s.slotId === selectedSlotId);
 
   const handleBook = () => {
@@ -166,9 +163,7 @@ const BookAppointmentModal = ({
                       fontSize={{ base: "sm", md: "md" }}
                     >
                       <Text fontWeight="bold">{slot.doctorName}</Text>
-                      <Text>
-                        {new Date(slot.date).toLocaleDateString("da-DK")}
-                      </Text>
+                      <Text>{slot.date}</Text>
                       <Text>
                         Tid: {slot.start_time} - {slot.end_time}
                       </Text>
