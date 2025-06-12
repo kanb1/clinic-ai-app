@@ -110,63 +110,81 @@ const SecretaryDashboard = () => {
 
             {isLoading && <Spinner />}
             {error && <Text color="red.500">Kunne ikke hente beskeder.</Text>}
-
-            <VStack spacing={4} align="stretch">
-              {data?.length === 0 ? (
-                <Text>Ingen nye beskeder</Text>
-              ) : (
-                data?.map((msg) => (
-                  <Box
-                    key={msg._id}
-                    p={4}
-                    bg="gray.100"
-                    borderRadius="md"
-                    boxShadow="sm"
-                  >
-                    <Flex justify="space-between" align="center" mb={2}>
-                      <Text fontWeight="bold">
-                        {msg.sender_id.name} ({msg.sender_id.role})
-                      </Text>
-                      <Badge colorScheme={typeColors[msg.type]}>
-                        {typeLabels[msg.type]}
-                      </Badge>
-                    </Flex>
-
-                    <Text mb={2}>"{msg.content}"</Text>
-                    <Text fontSize="sm" color="gray.600">
-                      {new Date(msg.createdAt).toLocaleString("da-DK")}
-                    </Text>
-
-                    <Flex
-                      display="flex"
-                      flexDirection={{ base: "row" }}
-                      gap={{ base: 2 }}
-                      mt={{ base: 4, lg: 6 }}
+            <Box
+              maxH={{ base: "60vh", md: "70vh", xl: "55vh" }}
+              overflowY="auto"
+              pr={2}
+              sx={{
+                "&::-webkit-scrollbar": {
+                  width: "6px",
+                },
+                "&::-webkit-scrollbar-track": {
+                  background: "gray.100",
+                  borderRadius: "full",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  background: "gray.400",
+                  borderRadius: "full",
+                },
+              }}
+            >
+              <VStack spacing={4} align="stretch">
+                {data?.length === 0 ? (
+                  <Text>Ingen nye beskeder</Text>
+                ) : (
+                  data?.map((msg) => (
+                    <Box
+                      key={msg._id}
+                      p={4}
+                      bg="gray.100"
+                      borderRadius="md"
+                      boxShadow="sm"
                     >
-                      {!msg.read && (
-                        <Button
-                          mt={2}
-                          size="sm"
-                          onClick={() => markAsRead(msg._id)}
-                          bgColor={"blue.100"}
-                          p={{ base: 3 }}
-                        >
-                          Markér som læst
-                        </Button>
-                      )}
+                      <Flex justify="space-between" align="center" mb={2}>
+                        <Text fontWeight="bold">
+                          {msg.sender_id.name} ({msg.sender_id.role})
+                        </Text>
+                        <Badge colorScheme={typeColors[msg.type]}>
+                          {typeLabels[msg.type]}
+                        </Badge>
+                      </Flex>
 
-                      <Text
-                        size="body"
-                        mt={{ base: 3 }}
-                        color={msg.read ? "green.600" : "red.600"}
-                      >
-                        {msg.read ? "🟢 Læst" : "🔴 Ulæst"}
+                      <Text mb={2}>"{msg.content}"</Text>
+                      <Text fontSize="sm" color="gray.600">
+                        {new Date(msg.createdAt).toLocaleString("da-DK")}
                       </Text>
-                    </Flex>
-                  </Box>
-                ))
-              )}
-            </VStack>
+
+                      <Flex
+                        display="flex"
+                        flexDirection={{ base: "row" }}
+                        gap={{ base: 2 }}
+                        mt={{ base: 4, lg: 6 }}
+                      >
+                        {!msg.read && (
+                          <Button
+                            mt={2}
+                            size="sm"
+                            onClick={() => markAsRead(msg._id)}
+                            bgColor={"blue.100"}
+                            p={{ base: 3 }}
+                          >
+                            Markér som læst
+                          </Button>
+                        )}
+
+                        <Text
+                          size="body"
+                          mt={{ base: 3 }}
+                          color={msg.read ? "green.600" : "red.600"}
+                        >
+                          {msg.read ? "🟢 Læst" : "🔴 Ulæst"}
+                        </Text>
+                      </Flex>
+                    </Box>
+                  ))
+                )}
+              </VStack>
+            </Box>
           </Box>
 
           {/* Personale */}
