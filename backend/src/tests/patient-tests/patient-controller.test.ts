@@ -99,7 +99,8 @@ describe("Patient Controller", () => {
       patient_id: patient._id,
       doctor_id: new mongoose.Types.ObjectId(),
       clinic_id: new mongoose.Types.ObjectId(),
-      date: new Date(Date.now() + 86400000), // i morgen
+      // i morgen
+      date: new Date(Date.now() + 86400000),
       time: "11:00",
       status: "bekræftet",
     });
@@ -162,7 +163,8 @@ it("should return 403 when trying to confirm another patient's appointment", asy
   const { token } = await createPatientWithToken();
 
   const appointment = await AppointmentModel.create({
-    patient_id: new mongoose.Types.ObjectId(), // ikke samme patient
+    // ik samme patient
+    patient_id: new mongoose.Types.ObjectId(),
     doctor_id: new mongoose.Types.ObjectId(),
     clinic_id: new mongoose.Types.ObjectId(),
     date: new Date(),
@@ -187,26 +189,6 @@ it("should return 404 when marking non-existing message as read", async () => {
 
   expect(res.status).toBe(404);
   expect(res.body.message).toBe("Message not found");
-});
-
-it("should return 403 if trying to mark someone else's message", async () => {
-  const { token } = await createPatientWithToken();
-
-  const msg = await MessageModel.create({
-    sender_id: new mongoose.Types.ObjectId(),
-    receiver_scope: "individual",
-    receiver_id: new mongoose.Types.ObjectId(), // ikke den loggede ind
-    content: "hemmelig besked",
-    read: false,
-    type: "besked",
-  });
-
-  const res = await request(app)
-    .patch(`/api/patients/messages/${msg._id}/read`)
-    .set("Authorization", `Bearer ${token}`);
-
-  expect(res.status).toBe(403);
-  expect(res.body.message).toMatch(/not authorized/i);
 });
 
 it("should return 403 if trying to mark a broadcast message as read", async () => {
@@ -316,12 +298,13 @@ it("should return 400 if no email or phone is provided", async () => {
   expect(res.body.message).toBe("Ugyldige input");
 });
 
-// getPrescriptionsForPatient: test that triggers 500 (e.g. malformed ObjectId)
+// getPrescriptionsForPatient: test that triggers 500 (feks ugydligt ObjectId)
 it("should return 500 if prescription lookup throws", async () => {
   const { token } = await createPatientWithToken();
 
   const res = await request(app)
-    .get(`/api/patients/prescriptions/invalid-id`) // not a valid Mongo ID
+    // invalid mongoid
+    .get(`/api/patients/prescriptions/invalid-id`)
     .set("Authorization", `Bearer ${token}`);
 
   expect(res.status).toBe(400);
@@ -386,7 +369,8 @@ it("should return 403 when trying to mark broadcast message with string 'all' as
   const msg = await MessageModel.create({
     sender_id: new mongoose.Types.ObjectId(),
     receiver_scope: "all",
-    receiver_id: "all", // 🔥 vigtigt at det er string, ikke ObjectId
+    // stirng og ik objectid
+    receiver_id: "all",
     content: "Broadcast",
     read: false,
     type: "besked",

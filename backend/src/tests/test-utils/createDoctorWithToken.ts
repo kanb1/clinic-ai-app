@@ -16,8 +16,8 @@ export const createDoctorWithToken = async () => {
     clinic_id: clinicId,
   });
 
-  const jti = uuidv4(); // unik token-ID
-  await SessionModel.create({ jti }); // opret session
+  const jti = uuidv4();
+  await SessionModel.create({ jti });
 
   const token = jwt.sign(
     {

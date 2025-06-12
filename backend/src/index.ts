@@ -49,6 +49,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/admin", adminRoutes);
 // Routes - Secretary
 app.use("/api/secretary", secretaryRoutes);
+
 // Routes - Doctor
 app.use("/api/doctors", doctorRoutes);
 

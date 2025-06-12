@@ -10,15 +10,12 @@ export const createDoctorAndPatient = async (): Promise<{
   clinicId: mongoose.Types.ObjectId;
 }> => {
   const {
-    doctor, // indeholder ._id
+    doctor,
     token: doctorToken,
     clinicId,
   } = await createDoctorWithToken();
 
-  const {
-    patient, //indeholder ._id
-    token: patientToken,
-  } = await createPatientWithToken();
+  const { patient, token: patientToken } = await createPatientWithToken();
 
   return {
     doctorToken,

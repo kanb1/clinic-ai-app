@@ -93,11 +93,13 @@ describe("Journal Controller", () => {
       .send({
         journalId: journal._id,
         appointmentId: appointment._id,
-        notes: "Patient havde feber",
+        notes: "Patient havde maveproblemer, men oplever forbedring nu",
       });
 
     expect(res.status).toBe(201);
-    expect(res.body.entry.notes).toBe("Patient havde feber");
+    expect(res.body.entry.notes).toBe(
+      "Patient havde maveproblemer, men oplever forbedring nu"
+    );
   }, 10000);
 
   it("should return 500 if journal entry creation fails", async () => {
@@ -131,12 +133,12 @@ describe("Journal Controller", () => {
       date: new Date(),
       time: "11:00",
       status: "bekræftet",
-      secretary_note: "Note fra sekretær",
+      secretary_note: "sekretærnote",
     });
 
     const entry = await JournalEntryModel.create({
       appointment_id: appointment._id,
-      notes: "Alt ok",
+      notes: "Alt er i forbedring nu",
       created_by_ai: false,
     });
 
@@ -150,7 +152,7 @@ describe("Journal Controller", () => {
       .set("Authorization", `Bearer ${doctorToken}`);
 
     expect(res.status).toBe(200);
-    expect(res.body[0].journalEntry.notes).toBe("Alt ok");
+    expect(res.body[0].journalEntry.notes).toBe("Alt er i forbedring nu");
     expect(res.body[0].status).toBe("bekræftet");
   }, 10000);
 

@@ -395,7 +395,7 @@ describe("Doctor Controller", () => {
 
     const journalEntry = await JournalEntryModel.create({
       appointment_id: appointment._id,
-      notes: "Sample entry",
+      notes: "some entry",
       created_by_ai: false,
     });
 
@@ -407,7 +407,7 @@ describe("Doctor Controller", () => {
       .set("Authorization", `Bearer ${token}`);
 
     expect(res.status).toBe(200);
-    expect(res.body.entries[0].notes).toBe("Sample entry");
+    expect(res.body.entries[0].notes).toBe("some entry");
   });
 
   // *************** BRANCHES - IF STATEMENTS

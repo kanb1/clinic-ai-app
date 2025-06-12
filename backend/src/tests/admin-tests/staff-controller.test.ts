@@ -144,7 +144,7 @@ describe("Admin Staff Controller", () => {
       .set("Authorization", `Bearer ${token}`)
       .send({
         name: "Dr. Updated",
-        email: doctor.email, // beholder original værdi
+        email: doctor.email,
         phone: doctor.phone,
       });
 

@@ -36,7 +36,7 @@ describe("AI Controller (Patient)", () => {
 
     expect(res.status).toBe(200);
     expect(typeof res.body.reply).toBe("string");
-    expect(res.body.reply.length).toBeGreaterThan(5); // basic sanity
+    expect(res.body.reply.length).toBeGreaterThan(5);
   }, 10000);
 
   it("should save chat and generate summary", async () => {
@@ -45,11 +45,11 @@ describe("AI Controller (Patient)", () => {
     const messages = [
       {
         user: "Jeg har haft ondt i halsen i 4 dage",
-        ai: "Kan du fortælle om du også har feber?",
+        ai: "Det lyder ikke særlig godt. Har det forbedret sig?",
       },
       {
-        user: "Ja, lidt feber og træthed.",
-        ai: "Det er godt du fortæller det – hvor høj har din feber været cirka?",
+        user: "Nej det er kun blevet værre",
+        ai: "Det er godt du fortæller det og forståeligt med bekymring. Har du haft feber? Hvor høj har den været?",
       },
     ];
 

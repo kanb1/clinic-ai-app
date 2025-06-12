@@ -7,7 +7,6 @@ import { ClinicModel } from "../../models/clinic.model";
 import jwt from "jsonwebtoken";
 import { createAdminAndToken } from "../test-utils/createAdminAndToken";
 
-// Setup test DB
 let mongoServer: MongoMemoryServer;
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
@@ -39,7 +38,6 @@ describe("Clinic Controller", () => {
     it("should return 500 if creating clinic throws an error", async () => {
       const { token } = await createAdminAndToken();
 
-      // Tving .findOne til at kaste fejl
       jest.spyOn(ClinicModel, "findOne").mockImplementationOnce(() => {
         throw new Error("DB error");
       });
@@ -52,7 +50,6 @@ describe("Clinic Controller", () => {
       expect(res.status).toBe(500);
       expect(res.body.message).toBe("Error");
 
-      // Genskab original funktion efter testen
       jest.restoreAllMocks();
     });
 
@@ -104,7 +101,7 @@ describe("Clinic Controller", () => {
     it("should return a clinic by ID", async () => {
       const clinic = await ClinicModel.create({
         name: "Specifik Klinik",
-        address: "IDvej 99",
+        address: "specifik 99",
         created_by: new mongoose.Types.ObjectId(),
       });
 
@@ -141,8 +138,8 @@ describe("Clinic Controller", () => {
       const { admin, token } = await createAdminAndToken();
 
       await ClinicModel.create({
-        name: "Admin Klinik",
-        address: "Adminvej 10",
+        name: "Klinik Eksempel",
+        address: "klinikvej 10",
         created_by: admin._id,
       });
 
@@ -151,7 +148,7 @@ describe("Clinic Controller", () => {
         .set("Authorization", `Bearer ${token}`);
 
       expect(res.status).toBe(200);
-      expect(res.body.name).toBe("Admin Klinik");
+      expect(res.body.name).toBe("Klinik Eksempel");
     });
 
     it("should return 404 if admin has no clinic", async () => {

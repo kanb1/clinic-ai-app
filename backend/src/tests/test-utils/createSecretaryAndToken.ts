@@ -23,7 +23,7 @@ export const createSecretaryAndToken = async () => {
     {
       _id: secretary._id,
       role: "secretary",
-      clinicId: clinicId.toString(), // string for token
+      clinicId: clinicId.toString(),
       jti,
     },
     process.env.JWT_SECRET || "dev-secret",

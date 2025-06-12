@@ -3,7 +3,7 @@ import { SessionModel } from "../../models/session.model";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 
-// Brug denne utils-funktion ift at min middleware authetnicateJWT tjekker tokenet mod sessions i sessionmodel - og jeg indsætter ik sessionen i db i min test
+// utils-funktion -> middleware auth tjekker token mod session -> tilføjet session her
 export const createAdminAndToken = async () => {
   const admin = await UserModel.create({
     name: "Test Admin",
@@ -15,7 +15,6 @@ export const createAdminAndToken = async () => {
 
   const jti = uuidv4();
 
-  // indsæt sessionen
   await SessionModel.create({ jti });
 
   const token = jwt.sign(

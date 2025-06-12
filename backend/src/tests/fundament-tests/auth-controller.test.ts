@@ -4,7 +4,6 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import app from "../../index";
 import { UserModel } from "../../models/user.model";
 
-// Midlertidig in-memory MongoDB
 let mongoServer: MongoMemoryServer;
 
 beforeAll(async () => {
@@ -50,7 +49,7 @@ describe("POST /api/auth/register", () => {
     await UserModel.create({
       name: "Kanza",
       email: "kanza@example.com",
-      password_hash: "Strong123!", // bliver hashed via pre-save
+      password_hash: "Strong123!", // min pre-save hasher det her
       role: "patient",
       clinic_id: new mongoose.Types.ObjectId(),
     });
@@ -136,7 +135,7 @@ describe("POST /api/auth/login", () => {
   it("should fail if password does not meet policy", async () => {
     const res = await request(app).post("/api/auth/login").send({
       email: "test@example.com",
-      password: "abc123", // for kort, intet specialtegn
+      password: "abc123", // en ugyldig pass
     });
 
     expect(res.status).toBe(400);
@@ -150,15 +149,15 @@ it("should return 500 if JWT_SECRET is missing", async () => {
   delete process.env.JWT_SECRET;
 
   await request(app).post("/api/auth/register").send({
-    name: "NoSecret",
-    email: "nosecret@test.com",
+    name: "nojwt",
+    email: "nojwt@test.com",
     password: "Strong123!",
     role: "patient",
     clinic_id: new mongoose.Types.ObjectId(),
   });
 
   const res = await request(app).post("/api/auth/login").send({
-    email: "nosecret@test.com",
+    email: "nojwt@test.com",
     password: "Strong123!",
   });
 

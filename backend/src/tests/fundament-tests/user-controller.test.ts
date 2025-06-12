@@ -7,7 +7,6 @@ import { SessionModel } from "../../models/session.model";
 
 import { createUserAndToken } from "../test-utils/createUserAndToken";
 
-// Setup test DB
 let mongoServer: MongoMemoryServer;
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
@@ -38,7 +37,7 @@ describe("User Controller", () => {
     it("should return 404 if user not found", async () => {
       const { token } = await createUserAndToken("patient");
 
-      await UserModel.deleteMany({}); // fjern brugeren
+      await UserModel.deleteMany({});
 
       const res = await request(app)
         .get("/api/users/me")
@@ -55,7 +54,7 @@ describe("User Controller", () => {
       await UserModel.create({
         name: "Sekretær",
         email: "sek@test.com",
-        password_hash: "hashed123",
+        password_hash: "hashcode123",
         role: "secretary",
         clinic_id: user.clinic_id,
         status: "optaget",
@@ -98,7 +97,7 @@ describe("User Controller", () => {
     it("should return 404 if user not found", async () => {
       const { token } = await createUserAndToken("doctor");
 
-      await UserModel.deleteMany({}); // fjern brugeren
+      await UserModel.deleteMany({});
 
       const res = await request(app)
         .patch("/api/users/update-status/me")
@@ -114,8 +113,8 @@ describe("User Controller", () => {
       const { token, user } = await createUserAndToken("doctor");
 
       await UserModel.create({
-        name: "Patient1",
-        email: "p1@test.com",
+        name: "Patient ex",
+        email: "ex@test.com",
         password_hash: "hash",
         role: "patient",
         clinic_id: user.clinic_id,
