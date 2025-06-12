@@ -497,7 +497,7 @@ export const checkAndSeedSlots = async (req: Request, res: Response) => {
 // Opret aftale
 export const createAppointment = async (req: Request, res: Response) => {
   try {
-    const { patient_id, doctor_id, slot_id } = req.body;
+    const { patient_id, doctor_id, slot_id, secretary_note } = req.body;
     const clinicId = req.user!.clinicId;
 
     const slot = await AvailabilitySlotModel.findById(slot_id);
@@ -521,6 +521,7 @@ export const createAppointment = async (req: Request, res: Response) => {
       time: slot.start_time,
       end_time: slot.end_time,
       status: "venter",
+      secretary_note,
     });
 
     slot.is_booked = true;
