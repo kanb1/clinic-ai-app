@@ -30,9 +30,8 @@ const BookingPage = () => {
     onOpen();
   };
 
-  const weekStart = formatISO(new Date(), { representation: "date" }); // fx 2025-05-24
+  const weekStart = formatISO(new Date(), { representation: "date" });
 
-  // tjekker automatisk når vi loader pagen om der er behov for at tilføje de ekstra slots
   useEffect(() => {
     const checkSlots = async () => {
       try {

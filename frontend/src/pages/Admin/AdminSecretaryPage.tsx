@@ -34,7 +34,6 @@ const AdminSecretaryPage = () => {
   const { mutate: deleteSecretary } = useDeleteSecretary();
   const gridColumns = useBreakpointValue({ base: 1, sm: 2, md: 3 });
 
-  // AlertDialog
   const [secretaryToDelete, setSecretaryToDelete] = useState<IUser | null>(
     null
   );

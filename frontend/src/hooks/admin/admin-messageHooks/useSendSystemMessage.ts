@@ -11,7 +11,7 @@ export const useSendSystemMessage = () => {
     mutationFn: async (data: SystemMessagePayload) => {
       const res = await api.post("/admin/system-messages", {
         ...data,
-        type: "system", // hardcoded
+        type: "system",
       });
       return res.data;
     },

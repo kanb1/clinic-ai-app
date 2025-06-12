@@ -1,7 +1,4 @@
-// rolle navigation ift sidebar
-// bruges til at slå op i sidebar ud fra user.role
 export const sidebarItems = {
-  // det er et objekt hvor hver rolle er en nøgle (key), og værdien er et array af links som passer til den rolle
   admin: [
     // label: den tekst der vises i sidebar-knappen
     // url: hvad der bliver navigeret til

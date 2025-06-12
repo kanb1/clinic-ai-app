@@ -7,7 +7,7 @@ export const useAdminPatients = () => {
   return useQuery<IUser[]>({
     queryKey: ["admin-patients"],
     queryFn: async () => {
-      const res = await api.get("/admin/patients-list"); // ← korrekt route
+      const res = await api.get("/admin/patients-list");
       return res.data;
     },
   });

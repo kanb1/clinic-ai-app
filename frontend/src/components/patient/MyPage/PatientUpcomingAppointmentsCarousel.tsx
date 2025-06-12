@@ -198,7 +198,7 @@ const PatientUpcomingAppointmentsCarousel = ({
         </Flex>
       )}
 
-      {/* AlertDialog til bekræftelse før aflysning */}
+      {/* alert til bekræftelse før aflysning */}
       <AlertDialog
         isOpen={isAlertOpen}
         leastDestructiveRef={cancelRef}

@@ -6,7 +6,7 @@ export const useOrCreateJournal = (patientId: string) => {
     queryKey: ["journalId", patientId],
     queryFn: async () => {
       const res = await api.get(`/doctors/journals/patient/${patientId}`);
-      return res.data; // indeholder journalId, entryCount, etc
+      return res.data;
     },
   });
 };

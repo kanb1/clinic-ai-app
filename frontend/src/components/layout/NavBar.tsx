@@ -53,7 +53,6 @@ const Navbar = () => {
           maxW="container.xl"
           mx="auto"
         >
-          {/* Logo */}
           <Box flexShrink={0} w={{ base: "130px", md: "150px" }}>
             <Image
               src="/images/KlinikaLogo.png"

@@ -7,13 +7,11 @@ import CreateClinicPage from "../pages/Frontpage/CreateClinicPage";
 import Navbar from "@/components/layout/NavBar";
 import HelpPage from "@/pages/Frontpage/HelpPage";
 
-// I større apps som min er det bedre at strukturere ruterne som objekter i arrays i stedet for at dele routes op i filer og genbruge layouts som Navbar uden gentagelser
 export const frontpageRoutes: RouteObject[] = [
   {
     // Fælles UI for alle child routes
     element: <Navbar />,
-    // definerer alle de sider som skal vises under Navbar
-    // svarer til den "originale" metode, men med objekter i stedet for jsx (<Route path="x" element../>)
+
     children: [
       { path: "/", element: <ChooseRolePage /> },
       { path: "/clinic/auth", element: <ClinicAuthPage /> },

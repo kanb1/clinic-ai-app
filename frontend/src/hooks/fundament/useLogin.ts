@@ -8,39 +8,23 @@ export const useLogin = (
   onRoleError?: (role: string) => void,
   options?: { disableRedirect?: boolean }
 ) => {
-  // REACT QUERY: Bruges til at ændre data (POST/PUT/DELETE) og holder styr på alt dette samtidig:
-  // mutate -> (function) når jeg vil sende data, bliver brugt i pagen fx handleSubmit, POST fx login
-  // isPending -> (boolean) der fortæller er mutation i gang lige nu?
-  // isError -> Er der sket en fejl (boolean)
-  // Cacher automatisk
-
   const navigate = useNavigate();
-  const { setUser, setToken } = useAuth(); // bruger AuthContext til at gemme login-data
+  const { setUser, setToken } = useAuth();
   const toast = useToast();
 
   return useMutation({
-    // mutationFn: hovedfunktionen som kører når vi kalder mutate
-    // modtager data: email og password her
-    // hvad skal der ske når brugeren prøver logge ind?
-
     mutationFn: async (data: { email: string; password: string }) => {
-      // sender login-info til backend
       const response = await api.post("/auth/login", data);
-      // returnerer det bakend sender tilbage: { token, user }
       return response.data;
     },
-    // onSuccess -> Kører auto hvis mutationFn lykkedes
     onSuccess: (data) => {
       setToken(data.token); // gem JWT-token globalt
       setUser(data.user); // gem brugerinfo globalt
 
-      // Modtager en callback onRoleError
-      // Hvis brugeren er patient og forsøger at logge ind via /staff/login bliver login stoppet og callback’en kaldt med rollen
       const role = data.user.role;
 
       // Hvis patient prøver at logge ind via /staff/login → afvis
       if (window.location.pathname === "/staff/login" && role === "patient") {
-        // Her bliver funktionen jeg gav aktiveret
         onRoleError?.(role);
         return;
       }

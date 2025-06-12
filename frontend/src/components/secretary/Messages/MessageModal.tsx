@@ -30,7 +30,6 @@ const MessageModal = ({
   const toast = useToast();
   const { mutate, isPending } = useSendMessage();
 
-  //   funktion der bliver kaldt når besked bliver sendt
   const handleSend = () => {
     // før jeg sender noget, tjekker jeg om brugeren har skrevet noget i tekstfeltet
     if (!content.trim()) {
@@ -58,9 +57,6 @@ const MessageModal = ({
       return;
     }
 
-    // brug af mutate
-    // kalder mutate() og giver den et objekt (payload) med beskeddata
-    // Dette objekt bliver sendt direkte videre til din mutationFn i hooken: hvor vi kalder api.post
     mutate(
       {
         content,
@@ -97,7 +93,6 @@ const MessageModal = ({
           />
         </ModalBody>
         <ModalFooter>
-          {/* Når brugeren klikker på knappen, kaldes handleSend() som i sidste ende kalder mutate(). */}
           <Button onClick={handleSend} isLoading={isPending} colorScheme="blue">
             Send
           </Button>

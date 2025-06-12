@@ -6,12 +6,10 @@ import { Box, Heading, Text } from "@chakra-ui/react";
 interface RequireRoleProps {
   // Det indhold der kun skal vises, hvis rollen passer.
   children: ReactNode;
-  //   Liste af roller der må få adgang
   allowedRoles: ("admin" | "doctor" | "secretary" | "patient")[];
 }
 
 const RequireRole = ({ children, allowedRoles }: RequireRoleProps) => {
-  // hent brugeren fra authcontext som blev sat under login
   const { user } = useAuth();
 
   // Hvis vi ikke har en bruger, send dem tilbage til forsiden/hfvis ingen er logget ind
@@ -25,8 +23,6 @@ const RequireRole = ({ children, allowedRoles }: RequireRoleProps) => {
       </Box>
     );
   }
-
-  // hvis en bruger er logget ind, tjekker vi om deres rolle matcher en af de allowedRoles
 
   if (!allowedRoles.includes(user.role)) {
     return (

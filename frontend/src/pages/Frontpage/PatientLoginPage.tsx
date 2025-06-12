@@ -17,12 +17,9 @@ const PatientLoginPage = () => {
   const [password, setPassword] = useState("");
   const [loginRoleError, setLoginRoleError] = useState("");
   const toast = useToast();
-  // Frontend validation
   const isValidEmail = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 254;
   const isValidPassword = (password: string) => password.length >= 6;
-
-  // Kald useLogin med denne callback funktion hvis brugeren ikke er patient
 
   const {
     mutate: login,
@@ -57,7 +54,7 @@ const PatientLoginPage = () => {
       return;
     }
 
-    login({ email, password }); // sender login-data
+    login({ email, password });
   };
 
   return (

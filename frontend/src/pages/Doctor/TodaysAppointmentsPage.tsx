@@ -9,11 +9,7 @@ const TodaysAppointmentsPage = () => {
         <Heading size="heading1" mb={6} textAlign="center">
           Aftaler i dag
         </Heading>
-        <Box
-          w="full"
-          maxW={"100%"} // max width = fx 1120px
-          px={{ base: 2, md: 4 }}
-        >
+        <Box w="full" maxW={"100%"} px={{ base: 2, md: 4 }}>
           <TodaysAppointmentsTable />
         </Box>
       </Flex>

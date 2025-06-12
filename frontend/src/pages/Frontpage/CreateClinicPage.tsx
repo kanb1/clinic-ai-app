@@ -25,13 +25,12 @@ const CreateClinicPage = () => {
   const { user } = useAuth();
 
   // login states
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
-  // opret klinik states
 
+  // opret klinik states
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [clinicCreated, setClinicCreated] = useState(false);
@@ -40,25 +39,17 @@ const CreateClinicPage = () => {
   const [nameError, setNameError] = useState("");
   const [addressError, setAddressError] = useState("");
 
-  // hent klinik for logget-in admin
-  // (useMyClinic();) hook der henter klinikken som den loggede in admin har oprettet
   const {
     data: myClinic,
     isLoading: isClinicLoading,
-    // bruges til at odpatere data efter oprettelse
-
     refetch: refetchMyClinic,
   } = useMyClinic();
 
-  // opdater lokal state hvis user bliver sat
-  // bruges længere nede til at vise form frem/eller besked omkring klinik oprettet af brugeren
   useEffect(() => {
     if (user?.role === "admin") {
       setIsAdminLoggedIn(true);
     }
   }, [user]);
-
-  // callback funktion som tjekker rollen
 
   const {
     mutate: login,
@@ -80,15 +71,11 @@ const CreateClinicPage = () => {
     { disableRedirect: true } //forhindrer auto redirect efter login, da vi selv vil styre flowet her (redirect sker auto i useLogin hook)
   );
 
-  //simpelt kalder useCreateClinic() og kalder funktinonen createClinic.
-
   const {
     mutate: createClinic,
     isPending: clinicPending,
     isError: clinicError,
   } = useCreateClinic();
-
-  // når admin prøver at logge ind
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,10 +83,7 @@ const CreateClinicPage = () => {
     login({ email, password });
   };
 
-  // når admin opretter klinikken, så opdaterer UI og refetcher klinikdata
-  // funktionen modtager et event-objekt e med typen React.FormEvent, som kommer fra en form
   const handleCreateClinic = (e: React.FormEvent) => {
-    // stopper browser standard opførsel som reload
     e.preventDefault();
 
     // reset fejl
@@ -129,24 +113,18 @@ const CreateClinicPage = () => {
       }
     );
 
-    // første argument af vores hook er request data
-    // await api.post("/clinics", data);
     createClinic(
       { name, address },
-      // andet argumnet: Options-objekt til useMutation, hva der skal ske når lykkes/fejler
 
       {
         onSuccess: () => {
           setClinicCreated(true);
-          // opdater clinic-data efter oprettelse
 
           refetchMyClinic();
         },
       }
     );
   };
-
-  // mens vi loader clinic
 
   if (isAdminLoggedIn && isClinicLoading) {
     return <Text>Indlæser klinikinformation...</Text>;

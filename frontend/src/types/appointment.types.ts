@@ -8,7 +8,7 @@ export interface IAppointment {
   patient_id: IPersonMini;
   doctor_id: IPersonMini;
   date: string; // ISO timestamp
-  time: string; // fx "10:30"
+  time: string;
   end_time: string;
   status: "bekræftet" | "aflyst" | "udført" | "venter";
   secretary_note?: string;

@@ -1,6 +1,3 @@
-// globalStyles blev aldrig konfigureret rigtigt i min theme.ts
-// Her bruger chakra etCSS-ssytem kaldet emotion til at sætte styles i stedet for
-// import {global} from emotion: Sæt mine styles ind i head på dokumentet med det samme — som globale styles -> Bliver sendt direkte til browseren hvor devtools viste en manuel margin: 8
 import { Global } from "@emotion/react";
 
 // Det bliver loaded først, og det overskriver browserens "user agent stylesheet" - standard

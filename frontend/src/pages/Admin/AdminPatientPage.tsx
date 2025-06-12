@@ -81,8 +81,8 @@ const AdminPatientPage = () => {
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.trimStart().slice(0, 100); // max 100 tegn
-    setSearch(value.replace(/[<>]/g, "")); // fjern < og > hvis nogen prøver HTML-lignende input
+    const value = e.target.value.trimStart().slice(0, 100);
+    setSearch(value.replace(/[<>]/g, ""));
   };
 
   return (

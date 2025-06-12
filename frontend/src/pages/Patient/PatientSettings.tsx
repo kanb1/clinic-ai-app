@@ -14,11 +14,11 @@ import EditPatientInfoModal from "@/components/patient/Settings/EditPatientInfoM
 import { useMyProfile } from "@/hooks/patient/settingHooks/useMyProfile";
 
 const PatientSettings = () => {
-  const { data, isLoading } = useMyProfile(); // Henter opdaterede brugerdata
+  const { data, isLoading } = useMyProfile();
   const user = data?.user;
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  if (isLoading) return <p>Indlæser...</p>; // loading state
+  if (isLoading) return <p>Indlæser...</p>;
 
   return (
     <Layout>

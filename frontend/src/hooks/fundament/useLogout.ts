@@ -1,6 +1,6 @@
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { api } from "@/services/httpClient"; //  axios instance med token i header
+import { api } from "@/services/httpClient";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@chakra-ui/react";
 

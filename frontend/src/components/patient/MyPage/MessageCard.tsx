@@ -30,7 +30,6 @@ const MessageCard = ({ msg, onOpenMessage }: Props) => {
       w="full"
       minW={0}
     >
-      {/* Header */}
       <Flex justify="space-between" align="center" mb={2}>
         <Text fontSize="sm" fontWeight="semibold">
           {msg.sender_id?.name || "Klinika"}

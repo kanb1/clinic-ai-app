@@ -166,7 +166,7 @@ const AIChatPage = () => {
         >
           {" "}
           <ChatBox chatHistory={chatHistory} />
-          {/* Loading-indikator for AI */}
+          {/* Skrivende AI */}
           {isPending && (
             <HStack mt={3} pl={4}>
               <TypingDots />
@@ -174,7 +174,7 @@ const AIChatPage = () => {
           )}
         </Box>
 
-        {/* Sticky input i bunden */}
+        {/* input i bunden */}
         <Box
           position="sticky"
           bottom="0"

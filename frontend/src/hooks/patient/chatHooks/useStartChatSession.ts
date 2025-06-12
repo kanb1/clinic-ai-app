@@ -20,7 +20,6 @@ export const useStartChatSession = () => {
     },
 
     onError: (error: any) => {
-      // 429-rate limiter toaster
       if (error.response?.status === 429) {
         toast({
           title:
@@ -34,7 +33,6 @@ export const useStartChatSession = () => {
         return;
       }
 
-      // fallback ved 400 eller 500
       toast({
         title: "Ny chat åbning mislykkedes",
         description:
