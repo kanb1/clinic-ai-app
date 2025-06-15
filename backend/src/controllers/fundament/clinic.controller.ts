@@ -41,9 +41,12 @@ export const getClinics = async (req: Request, res: Response) => {
   }
 };
 
-// Find specifik klinik by Id
+// Find specifik klinik by Id - baseret på relation
+// bruges ikke i frontend men klar til fremtidigt brug -> vis klinikkens info påd ashboard fx
+// læger/sekretær
 export const getClinicById = async (req: Request, res: Response) => {
   try {
+    // udtrækker id'et af klinik fra URL, og gemmer i clinicId
     const clinicId = req.params.id;
     const clinic = await ClinicModel.findById(clinicId);
 
@@ -59,7 +62,7 @@ export const getClinicById = async (req: Request, res: Response) => {
   }
 };
 
-// Hent specifik klinik for admin
+// Hent specifik klinik for admin - baseret på ejerskab
 export const getMyClinic = async (req: Request, res: Response) => {
   try {
     const adminId = req.user!._id;

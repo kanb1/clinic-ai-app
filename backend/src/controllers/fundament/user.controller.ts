@@ -28,6 +28,7 @@ export const getStaffStatuses = async (req: Request, res: Response) => {
 
     const staff = await UserModel.find({
       clinic_id: clinicId,
+      // alle brugere i klinikken hvis rolle er doctor, secretary
       role: { $in: ["doctor", "secretary"] },
     }).select("name role status");
 
@@ -50,6 +51,8 @@ export const updateMyOwnStatus = async (req: Request, res: Response) => {
       return;
     }
 
+    // user.status (db status update)
+    //  = status (updated status)
     user.status = status;
     await user.save();
 

@@ -264,6 +264,7 @@ export const updatePatient = async (req: Request, res: Response) => {
     patient.address = address ?? patient.address;
     patient.email = email ?? patient.email;
 
+    // hvis der nyt pass --> gemmer det nye password i password_hash, som middleware hasher
     if (password) {
       patient.password_hash = password;
     }
@@ -307,6 +308,8 @@ export const deletePatient = async (req: Request, res: Response) => {
 // SEND MESSAGES AS ADMIN
 export const sendSystemMessage = async (req: Request, res: Response) => {
   try {
+    // receiver_id kun relevant hvis receiver_scope er individual
+
     const { content, receiver_scope, receiver_id } = req.body;
 
     if (!content || !receiver_scope) {
@@ -335,6 +338,9 @@ export const sendSystemMessage = async (req: Request, res: Response) => {
       sender_id: req.user!._id, // admin
       receiver_scope,
       receiver_id:
+        // hvis til individuel -> konverterer receiver_id til mongoobject
+        // receiver_id -> req.body -> kommer som string
+        // ellers null -> beskeden er til flere
         receiver_scope === "individual"
           ? new mongoose.Types.ObjectId(receiver_id)
           : null,
