@@ -9,7 +9,9 @@ export const loginLimiter = rateLimit({
     message:
       "Du har forsøgt at logge ind for mange gange. Prøv igen om 15 minutter.",
   },
+  //sender de moderne rate limit headers
   standardHeaders: true,
+  // ik de gamle
   legacyHeaders: false,
 });
 

@@ -8,13 +8,16 @@ export const authenticateJWT = async (
   res: Response,
   next: NextFunction
 ) => {
+  // henter token fra request-header (authorization: bearer <token>)
   const authHeader = req.headers.authorization;
 
+  // mangler eller token i forkert format -> unauthorized!
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     res.status(401).json({ message: "Couldn't find any token" });
     return;
   }
 
+  // udtræk token (fjern "Bearer")
   const token = authHeader.split(" ")[1];
 
   try {
@@ -23,9 +26,12 @@ export const authenticateJWT = async (
     }
 
     // er tokenet gyldigt? er signaturen korrekt?
+    // tjekker at token er ægte og ik ændret (signatur passer)
+    // hvis ja -> får hele payload tilbage som decoded -> altså user info
     const decoded = jwt.verify(token, process.env.JWT_SECRET) as JwtPayload;
 
-    // Tjekker JTI i databasen
+    // tjekker om sessionen stadig findes i db
+    // når brugeren er logget ud -> slettes jti -> token bliver ugydlgi selvom den teknisk set ik er udæøbet endnu
     const session = await SessionModel.findOne({ jti: decoded.jti });
     if (!session) {
       res
@@ -36,6 +42,7 @@ export const authenticateJWT = async (
 
     // hvis ja, så får vi payloaden ud --> gemmer payloaden i req.user
     //  kan nemlig bruges i andre routes
+    // fx const userId = req.user._id; (gør systemet session-aware)
     req.user = {
       _id: decoded._id,
       role: decoded.role,

@@ -1,10 +1,18 @@
+# konfiguere dependabot - github værktøj - auto-update af depend.
+
+# anbefalet
 version: 2
+# opdateringsregler som depbot skal følges
 updates:
+  # npm projekt
   - package-ecosystem: "npm"
+    # package.josn og package-lock i mappen /frontend
     directory: "/frontend"
     schedule:
       interval: "weekly"
+    # højst 5 fra depbot for at undgå spam
     open-pull-requests-limit: 5
+    # følger commit-convention, "chore:"
     commit-message:
       prefix: "chore"
 

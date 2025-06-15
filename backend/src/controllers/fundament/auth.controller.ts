@@ -26,7 +26,7 @@ export const register = async (req: Request, res: Response) => {
     const user = new UserModel({
       name,
       email,
-      password_hash: password,
+      password_hash: password, //modellen bruger presave til at hashe pass automatisk
       role,
       clinic_id,
     });
@@ -35,6 +35,7 @@ export const register = async (req: Request, res: Response) => {
 
     // Hvis det er en patient, opret også journal
     if (role === "patient") {
+      // sætter patient_id (fra journalmodal til den nye user's id)
       await JournalModel.create({ patient_id: user._id });
     }
 
@@ -50,6 +51,7 @@ export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
+    // inklusiv passwrod_hash som er skjult by default i usermodel
     const user = await UserModel.findOne({ email }).select("+password_hash");
 
     if (!user) {
@@ -57,6 +59,7 @@ export const login = async (req: Request, res: Response) => {
       return;
     }
 
+    // passer brugerens input-pass med hashed version
     const isMatch = await bcrypt.compare(password, user.password_hash);
 
     if (!isMatch) {
@@ -68,10 +71,12 @@ export const login = async (req: Request, res: Response) => {
       throw new Error("Missing JWT_SECRET environment variable");
     }
 
-    // unikt Id og tilføjer til payload
+    // generere unikt Id (jti) og tilføjer til payload
+    // bruges til at invalidere token ved logout
     const jti = uuidv4();
 
     // gemmer i db, hvor vi kontrollerer den i authmiddleware
+    // (authmiddleware -> stadig er gyldig?)
     await SessionModel.create({ jti });
 
     // hemmelig signatur-kode som sidste del af toket "header . payload . signature"
@@ -87,6 +92,7 @@ export const login = async (req: Request, res: Response) => {
       { expiresIn: "1d" }
     );
 
+    // token og brugerinfo som svar
     res.status(200).json({
       token,
       user: {
@@ -117,9 +123,11 @@ export const logout = async (req: Request, res: Response) => {
     return;
   }
 
+  // udtræk fra Bearer ...
   const token = authHeader.split(" ")[1];
 
   try {
+    // verificerer jwt -> og decoder payload med info -> adgang til decoded.jti
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
 
     // Slet JTI = "log ud"

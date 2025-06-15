@@ -100,6 +100,7 @@ describe("AI Controller (Patient)", () => {
 
 // Test for openai fejl:
 it("should return 429 if OpenAI throws error in startChatSession", async () => {
+  // vil gerne teste specifik fejl, overskriver fake openai klient
   jest.spyOn(aiController, "getOpenAIClient").mockImplementationOnce(() => {
     throw new Error("Too many requests");
   });
