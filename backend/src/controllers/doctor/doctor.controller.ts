@@ -10,20 +10,23 @@ import { JournalEntryModel } from "../../models/journalentry.model";
 import { TestResultModel } from "../../models/testresult.model";
 import { ChatSessionModel } from "../../models/chatsession.model";
 
-// Dashboard (overblik og status på ansatte)
+// Dashboard (overblik over appointments for i dag - aflyst/bekræftet)
 export const getTodaysAppointments = async (req: Request, res: Response) => {
   try {
     const clinicId = req.user!.clinicId;
     const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
+    startOfDay.setHours(0, 0, 0, 0); //start på dagen, 00:00:00
     const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
+    endOfDay.setHours(23, 59, 59, 999); //slut på dagen
 
     const appointments = await AppointmentModel.find({
       clinic_id: new mongoose.Types.ObjectId(clinicId),
+      // datoer mellem start og slutning af dag
+      // greater than/equal to - less than/equal to
       date: { $gte: startOfDay, $lte: endOfDay },
+      // feltet skal have en af værdierne i denne liste
       status: { $in: ["bekræftet", "aflyst"] },
-    }).populate("patient_id", "name");
+    }).populate("patient_id", "name"); //hent også navn på patienten i UserModel som patient_id ref til
 
     res.status(200).json({ appointments });
   } catch (error) {
@@ -32,11 +35,12 @@ export const getTodaysAppointments = async (req: Request, res: Response) => {
   }
 };
 
-// Kalender (oversigt over alle aftaler)
+// Aftaler i dag (oversigt over alle aftaler) - Bruges ik rigtig nogle steder
 export const getAppointmentsForDoctor = async (req: Request, res: Response) => {
   try {
     const doctorId = req.user!._id;
 
+    // Finder alle aftaler -> doctor_id matcher den aktuelle læges ID
     const appointments = await AppointmentModel.find({
       doctor_id: doctorId,
     })
@@ -50,13 +54,14 @@ export const getAppointmentsForDoctor = async (req: Request, res: Response) => {
   }
 };
 
-// Dagens aftaler (patientdetaljer og muligheder)
+// Dagens aftaler (patientdetaljer og muligheder) - Pagination
 export const getTodayAppointmentDetails = async (
   req: Request,
   res: Response
 ) => {
   try {
     const clinicId = req.user!.clinicId;
+    // henter pagination parametre fra URL'en (?page=2&limit=6)
     const { page = 1, limit = 6 } = req.query;
 
     // En slags filter for "dagens" aftaler
@@ -73,17 +78,27 @@ export const getTodayAppointmentDetails = async (
     };
 
     // tæller hvor mange matcher i alt (bruges til frontend-pagination)
+    // fx "side 1 af 4"
     const total = await AppointmentModel.countDocuments(query);
 
     // henter og paginerer data
     const appointments = await AppointmentModel.find(query)
       .populate("patient_id", "name birth_date")
+      //stigende -> ældste først
       .sort({ time: 1 })
+      // springer over et antal resultater afhængig af hvilkens ide vi er på i pagination
+      // + foran -> konvert til tal -> startes som number fra req.query
+      // page = 1, limit 6: (1-1) * 6 = skip(0) (de første 6)
+      // page = 2, limit 6: (2-1) * 6 = skip(6) (skip første 6) -> får resultater 7-12
       .skip((+page - 1) * +limit)
-      .limit(+limit); // hvor mange skal vi hente pr. side
+      // hvor mange skal vi hente pr. side (6)
+      .limit(+limit);
 
     // resultatet er allerede formatteret så det er klar til visning i frontend-tabel
+    // ts ved ikke hvad type .populate returnerer -> klager
+    // as unknown -> glem hvad du tror det er -> det er en: as IPopulatedAppointment
     const formatted = (appointments as unknown as IPopulatedAppointment[]).map(
+      // mapper aftalerne
       (appt) => {
         return {
           id: appt._id,
@@ -99,10 +114,13 @@ export const getTodayAppointmentDetails = async (
     );
 
     res.status(200).json({
-      data: formatted,
-      total,
-      page: +page,
-      totalPages: Math.ceil(total / +limit), // beregn antal sider
+      data: formatted, //selve aftalerne
+      total, //samlet antal
+      page: +page, //aktuel side
+      // beregn antal sider der skal bruges i pagination
+      // Math.ceil() -> Rund op til nærmeste heltal -> sikrer at sidste side også vises
+      // math.ceil(17/6) = 3 -> Side 1: 1-6, 2: 7-12, 3: resten
+      totalPages: Math.ceil(total / +limit),
     });
   } catch (error) {
     console.error(error);
@@ -191,26 +209,26 @@ export const getPatientDetails = async (req: Request, res: Response) => {
 
 // Journaler
 
-// henter alle journaler og kan ogse søge efter specifikke patienter
+// BRUGES IKKE I FRONTEND ALLIGEVEL
 export const getJournalOverview = async (req: Request, res: Response) => {
   try {
     const clinicId = req.user!.clinicId;
     // vi henter søgeordet fra URL'en
+    // hvis ?search=Anders -> gemmer search="Anders" -> ellers undefined
     const search = req.query.search as string | undefined;
 
     const journals = await JournalModel.find().populate({
       // find brugeren som journalen peger på (relation)
       path: "patient_id",
-      // begrænser hvem vi henter ind i patient_id
+      // begrænser hvilke patienter vi vil populate
       match: {
-        clinic_id: clinicId,
+        clinic_id: clinicId, //fra aktuelle klinik
         role: "patient",
         ...(search && {
-          //hvis der søgeværdi, så kun:
+          //hvis der søgeværdi, så tilføj dette filter:
           $or: [
-            //or -> bruges til at matche på:
-            // new RegExp(..): gør søgningen case-insensitive
-            // rexexp bliver lavet når søgning sker
+            //or -> mindst én af disse 3 felter skal matche:
+            // new RegExp(..): gør search-værdi case-insensitive
             { name: new RegExp(search, "i") },
             { email: new RegExp(search, "i") },
             { cpr_number: new RegExp(search, "i") },
@@ -221,6 +239,11 @@ export const getJournalOverview = async (req: Request, res: Response) => {
       select: "name birth_date", //henter kun disse for at gøre respons lettere og hurtigere
     });
 
+    // Undgå at sende journaler uden gyldige patienter (renser data efter populate.match har filtreret nogle væk)
+    // journals -> array af journal-dokuments fra ^
+    // hver journal -> patinet_id -> vi har populated med match-betingelserne
+    // behold kun de journaler, hvor patient_id IKKE er null
+    // hvis patient_id fra anden klinik/populated/null
     const filtered = journals.filter((j) => j.patient_id);
 
     const formatted = (filtered as unknown as IPopulatedJournal[]).map((j) => ({
@@ -239,14 +262,21 @@ export const getJournalOverview = async (req: Request, res: Response) => {
 // Specifik journal med patientens historik
 export const getJournalById = async (req: Request, res: Response) => {
   try {
+    // henter journalid fra URL'en
     const journalId = req.params.id;
 
+    // henter journalen via findById
     // flere lag af populate, for hver entry:
     const journal = await JournalModel.findById(journalId).populate({
+      // alle journalentries -> array af journalentrymodel
       path: "entries",
+      // hver entry i journalen bliver udvidet med:
       populate: {
+        // tilknyttet aftale til hver entry
         path: "appointment_id",
+        // dato og tid for aftalen
         select: "date time doctor_id",
+        // læge tilknyttet aftalen
         populate: {
           path: "doctor_id",
           select: "name role",
@@ -265,17 +295,19 @@ export const getJournalById = async (req: Request, res: Response) => {
       notes: entry.notes,
       createdByAI: entry.created_by_ai,
       createdAt: entry.createdAt,
+      // hvis entry er koblet til aftale -> hent dato og tid
       appointmentDate: entry.appointment_id?.date,
       appointmentTime: entry.appointment_id?.time,
       doctorName: entry.appointment_id?.doctor_id?.name,
       doctorRole: entry.appointment_id?.doctor_id?.role,
     }));
 
+    // sender journal tiblage til fronte med:
     res.status(200).json({
-      journalId: journal._id,
-      patientId: journal.patient_id,
-      entryCount: journal.entries.length,
-      entries: formattedEntries,
+      journalId: journal._id, //id på journal
+      patientId: journal.patient_id, //patientens ID
+      entryCount: journal.entries.length, //antal entries
+      entries: formattedEntries, //formattedEntries listen
     });
   } catch (error) {
     console.error("Failed to fetch journal", error);
@@ -320,7 +352,7 @@ export const getPrescriptionsByPatient = async (
 
     const prescriptions = await PrescriptionModel.find({
       patient_id: patientId,
-    }).sort({ issued_date: -1 });
+    }).sort({ issued_date: -1 }); //nyeste først
 
     res.status(200).json(prescriptions);
   } catch (error) {
@@ -334,7 +366,7 @@ export const getTestResultsByPatient = async (req: Request, res: Response) => {
     const patientId = req.params.patientId;
 
     const results = await TestResultModel.find({ patient_id: patientId }).sort({
-      date: -1,
+      date: -1, //nyeste først - faldende
     });
 
     res.status(200).json(results);
