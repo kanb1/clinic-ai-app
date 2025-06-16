@@ -31,6 +31,14 @@ const AvailabilitySlotSchema: Schema = new Schema(
   { timestamps: true }
 );
 
+// FORBEDRING: BESKYTTELSE MOD DUBLETTER:
+//  Der må aldrig være to slots med samme læge, samme dato og samme starttid
+// MongoDB returnere en E11000 duplicate key error
+AvailabilitySlotSchema.index(
+  { doctor_id: 1, date: 1, start_time: 1 },
+  { unique: true }
+);
+
 export const AvailabilitySlotModel = mongoose.model<IAvailabilitySlot>(
   "AvailabilitySlot",
   AvailabilitySlotSchema

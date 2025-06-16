@@ -8,6 +8,7 @@ dotenv.config();
 export const getOpenAIClient = () => {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("Missing OpenAI API key");
+  // returner en ny openai-klient -> når funktion kaldes
   return new OpenAI({ apiKey });
 };
 
@@ -21,9 +22,11 @@ export const startChatSession = async (req: Request, res: Response) => {
     // empathic, clinic-frienly
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
+      // messages array
       messages: [
         {
-          role: "system",
+          role: "system", //deffinerer AI'ens persona
+          // empatisk og clinic-venlig
           content: `
             Du er en venlig og empatisk klinik-assistent, der hjælper patienter med at sætte ord på deres symptomer før en konsultation. Din hensigt er at forbedre kvaliteten af konsultationen mellem læge og patienten og få patienten til at føle sig mere forberedt.
             Du stiller uddybende spørgsmål og forsøger at berolige patienten, hvis de virker bekymrede.
@@ -31,13 +34,16 @@ export const startChatSession = async (req: Request, res: Response) => {
           `,
         },
         {
-          role: "user",
-          content: message,
+          role: "user", //definerer user
+          content: message, //indsætter brugerens besked i samtalen
         },
       ],
     });
+    // ^danner kontekstuel samtale -> gpt svarer i rollen du har defineret
 
+    //completion.choices[0]: OpenAI kan returnere flere forslag, men vi tager det første.
     const reply = completion.choices[0].message.content;
+    // bliver AI's svar og sendes til frontend som JSON
     res.json({ reply });
   } catch (error) {
     console.error("OpenAI-fejl:", error);
@@ -68,12 +74,13 @@ export const saveChatHistory = async (req: Request, res: Response) => {
       return;
     }
 
-    // Vi laver et resume af samtalen:
-    //  Laver prompt
+    // formater beskeder til én lang tekst til gpt
     const formattedMessages = messages
+      // for hver besked-par (bruger-ai) -> kombiner brugerens input med AI'ens svar
       .map((m: { user: string; ai: string }) => `${m.user}\n${m.ai}`)
       .join("\n\n");
 
+    // laver resume af samlen -> laver prompt til gpt
     const summaryPrompt = `
       Du er en klinikassistent, der skal lave et kort overblik til en læge baseret på følgende samtale med en patient:
 
@@ -83,7 +90,9 @@ export const saveChatHistory = async (req: Request, res: Response) => {
       Undlad at skrive "Patienten siger..." bare gå direkte til sagen.
       `;
 
-    // Kalder OpenAI
+    // Kalder OpenAI med prompten
+    // sætter systemrolle som "medicinst klinik assistent"
+
     const summaryResponse = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
@@ -92,8 +101,11 @@ export const saveChatHistory = async (req: Request, res: Response) => {
       ],
     });
 
+    // resultatet hentes fra "choices[0].message.content"
+    //summaryResponse.choices[0]: OpenAI kan returnere flere forslag, men vi tager det første.
     const summary = summaryResponse.choices[0].message.content;
 
+    // opretter nyt doc i chatessionmodel
     const newChat = await ChatSessionModel.create({
       patient_id: patientId,
       messages,
