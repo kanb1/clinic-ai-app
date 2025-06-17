@@ -1,5 +1,6 @@
 import request from "supertest";
 import mongoose from "mongoose";
+// midlertidig mongodb i hukommelsen -> bruger ik egen db
 import { MongoMemoryServer } from "mongodb-memory-server";
 import app from "../../index";
 import { UserModel } from "../../models/user.model";
@@ -8,19 +9,40 @@ import jwt from "jsonwebtoken";
 import { createAdminAndToken } from "../test-utils/createAdminAndToken";
 
 let mongoServer: MongoMemoryServer;
+
+// *********Test Setup før og efter*********
+// *********Test Setup før og efter*********
+// *********Test Setup før og efter*********
+
+// før alle test:
 beforeAll(async () => {
+  // start in-memory mongodb-server
   mongoServer = await MongoMemoryServer.create();
+  // forbind mongoose til test-db
   await mongoose.connect(mongoServer.getUri());
 });
+
+// efter alle test:
 afterAll(async () => {
+  // afbryd forbindelse
   await mongoose.disconnect();
+  // stop test-server
   await mongoServer.stop();
 });
+
+// rydder db før hver test
+// tests skal ik påvirke hinanden
 beforeEach(async () => {
   await UserModel.deleteMany({});
   await ClinicModel.deleteMany({});
 });
 
+// *********Test Setup før og efter*********
+// *********Test Setup før og efter*********
+// *********Test Setup før og efter*********
+
+// describe -> starter testsuite
+// it -> definerer en test
 describe("Clinic Controller", () => {
   describe("POST /api/clinics/", () => {
     it("should create a new clinic", async () => {
@@ -49,7 +71,8 @@ describe("Clinic Controller", () => {
 
       expect(res.status).toBe(500);
       expect(res.body.message).toBe("Error");
-
+      // alle jest.spyOn og mocks bliver nulstillet
+      // slkal ik påvirke de næste test -> risker at db stadig fejler pga mock stadig er aktiv
       jest.restoreAllMocks();
     });
 
@@ -93,6 +116,8 @@ describe("Clinic Controller", () => {
       expect(res.status).toBe(500);
       expect(res.body.message).toBe("Error");
 
+      // alle jest.spyOn og mocks bliver nulstillet
+      // slkal ik påvirke de næste test -> risker at db stadig fejler pga mock stadig er aktiv
       jest.restoreAllMocks();
     });
   });

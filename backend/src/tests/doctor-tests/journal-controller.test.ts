@@ -5,31 +5,53 @@ import { JournalModel } from "../../models/journal.model";
 import { JournalEntryModel } from "../../models/journalentry.model";
 import { AppointmentModel } from "../../models/appointment.model";
 import { createDoctorAndPatient } from "../test-utils/createDoctorAndPatient";
+// midlertidig mongodb i hukommelsen -> bruger ik egen db
 import { MongoMemoryServer } from "mongodb-memory-server";
 
 // globalt
 let mongoServer: MongoMemoryServer;
 
+// *********Test Setup før og efter*********
+// *********Test Setup før og efter*********
+// *********Test Setup før og efter*********
+
+// før alle test:
 beforeAll(async () => {
+  // start in-memory mongodb-server
   mongoServer = await MongoMemoryServer.create();
+  // forbind mongoose til test-db
   await mongoose.connect(mongoServer.getUri());
 });
 
+// efter alle test:
 afterAll(async () => {
+  // afbryd forbindelse
   await mongoose.disconnect();
+  // stop test-server
   await mongoServer.stop();
 });
 
+// rydder db før hver test
+// tests skal ik påvirke hinanden
 beforeEach(async () => {
   await JournalModel.deleteMany({});
   await JournalEntryModel.deleteMany({});
   await AppointmentModel.deleteMany({});
 });
 
+// efter hvert it-test
 afterEach(() => {
+  // alle jest.spyOn og mocks bliver nulstillet
+  // slkal ik påvirke de næste test -> risker at db stadig fejler pga mock stadig er aktiv
   jest.restoreAllMocks();
 });
 
+// *********Test Setup før og efter*********
+// *********Test Setup før og efter*********
+// *********Test Setup før og efter*********
+
+// describe -> starter testsuite
+// it -> definerer en test
 describe("Journal Controller", () => {
   it("should create a journal if none exists", async () => {
     const { doctorToken, patientId } = await createDoctorAndPatient();
@@ -61,6 +83,8 @@ describe("Journal Controller", () => {
   it("should return 500 if DB error occurs (getOrCreateJournal)", async () => {
     const { doctorToken, patientId } = await createDoctorAndPatient();
 
+    // jest.spyOn() overvåger JorunalModel.findOne
+    // mockImplemetation.. ( -> får den til at smide fejl første gang den bliver kaldt -> simuler en db-fejl)
     jest.spyOn(JournalModel, "findOne").mockImplementationOnce(() => {
       throw new Error("Database error");
     });
@@ -121,6 +145,7 @@ describe("Journal Controller", () => {
     expect(res.status).toBe(500);
     expect(res.body.message).toMatch(/Serverfejl/);
   }, 10000);
+  // ^ timeout-indstilling for test -> jest skal vente -> før den opgiver test og fejler med en timeout
 
   it("should get appointments with journal entries", async () => {
     const { doctorToken, patientId, doctorId, clinicId } =

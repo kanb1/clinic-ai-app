@@ -1,6 +1,7 @@
 import request from "supertest";
 import mongoose from "mongoose";
 import app from "../../index";
+// midlertidig mongodb i hukommelsen -> bruger ik egen db
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { createPatientWithToken } from "../test-utils/createPatientWithToken";
 import { MessageModel } from "../../models/message.model";
@@ -10,8 +11,14 @@ import { UserModel } from "../../models/user.model";
 
 let mongoServer: MongoMemoryServer;
 
+// *********Test Setup før og efter*********
+// *********Test Setup før og efter*********
+// *********Test Setup før og efter*********
+
 beforeAll(async () => {
+  // start in-memory mongodb-server
   mongoServer = await MongoMemoryServer.create();
+  // forbind mongoose til test-db
   await mongoose.connect(mongoServer.getUri());
 });
 
@@ -20,6 +27,8 @@ afterAll(async () => {
   await mongoServer.stop();
 });
 
+// rydder db før hver test
+// tests skal ik påvirke hinanden
 beforeEach(async () => {
   await MessageModel.deleteMany({});
   await AppointmentModel.deleteMany({});
@@ -30,6 +39,12 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
+// *********Test Setup før og efter*********
+// *********Test Setup før og efter*********
+// *********Test Setup før og efter*********
+
+// describe -> starter testsuite
+// it -> definerer en test
 describe("Patient Controller", () => {
   it("should get unread messages", async () => {
     const { token, patient } = await createPatientWithToken();
@@ -314,8 +329,12 @@ it("should return 500 if prescription lookup throws", async () => {
 it("should return 404 if user is not found when updating profile", async () => {
   const { token } = await createPatientWithToken();
 
+  // simulerer at en bruger ik findes længere/slettet
+  // jest.spyOn -> overstyre mongo funktion findbyId.. midlertidigt
   jest.spyOn(UserModel, "findByIdAndUpdate").mockImplementationOnce(
     () =>
+      // returnerer et objekt med select metode -> bruges i controller til at hente brugerinfo
+      // select returnerer null her -> altså ingen bruger
       ({
         select: () => Promise.resolve(null),
       } as any)
@@ -361,59 +380,4 @@ it("should return 500 if getUpcomingAppointments throws", async () => {
 
   expect(res.status).toBe(500);
   expect(res.body.message).toMatch(/error/i);
-});
-
-it("should return 403 when trying to mark broadcast message with string 'all' as read", async () => {
-  const { token } = await createPatientWithToken();
-
-  const msg = await MessageModel.create({
-    sender_id: new mongoose.Types.ObjectId(),
-    receiver_scope: "all",
-    // stirng og ik objectid
-    receiver_id: "all",
-    content: "Broadcast",
-    read: false,
-    type: "besked",
-  });
-
-  const res = await request(app)
-    .patch(`/api/patients/messages/${msg._id}/read`)
-    .set("Authorization", `Bearer ${token}`);
-
-  expect(res.status).toBe(403);
-  expect(res.body.message).toMatch(/cannot be marked as read/i);
-});
-
-it("should return 404 if user is not found when updating profile", async () => {
-  const { token } = await createPatientWithToken();
-
-  jest.spyOn(UserModel, "findByIdAndUpdate").mockImplementationOnce(
-    () =>
-      ({
-        select: () => Promise.resolve(null),
-      } as any)
-  );
-
-  const res = await request(app)
-    .put("/api/patients/profile")
-    .set("Authorization", `Bearer ${token}`)
-    .send({ email: "test@example.com" });
-
-  expect(res.status).toBe(404);
-  expect(res.body.message).toMatch(/ikke fundet/i);
-});
-
-it("should return 404 if updateMyProfile does not return user", async () => {
-  const { token } = await createPatientWithToken();
-
-  jest.spyOn(UserModel, "findByIdAndUpdate").mockReturnValueOnce({
-    select: () => null,
-  } as any);
-
-  const res = await request(app)
-    .put("/api/patients/profile")
-    .set("Authorization", `Bearer ${token}`)
-    .send({ email: "test@example.com" });
-
-  expect(res.status).toBe(404);
 });

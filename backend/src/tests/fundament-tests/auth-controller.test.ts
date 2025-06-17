@@ -1,26 +1,45 @@
 import request from "supertest";
 import mongoose from "mongoose";
+// midlertidig mongodb i hukommelsen -> bruger ik egen db
 import { MongoMemoryServer } from "mongodb-memory-server";
 import app from "../../index";
 import { UserModel } from "../../models/user.model";
 
 let mongoServer: MongoMemoryServer;
+// *********Test Setup før og efter*********
+// *********Test Setup før og efter*********
+// *********Test Setup før og efter*********
 
+// før alle test:
 beforeAll(async () => {
+  // start in-memory mongodb-server
   mongoServer = await MongoMemoryServer.create();
+  // forbind mongoose til test-db
+
   const uri = mongoServer.getUri();
   await mongoose.connect(uri);
 });
 
+// efter alle test:
 afterAll(async () => {
+  // afbryd forbindelse
   await mongoose.disconnect();
+  // stop test-server
   await mongoServer.stop();
 });
 
+// rydder db før hver test
+// tests skal ik påvirke hinanden
 beforeEach(async () => {
   await UserModel.deleteMany({});
 });
 
+// *********Test Setup før og efter*********
+// *********Test Setup før og efter*********
+// *********Test Setup før og efter*********
+
+// describe -> starter testsuite
+// it -> definerer en test
 describe("POST /api/auth/register", () => {
   it("should register a new user", async () => {
     const res = await request(app).post("/api/auth/register").send({

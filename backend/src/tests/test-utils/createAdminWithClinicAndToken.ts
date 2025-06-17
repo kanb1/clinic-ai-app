@@ -4,6 +4,8 @@ import { SessionModel } from "../../models/session.model";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 
+// opretter dummy-admin og returnerer brugerobjekt med jwt token
+// utils-funktion -> middleware auth tjekker token mod session -> tilføjet session her
 export const createAdminWithClinicAndToken = async () => {
   const clinicId = new mongoose.Types.ObjectId();
 
@@ -13,7 +15,7 @@ export const createAdminWithClinicAndToken = async () => {
     phone: `9999${Date.now()}`,
     password_hash: "Strong123!",
     role: "admin",
-    clinic_id: clinicId,
+    clinic_id: clinicId, //denne admin har clinic
   });
 
   const jti = uuidv4();

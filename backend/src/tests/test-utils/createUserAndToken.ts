@@ -4,6 +4,9 @@ import { UserModel } from "../../models/user.model";
 import { v4 as uuidv4 } from "uuid";
 import jwt from "jsonwebtoken";
 
+// til "users-controller" tests
+
+// du angiver rollen som argument
 export const createUserAndToken = async (
   role: "doctor" | "secretary" | "patient" | "admin"
 ) => {
@@ -13,7 +16,7 @@ export const createUserAndToken = async (
     email: `${timestamp}@test.com`,
     phone: `123456${timestamp}`, // unik nr
     password_hash: "Strong123!",
-    role,
+    role, //rollen er angivet som argument
     clinic_id: new mongoose.Types.ObjectId(),
     status: "ledig",
   });

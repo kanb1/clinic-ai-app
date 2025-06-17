@@ -1,5 +1,6 @@
 import request from "supertest";
 import mongoose from "mongoose";
+// midlertidig mongodb i hukommelsen -> bruger ik egen db
 import { MongoMemoryServer } from "mongodb-memory-server";
 import app from "../../index";
 import { UserModel } from "../../models/user.model";
@@ -7,20 +8,42 @@ import { SessionModel } from "../../models/session.model";
 
 import { createUserAndToken } from "../test-utils/createUserAndToken";
 
+// *********Test Setup før og efter*********
+// *********Test Setup før og efter*********
+// *********Test Setup før og efter*********
+
 let mongoServer: MongoMemoryServer;
+
+// før alle test:
 beforeAll(async () => {
+  // start in-memory mongodb-server
   mongoServer = await MongoMemoryServer.create();
+  // forbind mongoose til test-db
+
   await mongoose.connect(mongoServer.getUri());
 });
+
+// efter alle test:
 afterAll(async () => {
+  // afbryd forbindelse
   await mongoose.disconnect();
+  // stop test-server
   await mongoServer.stop();
 });
+
+// rydder db før hver test
+// tests skal ik påvirke hinanden
 beforeEach(async () => {
   await UserModel.deleteMany({});
   await SessionModel.deleteMany({});
 });
 
+// *********Test Setup før og efter*********
+// *********Test Setup før og efter*********
+// *********Test Setup før og efter*********
+
+// describe -> starter testsuite
+// it -> definerer en test
 describe("User Controller", () => {
   describe("GET /api/users/me", () => {
     it("should return own user profile", async () => {
