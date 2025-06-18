@@ -3,8 +3,11 @@ import { Navigate } from "react-router-dom";
 import { ReactNode } from "react";
 import { Box, Heading, Text } from "@chakra-ui/react";
 
+// kun brugere med bestemte roller -> får lov at se vores children
+
 interface RequireRoleProps {
-  // Det indhold der kun skal vises, hvis rollen passer.
+  // Det indhold der kun skal vises, hvis rollen passer
+  // både navbar og outlet (children)
   children: ReactNode;
   allowedRoles: ("admin" | "doctor" | "secretary" | "patient")[];
 }

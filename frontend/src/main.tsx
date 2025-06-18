@@ -1,4 +1,4 @@
-import { StrictMode } from "react";
+import { StrictMode } from "react"; //bedre fejl-rapportering
 import { createRoot } from "react-dom/client";
 import { ChakraProvider } from "@chakra-ui/react";
 import App from "./App.tsx";
@@ -21,16 +21,20 @@ const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
+    {/* tanstack query */}
     <QueryClientProvider client={queryClient}>
+      {/* routing */}
       <BrowserRouter>
+        {/* designsystem */}
         <ChakraProvider theme={theme}>
           <GlobalStyles />
+          {/* global login state */}
           <AuthProvider>
             <App />
           </AuthProvider>
         </ChakraProvider>
       </BrowserRouter>
-
+      {/* react query developer tools */}
       <ReactQueryDevtools initialIsOpen={true} />
     </QueryClientProvider>
   </StrictMode>

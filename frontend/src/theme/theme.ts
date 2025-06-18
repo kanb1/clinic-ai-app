@@ -1,6 +1,11 @@
 import { extendTheme } from "@chakra-ui/react";
 
+// udvider standardtemaet med mine egne designværdier
+// bruges i hele min app i main.tsx (<ChakraProvid.. theme={theme}>)
+
 const theme = extendTheme({
+  // standard chakra breakpoints minder om disse
+  // kan altid overskrives
   breakpoints: {
     base: "0px",
     sm: "480px",
@@ -10,6 +15,9 @@ const theme = extendTheme({
     "2xl": "1536px",
   },
 
+  // tilføjet mine farvegrupper - primary/secondary
+  // refererer til disse i mine komponenter
+  // bg, color fra chakras theme.colors objekt
   colors: {
     primary: {
       red: "#B20D1C",
@@ -21,6 +29,7 @@ const theme = extendTheme({
     },
   },
 
+  // chakra bruger disse som default til Heading og body (Text, Box)
   fonts: {
     heading: "'Poppins', sans-serif",
     body: "'Inter', sans-serif",
@@ -35,14 +44,18 @@ const theme = extendTheme({
     extrabold: 800,
   },
 
+  // komponent-specifik styling:
+  // Definerer styling for chakra's komponenter
   components: {
     Heading: {
       baseStyle: {
         fontFamily: "'Poppins', sans-serif",
         lineHeight: "120%",
       },
+      // custom sizes -> min måde at lave de forskellige overskrifter
       sizes: {
         heading1: {
+          // definerer consistent repsonsive størrelsesændring
           fontSize: {
             base: "30px",
             sm: "36px",
@@ -96,6 +109,7 @@ const theme = extendTheme({
     },
 
     Button: {
+      // standard for alle knapper
       baseStyle: {
         borderRadius: "full",
         fontFamily: "'Poppins', sans-serif",
