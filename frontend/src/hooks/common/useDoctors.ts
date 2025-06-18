@@ -8,10 +8,13 @@ export interface IDoctor {
 }
 
 export const useDoctors = () => {
+  // forventer at få en liste af IDoctor-objekter (types)
   return useQuery<IDoctor[]>({
+    // unik identification for data -> gemt i cache
     queryKey: ["doctors"],
     queryFn: async () => {
       const { data } = await api.get("/admin/staff/doctors-list");
+      // returnerer JSON-dataen
       return data;
     },
   });

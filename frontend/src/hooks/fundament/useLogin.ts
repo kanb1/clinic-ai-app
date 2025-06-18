@@ -5,22 +5,30 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@chakra-ui/react";
 
 export const useLogin = (
+  // funktion kan kaldes > bruger logger forkert sted fx
   onRoleError?: (role: string) => void,
+  // deaktiver auto redirect (ved clinic creation flow)
   options?: { disableRedirect?: boolean }
 ) => {
   const navigate = useNavigate();
+  //sætter user&token til authcontext
+  //kan bruges globalt via authcontext
   const { setUser, setToken } = useAuth();
   const toast = useToast();
 
   return useMutation({
+    //  mutate({email, password}) i en komponent -> komponent kaldes
     mutationFn: async (data: { email: string; password: string }) => {
+      // sender post-request til /auth/login -> med email og pass
       const response = await api.post("/auth/login", data);
+      // returner response.data (token, user)
       return response.data;
     },
     onSuccess: (data) => {
       setToken(data.token); // gem JWT-token globalt
       setUser(data.user); // gem brugerinfo globalt
 
+      // henter userens rolle
       const role = data.user.role;
 
       // Hvis patient prøver at logge ind via /staff/login → afvis
@@ -35,7 +43,7 @@ export const useLogin = (
         return;
       }
 
-      // kun redirect hvis ikke deaktiveret, i createclinic slår vi det fra
+      // kun redirect hvis ikke deaktiveret, i createclinic slår vi det fra -> vil styre redirect manuelt der
       if (options?.disableRedirect) return;
 
       // Redirect baseret på rolle

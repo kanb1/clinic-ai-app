@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@chakra-ui/react";
 
 export const useLogout = () => {
+  // fra useauth -> til at nulstille global state (setUser(null))
   const { setUser, setToken } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -22,7 +23,6 @@ export const useLogout = () => {
       // Ryd React Query cache
       queryClient.clear();
       // Ryd frontend session
-
       setUser(null);
       setToken(null);
       // Navigér og vis besked
