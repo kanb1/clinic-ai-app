@@ -14,6 +14,7 @@ export const useUpdateSecretary = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    // parameter destructer direkte værdierne (istedet for data:)
     mutationFn: async ({
       id,
       email,
@@ -21,6 +22,7 @@ export const useUpdateSecretary = () => {
       name,
       address,
     }: UpdateSecretaryInput) => {
+      // ^ ellers data.email -> med nuvræedne, renere
       const res = await api.put(`/admin/staff/secretaries/${id}`, {
         email,
         phone,

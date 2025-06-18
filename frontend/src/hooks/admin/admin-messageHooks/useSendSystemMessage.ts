@@ -10,6 +10,7 @@ export const useSendSystemMessage = () => {
   return useMutation({
     mutationFn: async (data: SystemMessagePayload) => {
       const res = await api.post("/admin/system-messages", {
+        // spread content&receiver_scope ud i bodyen -> "type"-felt er ik med i data
         ...data,
         type: "system",
       });
