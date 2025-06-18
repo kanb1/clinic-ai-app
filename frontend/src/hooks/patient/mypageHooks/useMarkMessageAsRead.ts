@@ -10,6 +10,7 @@ export const useMarkMessageAsRead = () => {
       return res.data;
     },
     onSuccess: () => {
+      // fetch new data for caches "messages" and "unread" after update of message (read)
       queryClient.invalidateQueries({ queryKey: ["messages", "unread"] });
     },
   });

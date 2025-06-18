@@ -10,10 +10,13 @@ interface ChatResponse {
   reply: string;
 }
 
+// Hook -> start  ny AI-chat > ved at sende en besked til backend og får svar
 export const useStartChatSession = () => {
   const toast = useToast();
 
   return useMutation<ChatResponse, Error, ChatInput>({
+    // "hej" fra patient bliver sendt som data
+    // backend svarer med en AI besked tilbage
     mutationFn: async (data) => {
       const res = await api.post("/patients/ai/start", data);
       return res.data;

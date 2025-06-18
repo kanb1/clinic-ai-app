@@ -7,8 +7,10 @@ export const useJournalDetails = (journalId: string) => {
     queryKey: ["journal", journalId],
     queryFn: async () => {
       const res = await api.get(`/doctors/journals/${journalId}`);
+      // journalmodel -> har entries felt (array)
       return res.data.entries;
     },
+    // hvis journalId er sand !!undefined/null -> kør hook
     enabled: !!journalId,
   });
 };

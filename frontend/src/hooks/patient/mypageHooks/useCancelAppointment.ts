@@ -12,6 +12,7 @@ export const useCancelAppointment = () => {
       return res.data;
     },
     onSuccess: () => {
+      // fetch new data for caches "appointments" and "upcoming" after update of appointment
       queryClient.invalidateQueries({ queryKey: ["appointments", "upcoming"] });
     },
   });

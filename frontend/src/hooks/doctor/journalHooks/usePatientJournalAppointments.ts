@@ -27,6 +27,6 @@ export const usePatientJournalAppointments = (patientId: string) => {
       );
       return res.data;
     },
-    enabled: !!patientId, // kun hvis patientId findes
+    enabled: !!patientId, // kun hvis patientId findes -> kør hook
   });
 };

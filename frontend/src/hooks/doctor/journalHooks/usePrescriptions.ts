@@ -9,6 +9,6 @@ export const usePrescriptions = (patientId: string | null) => {
       const res = await api.get(`/doctors/prescriptions/${patientId}`);
       return res.data;
     },
-    enabled: !!patientId,
+    enabled: !!patientId, // kun hvis patientId findes -> kør hook
   });
 };

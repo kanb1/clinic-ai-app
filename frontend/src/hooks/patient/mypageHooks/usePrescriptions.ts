@@ -12,6 +12,9 @@ export const usePrescriptions = (
       const res = await api.get(`/patients/prescriptions/${patientId}`);
       return res.data;
     },
+    //kør kun hvis patientId findes
+    //hent kun når vi ønsker hooken skal være aktiv -> når patientId er sat:
+    //const {data: prescriptions} = usePrescriptions(patientId);
     enabled: isEnabled && !!patientId,
   });
 };

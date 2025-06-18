@@ -20,10 +20,11 @@ interface ApiResponse {
 }
 
 export const useTodaysDetailedAppointments = (
-  page: number,
-  limit: number = 6
+  page: number, //hvilken side af resultater vi vil hente
+  limit: number = 6 //aftaler pr side
 ) => {
   return useQuery<ApiResponse>({
+    // hver side caches seperat
     queryKey: ["todays-appointments-detailed", page],
     queryFn: async () => {
       const res = await api.get(
