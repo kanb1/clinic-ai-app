@@ -18,6 +18,7 @@ export const useCreateAppointment = () => {
     },
 
     onSuccess: () => {
+      // refetch disse caches efter ny appointment oprettet
       queryClient.invalidateQueries({
         queryKey: [
           "availability-slots",
