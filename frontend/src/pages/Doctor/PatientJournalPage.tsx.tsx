@@ -31,13 +31,23 @@ import TestResultBox from "@/components/doctor/Journals/Testresults/TestResultBo
 import Layout from "@/components/layout/Layout";
 import { useAuth } from "@/context/AuthContext";
 
+// page her: styrer al global tilstand, holder styr på Modals
+// childsene, boxene: får data og funktioner (props) og "beder" parent om at åbne modal via callback funktion
+//modaler: vises kun hvis state har indhold
+
+// Denne her side:
+// viser patientesn navn og journal-relateret data (aftaler, recepter osv)
+// viser modals, hivs vi har valgt noget
+
 const PatientJournalPage = () => {
   const [searchParams] = useSearchParams();
   const patientId = searchParams.get("id") || "";
 
+  // hook finder/opretter en journal for denne patietn
   const { data: journalMeta } = useOrCreateJournal(patientId);
   const journalId = journalMeta?.journalId || "";
 
+  // appointments med journalerne
   const {
     data = [],
     isLoading,
@@ -68,6 +78,10 @@ const PatientJournalPage = () => {
           {journalMeta?.patientName || "Patient"}
         </Heading>
 
+        {/* *******Boxes med knapper******* */}
+        {/* *******Boxes med knapper******* */}
+        {/* *******Boxes med knapper******* */}
+
         {!isLoadingTests && <TestResultBox results={testResults} />}
 
         {/* Recepter + Tidligere aftaler side om side */}
@@ -86,6 +100,8 @@ const PatientJournalPage = () => {
                 <Button
                   variant={"solidBlack"}
                   size="sm"
+                  // vi sætter state setShowAddPrescription (true)
+                  // kører AddPrescriptionModal længere nede
                   onClick={() => setShowAddPrescription(true)}
                 >
                   + Opret recept
@@ -111,9 +127,14 @@ const PatientJournalPage = () => {
               >
                 <VStack align="stretch" spacing={4}>
                   {prescriptions.map((r: any) => (
+                    // box med knap "vis detaljer" -> onView
                     <PrescriptionBox
                       key={r._id}
+                      // prescription-data
                       prescription={r}
+                      // callback til children her: OnView()
+                      // klikkes på knappen "Vis detaljer"(OnView)?
+                      // setSelectedPrescription sætter værdi -> trigger AddPrescriptionBox modal længere nede
                       onView={() => setSelectedPrescription(r)}
                     />
                   ))}
@@ -146,20 +167,34 @@ const PatientJournalPage = () => {
               }}
             >
               <VStack spacing={4} align="stretch">
+                {/* data: mapper liste med patientens tidligere aftaler */}
                 {data.map((appt) => (
+                  // appointments med "vis journal/opret notat"-knap
                   <AppointmentBox
                     key={appt._id}
+                    //aftale-dato med sekretærnote, journal osv
                     appt={appt}
-                    journalId={journalId}
-                    refetch={refetch}
+                    // når onViewJournal kaldes (via knap) i Appbox -> opdatereres selectedentry state
+                    // aktiverer visning af modal længere nede
+                    onViewJournal={(entry) => setSelectedEntry(entry)}
+                    // samme her bare for AddJournalEntryModal
+                    onCreateNote={(appointmentId) =>
+                      setSelectedAppointmentId(appointmentId)
+                    }
                   />
+                  // disse bokse trigger forskellige mdoals længere nede!
                 ))}
               </VStack>
             </Box>
           </Box>
         </Flex>
 
-        {/* Modals */}
+        {/* *******Modals******* */}
+        {/* *******Modals******* */}
+        {/* *******Modals******* */}
+
+        {/* vises når man klikker "Vis journal" i app.box */}
+        {/* selectedEntry bliver sat til journal-entry, og denne modal åbnes */}
         {selectedEntry && (
           <JournalModal
             entry={selectedEntry}
@@ -167,6 +202,7 @@ const PatientJournalPage = () => {
           />
         )}
 
+        {/* vises når man klikker "opret notat"/"gennemse noter" */}
         {selectedAppointmentId && (
           <AddJournalEntryModal
             appointmentId={selectedAppointmentId}
@@ -179,6 +215,8 @@ const PatientJournalPage = () => {
           />
         )}
 
+        {/* vises når man klikker "opret recept" */}
+        {/* er showAddPrescription true? er det blevet klikket på knappen "Tilføj recept" -> render denne kompoennt */}
         {showAddPrescription && (
           <AddPrescriptionModal
             patientId={patientId}
@@ -187,6 +225,9 @@ const PatientJournalPage = () => {
           />
         )}
 
+        {/* presmodal -> vis receptdetaljer */}
+        {/* selectedPrescription bliver true pga PresBox */}
+        {/* PrescModal bliver vist */}
         {selectedPrescription && (
           <PrescriptionModal
             prescription={selectedPrescription}

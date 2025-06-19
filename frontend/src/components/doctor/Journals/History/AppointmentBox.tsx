@@ -4,9 +4,20 @@ import { useState } from "react";
 import AddJournalEntryModal from "./AddJournalEntryModal";
 import JournalModal from "./JournalModal";
 
-const AppointmentBox = ({ appt, journalId, refetch }: any) => {
-  const [selectedEntry, setSelectedEntry] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+interface AppointmentBoxProps {
+  appt: any;
+  onViewJournal: (entry: any) => void;
+  onCreateNote: (appointmentId: string) => void;
+}
+
+// appt: aftaleobjekt med date, time, entries[entry1, entry2 ] osv
+// journalid: bruges hvis nyt notat oprettes
+// gives fra parent og bruges efter oprettelse til ny hetnning af data
+const AppointmentBox = ({
+  appt,
+  onViewJournal,
+  onCreateNote,
+}: AppointmentBoxProps) => {
   const { data: aiNote } = useAiNoteByAppointment(appt._id);
 
   const hasAINote = !!aiNote;
@@ -44,17 +55,20 @@ const AppointmentBox = ({ appt, journalId, refetch }: any) => {
           </Badge>
         )}
 
+        {/* Condiitonal rendering: Opret notat/vis journal/gennemse ai-noter */}
         <Flex mt={2} gap={2} flexWrap="wrap">
+          {/* findes journal, lavet af AI? -> åben addJournalEntryModal for at se det */}
           {appt.journalEntry?.created_by_ai ? (
             <Button
               size="sm"
-              onClick={() => setShowModal(true)}
+              onClick={() => onCreateNote(appt._id)}
               colorScheme="purple"
               variant="outline"
             >
               Gennemse AI-noter
             </Button>
           ) : appt.journalEntry ? (
+            //Hvis der findes oprettet notat (journalentry) → åbner JournalModal
             <Button
               backgroundColor="primary.red"
               color="white"
@@ -66,7 +80,9 @@ const AppointmentBox = ({ appt, journalId, refetch }: any) => {
               py={2}
               w="full"
               maxW="16rem"
-              onClick={() => setSelectedEntry(appt.journalEntry)}
+              // callback her, så vi ved hvilken journal der skal åbnes
+              // trigger modalen JournalModal i parent
+              onClick={() => onViewJournal(appt.journalEntry)}
             >
               Vis journal
             </Button>
@@ -82,32 +98,15 @@ const AppointmentBox = ({ appt, journalId, refetch }: any) => {
               py={2}
               w="full"
               maxW="16rem"
-              onClick={() => setShowModal(true)}
+              // callback her, så vi ved hvilken journal der skal åbnes
+              // trigger modalen AddJournalEntryModal i parent
+              onClick={() => onCreateNote(appt._id)}
             >
               Opret notat
             </Button>
           )}
         </Flex>
       </Stack>
-
-      {selectedEntry && (
-        <JournalModal
-          entry={selectedEntry}
-          onClose={() => setSelectedEntry(null)}
-        />
-      )}
-
-      {showModal && (
-        <AddJournalEntryModal
-          appointmentId={appt._id}
-          journalId={journalId}
-          onClose={() => setShowModal(false)}
-          onSuccess={() => {
-            refetch();
-            setShowModal(false);
-          }}
-        />
-      )}
     </Box>
   );
 };
