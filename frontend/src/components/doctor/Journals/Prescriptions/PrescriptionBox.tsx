@@ -1,5 +1,7 @@
 import { Box, Button, Text, Heading, Stack } from "@chakra-ui/react";
 
+// viser bare prescriptiondetaljer -> fået af parent
+
 interface Props {
   prescription: {
     _id: string;

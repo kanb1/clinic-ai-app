@@ -34,7 +34,7 @@ const AddJournalEntryModal = ({
   const { data, isLoading } = useAiNoteByAppointment(appointmentId);
   const { mutate, isPending: isSaving } = useCreateJournalEntry();
 
-  // Udtræk kun AI-delen og sæt sammen som tekst
+  // får adgang til symmary_for_doctor -> AI har lavet notater
   const aiNote = data?.summary_for_doctor || "Ingen AI-noter fundet";
 
   const [notes, setNotes] = useState("");
@@ -93,7 +93,9 @@ const AddJournalEntryModal = ({
         <ModalBody>
           <Textarea
             placeholder="Skriv noter her..."
+            //feltet styres af useState (notes) -> kig i næste button
             value={notes}
+            //sæt ellers hvad læge skriver ind i tekstfeltet
             onChange={(e) => setNotes(e.target.value)}
             mb={4}
             minHeight="120px"
@@ -106,6 +108,9 @@ const AddJournalEntryModal = ({
             <Button
               mt={3}
               size="sm"
+              //sætter AI-notes i "notes" via setNotes
+              //det vil overskrive det nuværende indhold i tekstfeltet med AI's note/vises med det samme
+              // fordi texarea bruger value={notes}
               onClick={() => setNotes(aiNote)}
               isDisabled={!aiNote}
               variant="outline"
@@ -116,6 +121,7 @@ const AddJournalEntryModal = ({
         </ModalBody>
         <ModalFooter>
           <Button
+            // validerer og send notes til backend
             onClick={handleSave}
             isLoading={isSaving}
             colorScheme="blue"

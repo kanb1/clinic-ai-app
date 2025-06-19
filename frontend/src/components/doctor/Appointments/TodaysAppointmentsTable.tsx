@@ -35,12 +35,15 @@ import { api } from "@/services/httpClient";
 
 const TodaysAppointmentsTable = () => {
   const [page, setPage] = useState(1);
+  // datafetching
   const { data, isLoading, error } = useTodaysDetailedAppointments(page);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [selectedSymptoms, setSelectedSymptoms] = useState<string | null>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  // aflysnings-mutation
+  // når aftale aflyses -> server opdateres -> data genhentes via invalidateQueries
   const { mutate: cancelAppointment } = useMutation({
     mutationFn: async (id: string) => {
       await api.patch(`/doctors/appointments/${id}/cancel`);
@@ -269,6 +272,7 @@ const TodaysAppointmentsTable = () => {
         gap={{ base: 4, sm: 0 }}
         textAlign="center"
       >
+        {/* pagikation -> styres via page state (refetcher auto) */}
         <Button
           onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
           isDisabled={page === 1}

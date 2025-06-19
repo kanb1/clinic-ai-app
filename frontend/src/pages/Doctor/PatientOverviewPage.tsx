@@ -13,6 +13,8 @@ const PatientOverviewPage = () => {
   const [selectedPatient, setSelectedPatient] = useState<IUser | null>(null);
   const navigate = useNavigate();
 
+  // klikker på "Vis patient-info" i PatientGrid
+  // fidner aptienten ud fra id -> sætter det som valgt
   const handleViewDetails = (id: string) => {
     const patient = patients.find((p) => p._id === id);
     if (patient) {

@@ -10,6 +10,7 @@ const DoctorDashboard = () => {
   const { mutate: updateStatus } = useUpdateMyStatus();
 
   const handleToggle = (currentStatus: "ledig" | "optaget") => {
+    // hvis currentstatus = ledig -> sæt optaget -> ellers sæt til ledig
     const newStatus = currentStatus === "ledig" ? "optaget" : "ledig";
     updateStatus({ status: newStatus });
   };

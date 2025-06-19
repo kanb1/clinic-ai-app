@@ -8,6 +8,7 @@ const TodaysAppointmentStats = () => {
 
   if (isLoading) return <Spinner />;
 
+  // filtrerer apppo.--> antal bekræftet/aflyst
   const confirmed = (appointments as IAppointment[]).filter(
     (a: IAppointment) => a.status === "bekræftet"
   ).length;
@@ -15,6 +16,7 @@ const TodaysAppointmentStats = () => {
   const cancelled = (appointments as IAppointment[]).filter(
     (a: IAppointment) => a.status === "aflyst"
   ).length;
+
   return (
     <Flex
       gap={6}

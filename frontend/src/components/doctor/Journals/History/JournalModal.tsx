@@ -12,6 +12,7 @@ import {
 import { FC } from "react";
 
 interface JournalModalProps {
+  //valgte entry
   entry: {
     notes: string;
     createdByAI: boolean;
@@ -29,16 +30,19 @@ const JournalModal: FC<JournalModalProps> = ({ entry, onClose }) => {
         <ModalHeader>Journalnotat</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
+          {/* dynamisk tekst afhængig af hvem har alvet journalen */}
           <Text fontWeight="bold" mb={2}>
             {entry.createdByAI
               ? "Notat genereret af AI"
               : "Notat skrevet af lægen"}
           </Text>
+          {/* vis dato */}
           {entry.appointmentDate && (
             <Text fontSize="sm" color="gray.500" mb={2}>
               Aftale: {entry.appointmentDate} — {entry.doctorName}
             </Text>
           )}
+          {/* Viser journalnotatet – pre-wrap gør, at linjeskift vises korrekt*/}
           <Text whiteSpace="pre-wrap" fontSize="md">
             {entry.notes}
           </Text>
