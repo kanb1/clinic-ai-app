@@ -12,9 +12,9 @@ import ToggleStatusButton from "@/components/shared/ToggleStatusButton";
 import { useAuth } from "@/context/AuthContext";
 
 interface Props {
-  // styres i parent
+  // styres og gives videre i parent -> vi vil gerne gøre denne komponent shared
   showToggleForCurrentUser?: boolean;
-  // hvad sker der når bruger trykker
+  // hvad sker der når bruger trykker? > callback til parent (kig secretarydashboard der videregiver prop)
   onToggleStatus?: (status: "ledig" | "optaget") => void;
 }
 

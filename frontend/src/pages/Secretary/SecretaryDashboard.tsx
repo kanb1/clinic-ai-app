@@ -190,6 +190,7 @@ const SecretaryDashboard = () => {
           {/* Personale */}
           <StaffStatusOverview
             showToggleForCurrentUser
+            //vi hådnterer toggle i parent
             onToggleStatus={handleToggle}
           />
         </Stack>

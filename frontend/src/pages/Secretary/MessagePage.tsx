@@ -22,6 +22,7 @@ const MessagePage = () => {
     null
   );
   const { isOpen, onOpen, onClose } = useDisclosure();
+  // sendes til alle patienter eller til en specifik patient -> sendes vider etil messagemodal
   const [receiverScope, setReceiverScope] = useState<"patients" | "individual">(
     "patients"
   );
@@ -30,13 +31,19 @@ const MessagePage = () => {
     p.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Modalåbning: 2 muligheder:
+
+  // sendes til alle patienter
   const handleOpenAllPatientsModal = () => {
     setReceiverScope("patients");
+    // nulstilles da de rik skal vælges en specifik
     setSelectedPatientId(null);
+    // åbner modal
     onOpen();
   };
 
   const handleOpenIndividualModal = (patientId: string) => {
+    // vælger en patient og åbner modal
     setReceiverScope("individual");
     setSelectedPatientId(patientId);
     onOpen();
@@ -142,7 +149,7 @@ const MessagePage = () => {
             isOpen={isOpen}
             onClose={onClose}
             receiverScope={receiverScope}
-            receiverId={selectedPatientId || undefined}
+            receiverId={selectedPatientId || undefined} //hvis indiivduelt
           />
         </Box>
       </Flex>

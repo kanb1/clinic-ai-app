@@ -80,7 +80,7 @@ const BookingPage = () => {
               isOpen={isOpen}
               onClose={onClose}
               patientId={selectedPatientId}
-              weekStart={weekStart}
+              weekStart={weekStart} //dags dato
             />
           )}
         </Box>

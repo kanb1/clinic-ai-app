@@ -28,7 +28,7 @@ interface BookAppointmentModalProps {
   isOpen: boolean;
   onClose: () => void;
   patientId: string;
-  weekStart: string; // fx "2025-05-27"
+  weekStart: string; // dags dato
 }
 
 const BookAppointmentModal = ({
@@ -38,17 +38,23 @@ const BookAppointmentModal = ({
   weekStart,
 }: BookAppointmentModalProps) => {
   const toast = useToast();
+  // hvilken step i bookign er vi i
   const [view, setView] = useState<"overview" | "slots" | "note" | "confirm">(
     "overview"
   );
   const [selectedDoctorId, setSelectedDoctorId] = useState<
     string | undefined
   >();
+  // hvilken dag i ugen brugeren valgte
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  // hvilken konkrete tid brugeren valgte
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
   const [secretaryNote, setSecretaryNote] = useState("");
+
+  // Henter læger i klinikken
   const { data: doctors = [] } = useDoctors();
 
+  // Henter ledige tider for en specifik uge
   const { data: slotsData, isLoading: slotsLoading } = useAvailabilitySlots(
     weekStart,
     selectedDoctorId
@@ -56,20 +62,33 @@ const BookAppointmentModal = ({
 
   const { mutate: bookAppointment, isPending } = useCreateAppointment();
 
+  // Når dag er valgt -> filtrer kun de slots de rmatcher den dag
   const filteredSlots = selectedDate
-    ? slotsData?.filter((slot) => {
+    ? // Er der valgt dato? så filtrer slotsData (konkrete tider)
+      // filter() -> ny array med kun de slots der matcher dato og evt. læge
+      slotsData?.filter((slot) => {
+        // slotDate og selectedDate kan være i forskellige formater (Date, string osv)
+        // konverter til ISO string -> fjern tid -> kun datodelen
+        // = sammenligner kun dato og ik tid
         const slotDate = new Date(slot.date).toISOString().split("T")[0];
         const selected = new Date(selectedDate).toISOString().split("T")[0];
         return (
+          // return kun slots der matcher valgte dato
+          // ingen læge -> tillader alle slots -> valgt -> slot skal matche lægens id
           slotDate === selected &&
           (!selectedDoctorId || slot.doctorId === selectedDoctorId)
         );
       })
-    : [];
+    : []; //hvis selecteddate ik er valg -> tomt array -> ik vis slots
 
+  // find den konkrete tid sekretæren valgte
+  // filteredSlots -> array vi lige har filtreret
+  // selectedSlotId -> id'et på den tid brugeren valgte
   const selectedSlot = filteredSlots?.find((s) => s.slotId === selectedSlotId);
 
+  // bookingfunktion -> kalder mutation bookAppointment -> indsender nødvendige oplysninger
   const handleBook = () => {
+    // stop funktionen her hvis nedenstående er true, ik gå videre
     if (!selectedSlot || !secretaryNote) return;
     bookAppointment(
       {
@@ -90,6 +109,7 @@ const BookAppointmentModal = ({
     );
   };
 
+  // back to overview & Reset næste gang modal åbnes
   const resetForm = () => {
     setView("overview");
     setSelectedDoctorId(undefined);
@@ -98,6 +118,8 @@ const BookAppointmentModal = ({
     setSecretaryNote("");
   };
 
+  // når isOpen er false (modal lukkes) > kald ovenstående^
+  // sikrer atid frisk modal når åbnes
   useEffect(() => {
     if (!isOpen) {
       resetForm();
@@ -135,7 +157,7 @@ const BookAppointmentModal = ({
                   doctorId={selectedDoctorId}
                   onSelectDate={(date) => {
                     setSelectedDate(date);
-                    setView("slots");
+                    setView("slots"); // gå videre til næste trin
                   }}
                 />
               )}
@@ -153,6 +175,7 @@ const BookAppointmentModal = ({
                   spacing={4}
                   mt={4}
                 >
+                  {/* Vis alle de konkrete tider for den valgte dag */}
                   {filteredSlots?.map((slot) => (
                     <Box
                       key={slot.slotId}

@@ -15,8 +15,10 @@ const MotionBox = motion(Box);
 
 const RecentAppointmentsCarousel = () => {
   const { data: pastAppointments, isLoading } = usePastAppointmentsToday();
+  // hvilken aftale vises i carousel (kun på mobile)
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [direction, setDirection] = useState(1); // 1 = next, -1 = previous
+  // 1 = next, -1 = previous -> bruges af animationen tila swiping
+  const [direction, setDirection] = useState(1);
 
   const isMobile = useBreakpointValue({ base: true, lg: false });
 
@@ -76,11 +78,15 @@ const RecentAppointmentsCarousel = () => {
           <Box position="relative" w="100%" minH="140px" overflow="hidden">
             <AnimatePresence>
               <MotionBox
+                // når vi ædnrer curentIndex -> key ændres
+                // Framer Motion trigger en exit-animation for det gamle kort og et enter for det nye
                 key={currentIndex}
                 position="absolute"
                 w="full"
                 initial={{ x: direction > 0 ? 300 : -300, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
+                // x: 300: kort starter udenfor skræm til højre
+                // x: -300 starter udenfor venstre
                 exit={{ x: direction > 0 ? -300 : 300, opacity: 0 }}
                 transition={{ duration: 0.3 }}
                 bg="gray.100"
@@ -88,6 +94,7 @@ const RecentAppointmentsCarousel = () => {
                 borderRadius="md"
                 boxShadow="sm"
               >
+                {/* pastapp. card */}
                 <Text fontWeight="bold">
                   {pastAppointments[currentIndex]?.time || "?"} –{" "}
                   {pastAppointments[currentIndex]?.end_time || "?"}
@@ -128,6 +135,7 @@ const RecentAppointmentsCarousel = () => {
       ) : (
         // Desktop visning
         <Flex gap={4} overflowX="auto" px={1}>
+          {/* alle kort vises på 1 ting */}
           {pastAppointments.map((appt) => (
             <Box
               key={appt._id}
