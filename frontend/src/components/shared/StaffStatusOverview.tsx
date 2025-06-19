@@ -12,11 +12,14 @@ import ToggleStatusButton from "@/components/shared/ToggleStatusButton";
 import { useAuth } from "@/context/AuthContext";
 
 interface Props {
+  // styres i parent
   showToggleForCurrentUser?: boolean;
+  // hvad sker der når bruger trykker
   onToggleStatus?: (status: "ledig" | "optaget") => void;
 }
 
 const StaffStatusOverview = ({
+  // komponent kan bruges med/uden toggle-funktionalitetet
   showToggleForCurrentUser = false,
   onToggleStatus,
 }: Props) => {
@@ -44,7 +47,11 @@ const StaffStatusOverview = ({
 
       <VStack align="start" spacing={3} w="full">
         {staff?.map((person) => {
+          // tjek om viste person er den samme som aktuelle bruger
           const isSelf = user && person._id === user.id;
+          // canToggle = true -> hvis showToggleforcurrent.. aktiveret
+          // aktuelle bruger -> du må kun ændre egen status
+          // brugerens status er ledig/opt
           const canToggle =
             showToggleForCurrentUser &&
             isSelf &&
@@ -90,9 +97,14 @@ const StaffStatusOverview = ({
                   {person.status}
                 </Badge>
 
+                {/* SKIFT-STATUS BUTTON */}
+                {/* vises kun hvis det er dig selv, showToggleForCurrentUser er aktiv (fra patrent) */}
                 {canToggle && onToggleStatus && (
                   <ToggleStatusButton
+                    // Komponenten modtager currentstatus
                     currentStatus={person.status as "ledig" | "optaget"}
+                    // on-toggle callback, kaldes når trykkes
+                    // type-cast -> kan også være "ferie"
                     onToggle={() =>
                       onToggleStatus(person.status as "ledig" | "optaget")
                     }

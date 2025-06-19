@@ -1,6 +1,8 @@
 import { Button } from "@chakra-ui/react";
 import { FaCheck, FaTimes, FaCoffee } from "react-icons/fa";
 
+//toggleknap > forskellige farver/status afhængig af aktuelle status
+
 interface ToggleStatusButtonProps {
   currentStatus: "ledig" | "optaget" | "fri";
   onToggle: () => void;
@@ -8,8 +10,9 @@ interface ToggleStatusButtonProps {
 
 const ToggleStatusButton = ({
   currentStatus,
-  onToggle,
+  onToggle, //når bruger trykker på knappen
 }: ToggleStatusButtonProps) => {
+  // hvilket label og farve skal vises
   const getButtonConfig = () => {
     switch (currentStatus) {
       case "ledig":
@@ -23,6 +26,7 @@ const ToggleStatusButton = ({
     }
   };
 
+  // destruct/udtræk værdier fra getButtonConfig
   const { label, color } = getButtonConfig();
 
   return (
@@ -30,11 +34,12 @@ const ToggleStatusButton = ({
       size={{ base: "xs", md: "sm", lg: "md" }}
       fontSize={{ base: "xs", md: "sm" }}
       py={{ base: 4 }}
-      colorScheme={color}
+      colorScheme={color} //bruges her
       borderRadius="full"
       whiteSpace="nowrap"
       onClick={onToggle}
     >
+      {/* og her */}
       {label}
     </Button>
   );

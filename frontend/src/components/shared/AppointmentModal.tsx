@@ -13,19 +13,26 @@ import {
   Button,
 } from "@chakra-ui/react";
 import moment from "moment";
-import { IAppointment } from "@/types/appointment.types"; // tilpas hvis du bruger inline types
+import { IAppointment } from "@/types/appointment.types";
 
+// Detaljer om lægeaftale
+
+// Komponent modtager 3 props
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  appointment: IAppointment | null;
+  appointment: IAppointment | null; //objekt med info om bestemt aftale/null
 }
 
+// destruct direkte props i parameterlisten
+// vi forventer props af typen Props
 const AppointmentDetailsModal = ({ isOpen, onClose, appointment }: Props) => {
   if (!appointment) return null;
 
   return (
+    // parent bestemmer hvornår modal skal vises og med hvilkend data
     <Modal isOpen={isOpen} onClose={onClose} isCentered size="md">
+      {/* gråt lag i baggrunden */}
       <ModalOverlay />
       <ModalContent borderRadius="lg" p={2}>
         <ModalHeader textAlign="center">Aftaledetaljer</ModalHeader>

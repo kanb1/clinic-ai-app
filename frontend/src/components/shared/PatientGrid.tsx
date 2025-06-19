@@ -17,13 +17,19 @@ interface Props {
   patients: IUser[];
   isLoading: boolean;
   searchPlaceholder?: string;
+  // tekst til første knap
   primaryLabel: string;
+  // første knap
   onPrimaryAction: (patientId: string) => void;
+  //denne prop kan have responsivt values: fx {base: "100px", md:..}
   maxHeight?: string | ResponsiveValue<string>;
+  // anden knap
   onSecondaryAction?: (id: string) => void;
+  // tekst til anden knap
   secondaryLabel?: string;
 }
-
+// destruct direkte props i parameterlisten
+// vi forventer props af typen Propsx
 const PatientGrid = ({
   patients,
   isLoading,
@@ -33,18 +39,31 @@ const PatientGrid = ({
   onSecondaryAction,
   secondaryLabel,
 }: Props) => {
+  // søgeteksten
   const [searchTerm, setSearchTerm] = useState("");
+  // responsive grid-kolonner
   const gridColumns = useBreakpointValue({ base: 1, sm: 2, md: 3, xl: 5 });
-  // selvom der ingne kald til backend ville det være vigtigt at have det her i fremtiden
-  const sanitize = (input: string) => input.replace(/[<>]/g, ""); // fjern potentielt hacker-tegn
 
+  // selvom der ingne kald til backend ville det være vigtigt at have det her i fremtiden
+  //fjerner < > fra input
+  const sanitize = (input: string) => input.replace(/[<>]/g, "");
+
+  // filtrering ud fra søgning
+  // case-insensitive
+  // vis kun patienter hvis searchterm matcher
   const filtered = patients.filter((p) =>
     p.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  //bruger skriver > trigger onChange event fra et inputeleemnt
+  //får adgang til e.target.value via react.changeEvent..
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // e.target.value -> brugerens input
+    // trimstart fjern whtiespace i starten ved inputfeltet
+    // sanitize > fjern <> fra brugerinput
     const cleanValue = sanitize(e.target.value.trimStart());
-    setSearchTerm(cleanValue.slice(0, 100)); // fallback hvis maxLength ikke virker
+    // skær input til 100 -> fallback hvis maxLength ikke virker
+    setSearchTerm(cleanValue.slice(0, 100));
   };
 
   return (
@@ -57,6 +76,7 @@ const PatientGrid = ({
         mb={6}
       />
 
+      {/* Vis spinner ved loading / vis patientlisten */}
       {isLoading ? (
         <Spinner />
       ) : (
@@ -111,6 +131,7 @@ const PatientGrid = ({
                     py={2}
                     w="full"
                     maxW="16rem"
+                    // sender patientens id til funktionen
                     onClick={() => onPrimaryAction(p._id)}
                   >
                     {primaryLabel}
