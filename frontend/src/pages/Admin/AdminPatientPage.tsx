@@ -34,7 +34,10 @@ const AdminPatientPage = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedPatient, setSelectedPatient] = useState<IUser | null>(null);
 
+  // sendes som leastdescructiveRef prop i AlertDialog -> Accessibility-feature
+  // Chakra fokusere automatisk den knap vi sender ind som leastdestructiveRef () -> "Annuler"-button i alertdialog nederst
   const cancelRef = useRef(null);
+
   const {
     isOpen: isDeleteOpen,
     onOpen: onDeleteOpen,
@@ -182,6 +185,7 @@ const AdminPatientPage = () => {
 
       <AlertDialog
         isOpen={isDeleteOpen}
+        // cancelRef som vores accesbilityfeature
         leastDestructiveRef={cancelRef}
         onClose={onDeleteClose}
       >
@@ -197,6 +201,7 @@ const AdminPatientPage = () => {
             </AlertDialogBody>
 
             <AlertDialogFooter>
+              {/* Når dialog åbnes -> fokus på "Annuler" knap > forhindrer sletning ved fejl */}
               <Button ref={cancelRef} onClick={onDeleteClose}>
                 Annuller
               </Button>

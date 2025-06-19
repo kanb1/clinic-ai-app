@@ -29,16 +29,18 @@ import Layout from "@/components/layout/Layout";
 const AdminDoctorPage = () => {
   const { data: doctors = [], isLoading } = useAdminDoctors();
   const toast = useToast();
+  // bruger mutate til at sende ID
   const { mutate: deleteDoctor } = useDeleteDoctor();
   const gridColumns = useBreakpointValue({ base: 1, sm: 2, md: 3 });
   const [search, setSearch] = useState("");
   const [selectedDoctor, setSelectedDoctor] = useState<IUser | null>(null);
   const [doctorToDelete, setDoctorToDelete] = useState<IUser | null>(null);
 
+  // Chakras useDiscolsure hook til modal-styring:
   const {
-    isOpen: isEditOpen,
-    onOpen: onEditOpen,
-    onClose: onEditClose,
+    isOpen: isEditOpen, //boolean -> true hvis modal skal vises
+    onOpen: onEditOpen, //kalder isOpen = true
+    onClose: onEditClose, //kalder isOpen = false
   } = useDisclosure();
 
   const {
@@ -91,6 +93,8 @@ const AdminDoctorPage = () => {
     });
   };
 
+  // filtrer doctor efter søgefeltsinput
+  // søger både i navn og email
   const filteredDoctors = doctors.filter((doctor) =>
     `${doctor.name} ${doctor.email}`
       .toLowerCase()

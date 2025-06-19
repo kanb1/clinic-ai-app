@@ -29,16 +29,19 @@ const EditSecretaryModal = ({ isOpen, onClose, secretary }: Props) => {
   const toast = useToast();
   const { mutate: updateSecretary } = useUpdateSecretary();
 
+  // Gemmer redigerbare data
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
 
+  // Gemmer fejlmeddelelser til visning under inputfelter
   const [nameError, setNameError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [addressError, setAddressError] = useState("");
 
+  // udfylder formular med sekretærens data
   useEffect(() => {
     if (secretary) {
       setName(secretary.name || "");

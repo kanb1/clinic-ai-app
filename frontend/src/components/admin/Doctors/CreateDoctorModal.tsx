@@ -26,6 +26,8 @@ const AddDoctorModal = ({ isOpen, onClose }: Props) => {
   const toast = useToast();
   const { mutate: addDoctor, isPending } = useCreateDoctor();
 
+  // tilstand for formular og fejl
+  // holder værdierne brgueren srkiver
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -33,7 +35,7 @@ const AddDoctorModal = ({ isOpen, onClose }: Props) => {
     password: "",
   });
 
-  // errorestates:
+  // errorestates: viser valideringsfejl for hvert felt
   const [errors, setErrors] = useState({
     name: "",
     email: "",
@@ -114,6 +116,8 @@ const AddDoctorModal = ({ isOpen, onClose }: Props) => {
         <ModalCloseButton />
         <ModalBody>
           <VStack spacing={4} align="stretch">
+            {/* Hvert formcontrol har charas isInvalid-prop sat */}
+            {/* viser rød kant hjvis fejl */}
             <FormControl isInvalid={!!errors.name}>
               <FormLabel fontWeight="bold">Navn</FormLabel>
               <Input

@@ -28,14 +28,17 @@ const EditPatientModal = ({ isOpen, onClose, patient }: Props) => {
   const toast = useToast();
   const { mutate: updatePatient, isPending } = useUpdatePatient();
 
+  // Gemmer redigerbare data
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
 
+  // Gemmer fejlmeddelelser til visning under inputfelter
   const [errors, setErrors] = useState({
     email: "",
     phone: "",
   });
 
+  // udfylder formular med patientens data
   useEffect(() => {
     if (patient) {
       setEmail(patient.email || "");
