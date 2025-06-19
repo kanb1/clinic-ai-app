@@ -23,6 +23,7 @@ const Sidebar = () => {
       <VStack align="stretch" spacing={3}>
         {items.map((item) => (
           <Button
+            // unik identiifkation -> til mapping -> hvert element får et unikt key
             key={item.path}
             variant="ghost"
             justifyContent="flex-start"

@@ -31,6 +31,7 @@ const Navbar = () => {
   const paddingX = useBreakpointValue({ base: 4, md: 12 });
   const paddingY = useBreakpointValue({ base: 4, md: 6 });
 
+  // sidebarlinks > afhænger af brugerens rolle
   const sidebarLinks = user ? sidebarItems[user.role] : [];
 
   return (
