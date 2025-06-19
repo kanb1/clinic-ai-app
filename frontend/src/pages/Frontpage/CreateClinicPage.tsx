@@ -22,8 +22,29 @@ import { CloseIcon } from "@chakra-ui/icons";
 const CreateClinicPage = () => {
   const navigate = useNavigate();
   const toast = useToast();
-  const { user } = useAuth();
 
+  //****** */ DATA: bruger og klinik ******
+  //****** */ DATA: bruger og klinik ******
+  //****** */ DATA: bruger og klinik ******
+  const { user } = useAuth();
+  const {
+    //admins klinik hvis den findes
+    data: myClinic,
+    isLoading: isClinicLoading,
+    //refetchMyClinic() -> bruges efter oprettelse for at opdatere tilstand
+    refetch: refetchMyClinic,
+  } = useMyClinic();
+
+  // er brugeren admin? -> setIsAdminLoggedIn true -> bruges i rendering
+  useEffect(() => {
+    if (user?.role === "admin") {
+      setIsAdminLoggedIn(true);
+    }
+  }, [user]);
+
+  //****** */ STATES ******
+  //****** */ STATES ******
+  //****** */ STATES ******
   // login states
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,18 +60,9 @@ const CreateClinicPage = () => {
   const [nameError, setNameError] = useState("");
   const [addressError, setAddressError] = useState("");
 
-  const {
-    data: myClinic,
-    isLoading: isClinicLoading,
-    refetch: refetchMyClinic,
-  } = useMyClinic();
-
-  useEffect(() => {
-    if (user?.role === "admin") {
-      setIsAdminLoggedIn(true);
-    }
-  }, [user]);
-
+  //****** */ Login & Create clinic Hooks ******
+  //****** */ Login & Create clinic Hooks ******
+  //****** */ Login & Create clinic Hooks ******
   const {
     mutate: login,
     isPending: loginPending,
@@ -77,6 +89,9 @@ const CreateClinicPage = () => {
     isError: clinicError,
   } = useCreateClinic();
 
+  //****** */ Handle Login & Create Clinic ******
+  //****** */ Handle Login & Create Clinic ******
+  //****** */ Handle Login & Create Clinic ******
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError("");
@@ -101,25 +116,15 @@ const CreateClinicPage = () => {
       hasError = true;
     }
 
+    // hvis ingen fejl, kald createclinic() hook nedenunder
     if (hasError) return;
 
     createClinic(
       { name, address },
       {
         onSuccess: () => {
+          //sæt cliniccreated til true når det lykkedes
           setClinicCreated(true);
-          refetchMyClinic();
-        },
-      }
-    );
-
-    createClinic(
-      { name, address },
-
-      {
-        onSuccess: () => {
-          setClinicCreated(true);
-
           refetchMyClinic();
         },
       }
@@ -131,11 +136,13 @@ const CreateClinicPage = () => {
   }
 
   return (
+    // 4 CASES: dårlig rækkefølge..
+    // 1: Logget ind? -> Vis loginform, 2: Succes-oprettelse, 3: Har allerede klinik, 4: Opret klinik
     <Box maxW="md" mx="auto" mt={10} px={{ base: 8, lg: 0 }}>
+      {/* Admin er ikke logget ind? */}
       {!isAdminLoggedIn ? (
         <>
           {/* vis loginform */}
-
           <Heading size="heading1">Admin login</Heading>
           <Text
             size="body"
@@ -144,6 +151,7 @@ const CreateClinicPage = () => {
           >
             Du skal være logget ind som en admin for at udføre denne handling.
           </Text>
+          {/* Når bruger submitter -> giver pass og email som values -> videre til hook og backend */}
           <form onSubmit={handleLogin}>
             <Stack spacing={6} mt={{ base: 4 }}>
               <FormControl isRequired>

@@ -67,6 +67,7 @@ const PatientLoginPage = () => {
         Indtast venligst dine loginoplysninger.
       </Text>
 
+      {/* Når "submit" -> email og pass sættes og handleSubmit kaldes -> sætter data for em/pass */}
       <form onSubmit={handleSubmit}>
         <Stack spacing={6}>
           <FormControl isRequired>
