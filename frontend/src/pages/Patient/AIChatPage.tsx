@@ -85,13 +85,18 @@ const AIChatPage = () => {
     const userMessage = message.trim();
 
     sendChatMessage(
+      // payload -> objekt der sendes med post
       { message: userMessage },
       {
+        // data er serverens JSON-svar (reply)
         onSuccess: (data) => {
           setChatHistory((prev) => [
             ...prev,
+            // tilføjer et nyt element til chatHistory
+            // består af user: besked brugeren skrive, og aisvar
             { user: userMessage, ai: data.reply },
           ]);
+          // ryd inputfeltet efter
           setMessage("");
         },
         onError: () => {
@@ -113,6 +118,7 @@ const AIChatPage = () => {
       const introMessage =
         "Hej! Hvordan har du det i dag? Del gerne dine symptomer eller bekymringer – så hjælper jeg dig med at forberede dig til din aftale.";
 
+      // user er "" -> ingen brugermeddelelser -> kun ai taler
       setChatHistory([{ user: "", ai: introMessage }]);
     }
   }, []);

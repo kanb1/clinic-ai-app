@@ -2,6 +2,8 @@ import { Text } from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
 
 // Typing dots while AI is writing, animation
+
+// blinkende prikker -> fra lav gennemsigtighed til helt synlig og tilbage til lav
 const blink = keyframes`
   0% { opacity: 0.2 }
   20% { opacity: 1 }

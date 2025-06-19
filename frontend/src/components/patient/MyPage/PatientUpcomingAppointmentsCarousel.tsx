@@ -34,8 +34,10 @@ const PatientUpcomingAppointmentsCarousel = ({
   isLoading,
   refetch,
 }: Props) => {
+  // hvilken aftale vises i carousel (kun på mobile)
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [direction, setDirection] = useState(1); // 1 = next, -1 = previous
+  // 1 = next, -1 = previous
+  const [direction, setDirection] = useState(1);
   const isMobile = useBreakpointValue({ base: true, lg: false });
 
   const { mutate: confirm } = useConfirmAppointment();
@@ -43,6 +45,8 @@ const PatientUpcomingAppointmentsCarousel = ({
   const toast = useToast();
 
   const [isAlertOpen, setIsAlertOpen] = useState(false);
+  // Accessibility: leastDestructiveRef til “Nej”-knappen, så man ikke ved et uheld sletter (fx ved at klikke "enter")
+  // der kommer fokus på annuler knap i alertdialog
   const cancelRef = useRef<HTMLButtonElement | null>(null);
 
   const handleNext = () => {
@@ -99,11 +103,15 @@ const PatientUpcomingAppointmentsCarousel = ({
           <Box position="relative" w="100%" minH="220px" overflow="hidden">
             <AnimatePresence>
               <MotionBox
+                // når vi ædnrer curentIndex -> key ændres
+                // Framer Motion trigger en exit-animation for det gamle kort og et enter for det nye
                 key={currentIndex}
                 position="absolute"
                 w="full"
                 initial={{ x: direction > 0 ? 300 : -300, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
+                // x: 300: kort starter udenfor skræm til højre
+                // x: -300 starter udenfor venstre
                 exit={{ x: direction > 0 ? -300 : 300, opacity: 0 }}
                 transition={{ duration: 0.3 }}
                 bg="gray.100"
@@ -215,6 +223,7 @@ const PatientUpcomingAppointmentsCarousel = ({
             </AlertDialogBody>
 
             <AlertDialogFooter>
+              {/* ref:{cancelRef} - ekstra Accessibility, fokus på denne knap */}
               <Button ref={cancelRef} onClick={() => setIsAlertOpen(false)}>
                 Nej
               </Button>

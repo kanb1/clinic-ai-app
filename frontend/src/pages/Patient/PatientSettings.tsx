@@ -102,6 +102,7 @@ const PatientSettings = () => {
         <EditPatientInfoModal
           isOpen={isOpen}
           onClose={onClose}
+          //pre-udfylder felterne med patientens data
           initialEmail={user?.email || ""}
           initialPhone={user?.phone}
         />

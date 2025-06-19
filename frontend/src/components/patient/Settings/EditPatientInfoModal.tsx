@@ -36,10 +36,12 @@ const EditPatientInfoModal = ({ isOpen, onClose }: Props) => {
 
   const { mutate: updateProfile, isPending } = useUpdateMyProfile();
 
+  // pre-udfylder felterne med patientens data
   useEffect(() => {
     setEmail(user?.email || "");
     setPhone(user?.phone || "");
     setErrors({ email: "", phone: "" });
+    // (når user-data (fx ny patient) ændres og ved åbning)
   }, [user, isOpen]);
 
   const validateForm = () => {

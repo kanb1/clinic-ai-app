@@ -10,6 +10,7 @@ interface ChatBoxProps {
   chatHistory: ChatMessage[];
 }
 
+// chathistory som prop -> liste af chatmessage fra parent: AIChatPage
 const ChatBox = ({ chatHistory }: ChatBoxProps) => {
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
@@ -28,7 +29,10 @@ const ChatBox = ({ chatHistory }: ChatBoxProps) => {
       bg="white"
       boxShadow="sm"
     >
+      {/* går igennem hver besked i chatHistory */}
       {chatHistory.map((msg, i) => (
+        // vertial stak af elementer med spacing: bruger + ai-svar
+        // i er hver telement i chatHistory
         <VStack key={i} spacing={3} align="stretch" mb={2}>
           {/* Brugerens spg */}
           <Box
