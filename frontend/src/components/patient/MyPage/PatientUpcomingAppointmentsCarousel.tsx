@@ -20,6 +20,7 @@ import { useRef, useState } from "react";
 import { IAppointment } from "@/types/appointment.types";
 import { useConfirmAppointment } from "@/hooks/patient/mypageHooks/useConfirmAppointment";
 import { useCancelAppointment } from "@/hooks/patient/mypageHooks/useCancelAppointment";
+import { MdCalendarToday } from "react-icons/md";
 
 const MotionBox = motion(Box);
 
@@ -119,15 +120,26 @@ const PatientUpcomingAppointmentsCarousel = ({
                 borderRadius="md"
                 boxShadow="sm"
               >
+                {/* // FORBEDRING: VIS DATO PÅ APPT - Mobile */}
+                <Flex align="center" gap={2}>
+                  {/* as -> cal icon */}
+                  <Box as={MdCalendarToday} color="gray.500" />
+                  <Text fontWeight="semibold" fontSize="sm" color="gray.600">
+                    {new Date(current.date).toLocaleDateString("da-DK", {
+                      weekday: "long", // onsdag (i stedet for ons.)
+                      day: "numeric", // 25
+                      month: "long", // juni (i stedet for 06)
+                      year: "numeric", // 2025
+                    })}
+                  </Text>
+                </Flex>
                 <Text fontWeight="bold">
                   {current.time} – {current.end_time || "?"}
                 </Text>
                 <Text fontSize="sm">{current.doctor_id?.name}</Text>
-                <Text fontSize="sm" color="gray.500">
-                  Status: {current.status}
-                </Text>
+
                 <Badge mt={2} colorScheme="blue">
-                  {current.status.toUpperCase()}
+                  Status: {current.status.toUpperCase()}
                 </Badge>
 
                 <Flex gap={3} mt={4} flexWrap="wrap">
@@ -169,15 +181,25 @@ const PatientUpcomingAppointmentsCarousel = ({
               borderRadius="md"
               boxShadow="sm"
             >
+              {/* // FORBEDRING: VIS DATO PÅ APPT - Desktop */}
+              <Flex align="center" gap={2}>
+                <Box as={MdCalendarToday} color="gray.500" />
+                <Text fontWeight="semibold" fontSize="sm" color="gray.600">
+                  {new Date(appt.date).toLocaleDateString("da-DK", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </Text>
+              </Flex>
               <Text fontWeight="bold">
                 {appt.time} – {appt.end_time || "?"}
               </Text>
               <Text fontSize="sm">{appt.doctor_id?.name}</Text>
-              <Text fontSize="sm" color="gray.500">
-                Status: {appt.status}
-              </Text>
+
               <Badge mt={2} colorScheme="blue">
-                {appt.status.toUpperCase()}
+                Status: {appt.status.toUpperCase()}
               </Badge>
 
               <Flex gap={3} mt={3} flexWrap="wrap">
