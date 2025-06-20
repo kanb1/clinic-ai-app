@@ -207,7 +207,7 @@ const TodaysAppointmentsTable = () => {
                       rounded="2xl"
                       px={4}
                       py={2}
-                      w="full"
+                      mx="auto" //FORBEDRING - centrerer
                       maxW="10rem"
                       onClick={() => {
                         setSelectedSymptoms(appt.symptoms);
@@ -227,7 +227,7 @@ const TodaysAppointmentsTable = () => {
                       rounded="2xl"
                       px={4}
                       py={2}
-                      w="full"
+                      mx="auto" //FORBEDRING - centrerer
                       maxW="10rem"
                       onClick={() =>
                         navigate(`/doctor/patient-journal?id=${appt.patientId}`)
