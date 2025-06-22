@@ -166,6 +166,7 @@ const PatientJournalPage = () => {
                 },
               }}
             >
+              {/* FORBEDRINGER - Sender onviewjou/oncreateno som props - styrer modaler kun i parent (her) */}
               <VStack spacing={4} align="stretch">
                 {/* data: mapper liste med patientens tidligere aftaler */}
                 {data.map((appt) => (

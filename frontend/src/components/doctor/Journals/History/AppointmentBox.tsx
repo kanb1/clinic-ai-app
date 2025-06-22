@@ -11,8 +11,10 @@ interface AppointmentBoxProps {
 }
 
 // appt: aftaleobjekt med date, time, entries[entry1, entry2 ] osv
-// journalid: bruges hvis nyt notat oprettes
-// gives fra parent og bruges efter oprettelse til ny hetnning af data
+
+{
+  /* FORBEDRINGER - onViewJournal, onCreateNote (modaler styres i parent nu) */
+}
 const AppointmentBox = ({
   appt,
   onViewJournal,
