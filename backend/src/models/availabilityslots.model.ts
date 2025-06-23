@@ -35,8 +35,9 @@ const AvailabilitySlotSchema: Schema = new Schema(
 //  Der må aldrig være to slots med samme læge, samme dato og samme starttid
 // MongoDB returnere en E11000 duplicate key error
 AvailabilitySlotSchema.index(
+  //sammensat index, stigende > Men vigtigst er felterne der med > kombi må kun forekomme 1 gang
   { doctor_id: 1, date: 1, start_time: 1 },
-  { unique: true }
+  { unique: true } //afviser dupletter
 );
 
 export const AvailabilitySlotModel = mongoose.model<IAvailabilitySlot>(

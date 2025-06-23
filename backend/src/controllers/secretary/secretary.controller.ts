@@ -491,24 +491,34 @@ export const checkAndSeedSlots = async (req: Request, res: Response) => {
       for (const doctor of doctors) {
         //filtrerer existingSlots (alle eksisterende tider for de næste 21 dage)
         // Hvor mange tider findes der i forvejen i db for denne læge på denne dato? -> vi vil se om vi skal seede
-        const slotCount = existingSlots.filter(
-          (s) =>
-            // Er denne tid til den læge, vi kigger på nu?
-            // laves om til strings -> kan ellers ik sammenlgien to objectId'er
-            s.doctor_id.toString() === doctor._id.toString() &&
-            // dato for denne slot -> samme som den dag vi prøver at seede for?
-            // s.date -> js Date-objekt -> laves om til toISOString
-            //  split... -> kun få dato-delen
-            // Og er det på den dag, vi kigger på nu?
-            s.date.toISOString().split("T")[0] === isoDate
+        const slotCount = existingSlots
+          .filter(
+            (s) =>
+              // Er denne tid til den læge, vi kigger på nu?
+              // laves om til strings -> kan ellers ik sammenlgien to objectId'er
+              s.doctor_id.toString() === doctor._id.toString() &&
+              // dato for denne slot -> samme som den dag vi prøver at seede for?
+              // s.date -> js Date-objekt -> laves om til toISOString
+              //  split... -> kun få dato-delen
+              // Og er det på den dag, vi kigger på nu?
+              s.date.toISOString().split("T")[0] === isoDate
 
-          //hvis begge er sande, tæller vi slotten med i slotcount
-        ).length;
+            //hvis begge er sande, tæller vi slotten med i slotcount
+            // FORBEDRINGER:
+            // Ingen map og filter før --> Dupletter blev også talt med
+          )
+          .map((s) => s.start_time) //træk kun tidspunktet (fx "09:00") ud
+          .filter((v, i, a) => a.indexOf(v) === i).length; //fjerner dubletter (så vi kun tæller unikke klokkeslæt)
+        // .length;
         // ^efter filter -> array med slotCount
         // slotCount = hvor mange eksisterende tider lægen allerede har den dag
 
+        // FORBEDRINGER: Brguer generateTimeSlots().length i stedet for hardcoded 10
+        const expectedSlots = generateTimeSlots().length;
         // ingen overseed -> hvis allerede 10 eller flere, spring næste loop over
-        if (slotCount >= 10) continue;
+        if (slotCount >= expectedSlots) {
+          continue;
+        }
 
         // generateTimeSlots -> util funktion der opretter timeslots -> array af tidspunkter -> hiv start og end ud af disse
         for (const { start, end } of generateTimeSlots()) {
