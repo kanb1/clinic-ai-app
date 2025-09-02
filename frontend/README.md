@@ -1,54 +1,122 @@
-# React + TypeScript + Vite
+# Klinika – Digital Clinic System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A fullstack **clinic management system** built as part of my bachelor’s thesis at KEA.  
+The platform supports different user roles (admin, doctor, secretary, patient) and combines **administrative workflows** with an **AI assistant** for patient preparation.
 
-Currently, two official plugins are available:
+👉 **Live demo (Frontend)**: https://clinic-ai-app.vercel.app/
+ℹ️ Use one of the [demo accounts](#demo-accounts) to log in.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## Why Klinika?
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+The project explores how **AI can supplement, not replace, human interaction** in a healthcare setting.  
+Patients are supported with an AI chatbot that helps them describe their symptoms in a structured way. Doctors then use these AI-generated notes as a supplement during the consultation — improving efficiency without losing the human touch.
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Features
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- **AI integration**:
+  - Patients can chat with an AI assistant before an appointment to describe symptoms.
+  - AI-generated notes are saved in the patient’s record and visible to the doctor.
+  - Doctors can add their own notes alongside AI suggestions, ensuring human oversight.
+- **Role-based access control (RBAC)** with JWT authentication
+- **Admin**: manage clinic, doctors, secretaries, and patients
+- **Secretary**: handle bookings, availability, and patient messaging
+- **Doctor**: see today’s appointments, view patient history, add notes, prescriptions & test results
+- **Patient**: book appointments, chat with AI assistant, view profile & prescriptions
+- **Messaging system** (secretary/admin ↔ patients)
+- **Calendar system** with availability slots, booking flow, and appointment confirmation/cancellation
+- **Security measures**:
+  - Input validation (manual + backend)
+  - JWT with jti to prevent replay attacks
+  - Password hashing (bcrypt pre-save middleware)
+  - Helmet, CORS, HTTPS
+  - Rate limiting
+  - Dependabot for dependency security
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+---
+
+## Tech Stack
+
+**Frontend**
+
+- React (TypeScript)
+- Chakra UI
+- React Query (TanStack)
+- React Router
+
+**Backend**
+
+- Node.js + Express (TypeScript)
+- MongoDB + Mongoose
+- JWT + bcrypt
+
+**AI Integration**
+
+- OpenAI API for chatbot & note generation
+- Integration designed to support — not replace — the doctor–patient relationship
+
+**DevOps & Security**
+
+- Helmet, CORS, HTTPS
+- Jest + Supertest (integration tests)
+- Dependabot
+
+**Deployment**
+
+- Frontend: Vercel
+- Backend: Render
+- Database: MongoDB Atlas
+
+---
+
+## How to Run Locally
+
+### 1. Clone repo
+
+git clone https://github.com/kanb1/klinika.git
+cd klinika
+
+### 2. Setup Backend
+
+cd backend
+npm install
+npm run dev
+
+Runs on http://localhost:5000
+
+### 3. Setup Frontend
+
+cd frontend
+npm install
+npm run dev
+
+Runs on http://localhost:5173
+
+### 4. Demo Accounts
+
+Seeded users for quick testing:
+
+Admin: admin@test.dk
+/ Strong@123!
+
+Doctor: doc@test.dk
+/ Strong@123!
+
+Secretary: sek@test.dk
+/ Strong@123!
+
+Patient: kanza@test.dk
+/ Strong@123!
+
+### What I Learned:
+
+- Designing and implementing a **role-based system** (RBAC) with multiple user types
+- Integrating **AI (OpenAI API)** to support patient–doctor workflows
+- Building a **secure fullstack app** with JWT, hashing, Helmet, CORS, rate limiting
+- Writing **integration tests** with Jest & Supertest
+- Creating a responsive UI with Chakra UI and reusable components
+- Structuring backend with controllers, middleware, and clean route organization
+- Deploying a fullstack app (Vercel + Render + MongoDB Atlas)
