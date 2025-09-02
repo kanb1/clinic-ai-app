@@ -4,7 +4,7 @@ A fullstack **clinic management system** built as part of my bachelor’s thesis
 The platform supports different user roles (admin, doctor, secretary, patient) and combines **administrative workflows** with an **AI assistant** for patient preparation.
 
 👉 **Live demo (Frontend)**: https://clinic-ai-app.vercel.app/
-ℹ️ Use one of the [demo accounts](#demo-accounts) to log in.
+ℹ️ Use one of the [demo accounts](#4-demo-accounts) to log in.
 
 ---
 
